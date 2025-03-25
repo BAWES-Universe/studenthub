@@ -5,26 +5,61 @@ use common\models\Webhook;
 use Segment\Segment;
 use Yii;
 use yii\base\Component;
-use yii\base\InvalidConfigException;
 use Aws\Sqs\SqsClient;
 use Aws\Exception\AwsException;
 use yii\httpclient\Client;
 
 class EventManager extends Component
 {
+    /**
+     * @var string Mixpanel key
+     */
 	private $_client;
+
+    /**
+     * @var string Mixpanel key for BAWES project
+     */
+    private $_walletClient;
+
+    /**
+     * @var string Mixpanel key for BAWES project
+     */
     private $_sqsClient;
 
+    /**
+     * @var string AWS SQS Region
+     */
     public $sqsRagion;
+
+    /**
+     * @var string AWS SQS key
+     */
     public $sqsKey;
+
+    /**
+     * @var string AWS SQS secret
+     */
     public $sqsSecret;
+
+    /**
+     * @var string AWS SQS queue
+     */
     public $sqsQueue;
+
+    /**
+     * @var string AWS SQS endpoint
+     */
     public $sqsEndpoint;
 
 	/**
      * @var string Mixpanel key
      */
     public $key;
+
+    /**
+     * @var string | null Mixpanel key for BAWES project
+     */
+    public $walletMixpanelKey;
 
     /**
      * @var string | null Mixpanel status
@@ -51,6 +86,13 @@ class EventManager extends Component
      */
     private $segmentIdentify;
 
+    /**
+     * @var array Wallet events
+     */
+    public $walletEvents = [
+        "Candidate Transfer Paid"
+    ];
+
      /**
      * @inheritdoc
      */
@@ -76,11 +118,17 @@ class EventManager extends Component
 
             if (YII_ENV == 'prod') {
                 $this->key = Yii::$app->config->get('Mixpanel-Key');
+                $this->walletMixpanelKey = Yii::$app->config->get('Mixpanel-Key-Wallet');
             } else {
                 $this->key = Yii::$app->config->get('Test-Mixpanel-Key');
+                $this->walletMixpanelKey = Yii::$app->config->get('Test-Mixpanel-Key-Wallet');
             }
 
             $this->_client = \Mixpanel::getInstance($this->key);
+
+            if ($this->walletMixpanelKey) {
+                $this->_walletClient = \Mixpanel::getInstance($this->walletMixpanelKey);
+            }
         }
 
         if($this->segmentStatus) {
@@ -111,6 +159,9 @@ class EventManager extends Component
         }
     }
 
+    /**
+     * init segment for tracking/event management
+     */
     public function initSegment($key) {
 
         $this->segmentKey = $key;
@@ -134,6 +185,11 @@ class EventManager extends Component
             $this->_client->people->set($id, $data, $ip, $ignore_time = false);
         }
 
+        if ($this->_walletClient) {
+            $this->_walletClient->identify($id);
+            $this->_walletClient->people->set($id, $data, $ip, $ignore_time = false);
+        }
+
         if($this->segmentKey) {
             Segment::identify([
                 "userId" => $id,
@@ -147,7 +203,7 @@ class EventManager extends Component
     /**
      * register event 
      */
-    public function track($event, $eventData, $timestamp = null, $userId = null)
+    public function track($event, $eventData, $timestamp = null, $userId = null, $onlyWallet = false)
     {
         $distinctID = null;
 
@@ -202,6 +258,7 @@ class EventManager extends Component
                 $mixpanelData =  array_merge([
                     "\$time" => strtotime($timestamp),
                     "\$created" => $timestamp,
+                    "time" => strtotime($timestamp),
                 ], $eventData);
             }
 
@@ -228,6 +285,15 @@ class EventManager extends Component
             if($userId)
                 $mixpanelData['$distinct_id'] = $userId;
 
+            //if wallet event, send to wallet/ main project
+            if ($this->_walletClient && in_array($event, $this->walletEvents)) {
+
+                $this->_walletClient->track("Revenue", $mixpanelData);
+                $this->_walletClient->flush();
+
+                if ($onlyWallet)
+                    return true;
+            }
 
             $this->_client->track($event, $mixpanelData);
 
@@ -323,6 +389,9 @@ class EventManager extends Component
         }
     }
 
+    /**
+     * API call for webhook
+     */
     public function call($method, $url, $data = []) {
         $client = new Client();
 
@@ -339,6 +408,9 @@ class EventManager extends Component
             ->send();
     }
 
+    /**
+     * flush events
+     */
     public function flush()
     {
         if($this->segmentKey)

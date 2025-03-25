@@ -2,6 +2,7 @@
 
 namespace console\controllers;
 
+use admin\models\TransferCandidate;
 use common\models\Company;
 use common\models\Staff;
 use common\models\Story;
@@ -190,6 +191,58 @@ class EventController extends \yii\console\Controller {
         Yii::$app->eventManager->flush();
     }
 
+    /**
+     * sync suggestion with mixpanel BAWES project
+     * e.g., ./yii event/emulate --event "Candidate Transfer Paid"
+     */
+    public function syncCandidateTransferPaid() {
+
+        $query = TransferCandidate::find()
+            ->joinWith(['candidate'])
+            ->andWhere(new Expression('`tc_updated_at` > (NOW() - INTERVAL 1 YEAR)'));
+
+        $count = 0;
+
+        $total = $query->count();
+
+        Console::startProgress(0, $total);
+
+        foreach($query->batch(100) as $tcs) {
+
+            foreach ($tcs as $tc) {
+
+                $datetime = $tc->tc_updated_at?
+                    new \DateTime($tc->tc_updated_at): new \DateTime($tc->tc_created_at);
+
+                $name = !empty($tc->candidate->candidate_name) ?
+                    $tc->candidate->candidate_name: $tc->candidate->candidate_name_ar;
+
+                Yii::$app->eventManager->track(
+                    'Candidate Transfer Paid',
+                    [
+                        "candidate_id" => $tc->candidate_id,
+                        "currency" => $tc->candidate_id,// "KWD",
+                        "name" => $name,
+                        "revenue" => $tc->getProfit(),
+                        "tc_id" => $tc->tc_id,
+                        "transfer_id" => $tc->transfer_id,
+                    ],
+                    $datetime->format('c'),
+                    null,
+                    true
+                );
+
+                $count ++;
+                Console::updateProgress($count, $total);
+
+               // print_r($mixpanelData);
+                die();
+            }
+        }
+
+        Yii::$app->eventManager->flush();
+    }
+
     public function syncCompanyProfileUpdated() {
 
         $query = Company::find()
@@ -245,6 +298,9 @@ class EventController extends \yii\console\Controller {
                 break;
             case "Company Profile Updated":
                 $this->syncCompanyProfileUpdated();
+                break;
+            case "Candidate Transfer Paid":
+                $this->syncCandidateTransferPaid();
                 break;
             default:
                 $this->stdout("Missing event name \n", Console::FG_RED, Console::BOLD);
