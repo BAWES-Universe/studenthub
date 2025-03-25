@@ -43,7 +43,8 @@ class m240604_140119_education extends Migration
             }
 
             Yii::$app->db->createCommand()->batchInsert('candidate_education',
-                ['education_uuid', 'candidate_id', "university_id", 'created_at', "updated_at"], $educations)->execute();
+                ['education_uuid', 'candidate_id', "university_id", 'created_at', "updated_at"],
+                $educations)->execute();
 
             $educations = [];
         }

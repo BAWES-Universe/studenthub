@@ -1243,7 +1243,52 @@ class CronController extends \yii\console\Controller {
             }
         }
     }
+
+    /**
+     * @return void
+     * @throws \yii\db\Exception
+     */
+    public function actionFixEducation()
+    {
+        $query = Candidate::find()
+            ->andWhere(new \yii\db\Expression("
+                candidate.university_id IS NOT NULL AND 
+                candidate_education.education_uuid IS NULL"))
+            ->joinWith(['candidateEducations'])
+            ->andWhere(['candidate.deleted' => 0]);
+
+        $count = 0;
+
+        $total = $query->count();
+
+        Console::startProgress(0, $total);
+
+        $educations = [];
+
+        foreach ($query->batch(100) as $candidates) {
+            foreach ($candidates as $candidate) {
+
+                $count++;
+                Console::updateProgress($count, $total);
+
+                $educations[] = [
+                    "education_uuid" => 'education_u'.$count,
+                    "candidate_id" => $candidate->candidate_id,
+                    "university_id" => $candidate->university_id,
+                    "created_at" => new \yii\db\Expression("NOW()"),
+                    "updated_at" => new \yii\db\Expression("NOW()")
+                ];
+            }
+
+            Yii::$app->db->createCommand()->batchInsert('candidate_education',
+                ['education_uuid', 'candidate_id', "university_id", 'created_at', "updated_at"],
+                $educations)->execute();
+
+            $educations = [];
+        }
+    }
 }
+
 
 
 
