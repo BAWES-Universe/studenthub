@@ -367,6 +367,16 @@ class Company extends \yii\db\ActiveRecord
     public function getAverageHireRate(): float
     {
         return self::getDb()->cache(function($db) {
+
+            $totalSuggestion = Suggestion::find()
+                ->joinWith(['request'])
+                ->andWhere(["request.company_id" => $this->company_id])
+                ->count();
+
+            if ($totalSuggestion == 0)  {
+                return 0;
+            }
+
             $totalContract = Contract::find()
                 ->select("contract_uuid")
                 ->andWhere([
@@ -374,11 +384,6 @@ class Company extends \yii\db\ActiveRecord
                     ["company_id" => $this->company_id],
                     ["parent_company_id" => $this->company_id],
                 ])
-                ->count();
-
-            $totalSuggestion = Suggestion::find()
-                ->joinWith(['request'])
-                ->andWhere(["request.company_id" => $this->company_id])
                 ->count();
 
             return round(100 * $totalContract / $totalSuggestion, 2);
@@ -401,6 +406,7 @@ class Company extends \yii\db\ActiveRecord
             return (float) HourlyContract::find()
                 ->andWhere(["IN", "contract_uuid", $contractQuery])
                 ->average("company_hourly_rate");
+
         }, $this->_cacheDuration);//$cacheDependency
     }
 
