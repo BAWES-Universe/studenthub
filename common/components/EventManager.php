@@ -258,7 +258,7 @@ class EventManager extends Component
                 $mixpanelData =  array_merge([
                     "\$time" => strtotime($timestamp),
                     "\$created" => $timestamp,
-                    "time" => strtotime($timestamp),
+                    //"time" => strtotime($timestamp),
                 ], $eventData);
             }
 
