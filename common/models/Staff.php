@@ -1003,7 +1003,7 @@ class Staff extends ActiveRecord implements IdentityInterface
         $token->token_value = StaffToken::generateUniqueTokenString();
         $token->token_status = $type;
         $token->token_device = $device;
-        $token->token_device_id = $detect->getUserAgent();
+        $token->token_device_id = mb_strimwidth( $detect->getUserAgent(), 0, 250, "...");
         $token->token_expiry_datetime = date('Y-m-d H:i:s', strtotime("+1 month"));
        // $token->ip_address = isset(Yii::$app->params['user_ip_address']) ?
        //     Yii::$app->params['user_ip_address']: Yii::$app->request->getRemoteIP();
