@@ -77,6 +77,10 @@ class SettingController extends Controller
     {
         $mixpanel = Yii::$app->request->getBodyParam('Mixpanel-Key');
         $testMixpanel = Yii::$app->request->getBodyParam('Test-Mixpanel-Key');
+
+        $mixpanelWallet = Yii::$app->request->getBodyParam('Mixpanel-Key-Wallet');
+        $testMixpanelWallet = Yii::$app->request->getBodyParam('Test-Mixpanel-Key-Wallet');
+
         $mixpanelStatus = Yii::$app->request->getBodyParam('Mixpanel-Status');
 
         $testSegment = Yii::$app->request->getBodyParam('Test-Segment-Key');
@@ -85,15 +89,65 @@ class SettingController extends Controller
         $segmentWallet = Yii::$app->request->getBodyParam('Segment-Key-Wallet');
         $segmentStatus = Yii::$app->request->getBodyParam('Segment-Status');
 
-        Setting::setConfig('EventManager', 'Mixpanel-Status', $mixpanelStatus? "enabled": null);
-        Setting::setConfig('EventManager', 'Mixpanel-Key', $mixpanel);
-        Setting::setConfig('EventManager', 'Test-Mixpanel-Key', $testMixpanel);
+        $result = Setting::setConfig('EventManager', 'Mixpanel-Status', $mixpanelStatus? "enabled": null);
 
-        Setting::setConfig('EventManager', 'Segment-Status', $segmentStatus? "enabled": null);
-        Setting::setConfig('EventManager', 'Segment-Key', $segment);
-        Setting::setConfig('EventManager', 'Segment-Key-Wallet', $segmentWallet);
-        Setting::setConfig('EventManager', 'Test-Segment-Key', $testSegment);
-        Setting::setConfig('EventManager', 'Test-Segment-Key-Wallet', $testSegmentWallet);
+        if ($result['operation'] === 'error') {
+            return $result;
+        }
+
+        $result = Setting::setConfig('EventManager', 'Mixpanel-Key', $mixpanel);
+
+        if ($result['operation'] === 'error') {
+            return $result;
+        }
+
+        $result = Setting::setConfig('EventManager', 'Test-Mixpanel-Key', $testMixpanel);
+
+        if ($result['operation'] === 'error') {
+            return $result;
+        }
+
+        $result = Setting::setConfig('EventManager', 'Mixpanel-Key-Wallet', $mixpanelWallet);
+
+        if ($result['operation'] === 'error') {
+            return $result;
+        }
+
+        $result = Setting::setConfig('EventManager', 'Test-Mixpanel-Key-Wallet', $testMixpanelWallet);
+
+        if ($result['operation'] === 'error') {
+            return $result;
+        }
+
+        $result = Setting::setConfig('EventManager', 'Segment-Status', $segmentStatus? "enabled": null);
+
+        if ($result['operation'] === 'error') {
+            return $result;
+        }
+
+        $result = Setting::setConfig('EventManager', 'Segment-Key', $segment);
+
+        if ($result['operation'] === 'error') {
+            return $result;
+        }
+
+        $result = Setting::setConfig('EventManager', 'Segment-Key-Wallet', $segmentWallet);
+
+        if ($result['operation'] === 'error') {
+            return $result;
+        }
+
+        $result = Setting::setConfig('EventManager', 'Test-Segment-Key', $testSegment);
+
+        if ($result['operation'] === 'error') {
+            return $result;
+        }
+
+        $result = Setting::setConfig('EventManager', 'Test-Segment-Key-Wallet', $testSegmentWallet);
+
+        if ($result['operation'] == 'error') {
+            return $result;
+        }
 
         return [
             "operation" => "success",

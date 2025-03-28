@@ -152,6 +152,17 @@ class Setting extends \yii\db\ActiveRecord
         }
 
         $model->value = $value;
-        $model->save();
+
+        if (!$model->save()) {
+            return [
+                "operation" => "error",
+                "message" => $model->getErrors()
+            ];
+        }
+
+        return [
+            "operation" => "success",
+            "message" => 'Settings updated successfully'
+        ];
     }
 }
