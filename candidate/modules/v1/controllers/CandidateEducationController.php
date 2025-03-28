@@ -188,18 +188,20 @@ class CandidateEducationController extends Controller
             $model->graduation_year = !empty($candidateEducation['graduation_year'])? $candidateEducation['graduation_year']: null;
             $model->is_currently_studying = (int)$candidateEducation['is_currently_studying'];
 
-            if (
-                $candidateEducation['graduation_year'] &&
-                (int) $candidateEducation['graduation_year'] > (int) date('Y')
-            ) {
-                $model->is_currently_studying = 1;
-            }
+            if (isset($candidateEducation['graduation_year'])) {
+                if (
+                    $candidateEducation['graduation_year'] &&
+                    (int)$candidateEducation['graduation_year'] > (int)date('Y')
+                ) {
+                    $model->is_currently_studying = 1;
+                }
 
-            if (
-                $candidateEducation['graduation_year'] &&
-                (int) $candidateEducation['graduation_year'] < (int) date('Y')
-            ) {
-                $model->is_currently_studying = 0;
+                if (
+                    $candidateEducation['graduation_year'] &&
+                    (int)$candidateEducation['graduation_year'] < (int)date('Y')
+                ) {
+                    $model->is_currently_studying = 0;
+                }
             }
 
             if (!$model->save()) {
