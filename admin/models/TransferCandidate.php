@@ -198,13 +198,15 @@ class TransferCandidate extends \common\models\TransferCandidate
 
         if($updateTransferStatus) {
 
-            $response = Transfer::markTransferCompleteOnCandidatePaid($transferCandidate->transfer_id);
+            //optional
+            Transfer::markTransferCompleteOnCandidatePaid($transferCandidate->transfer_id);
 
+            /*$response =
             if($response['operation'] == 'error') {
                 $transaction->rollBack();
 
                 return $response;
-            }
+            }*/
         }
 
         if(YII_ENV == 'prod') {
