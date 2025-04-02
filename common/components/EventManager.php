@@ -90,7 +90,8 @@ class EventManager extends Component
      * @var array Wallet events
      */
     public $walletEvents = [
-        "Candidate Transfer Paid"
+        "Candidate Transfer Paid",
+        "Expense Added"
     ];
 
      /**
@@ -287,6 +288,10 @@ class EventManager extends Component
 
             //if wallet event, send to wallet/ main project
             if ($this->_walletClient && in_array($event, $this->walletEvents)) {
+
+                if ($event == 'Expense Added') {
+                    $mixpanelData['revenue'] = 0 - $mixpanelData['amount'];
+                }
 
                 $this->_walletClient->track("Revenue", $mixpanelData);
                 $this->_walletClient->flush();

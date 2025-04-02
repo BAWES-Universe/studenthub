@@ -93,7 +93,7 @@ class Expense extends \yii\db\ActiveRecord
     {
         parent::afterSave ($insert, $changedAttributes);
 
-        if(YII_ENV == 'prod') {
+        //if(YII_ENV == 'prod') {
 
             $datetime = $this->transaction_datetime?
                 new \DateTime($this->transaction_datetime): new \DateTime($this->created_at);
@@ -110,7 +110,7 @@ class Expense extends \yii\db\ActiveRecord
                 ],
                 $datetime->format('c')
             );
-        }
+       // }
     }
 
     /**
