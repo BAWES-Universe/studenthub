@@ -124,7 +124,7 @@ class EmailCampaign extends \yii\db\ActiveRecord
         return array_merge(["emailCampaignFilters"], parent::extraFields());
     }
 
-    private function _processForPartTimers()
+    public function _processForPartTimers()
     {
         $query = Candidate::find();
 
@@ -143,6 +143,17 @@ class EmailCampaign extends \yii\db\ActiveRecord
             else if ($filter['param'] == "filterStore")
             {
                 $query->filterStore($filter['value']);
+            }
+            else if ($filter['param'] == "filterCompany")
+            {
+                $company = Company::findOne($filter['value']);
+
+                if (!$company) {
+                    Yii::error("Email Campaign > Company not found for id: " . $filter['value']);
+                    continue;
+                }
+
+                $query->filterCompany($company);
             }
             else if ($filter['param'] == "filterCountry")
             {

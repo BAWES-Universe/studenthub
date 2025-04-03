@@ -87,7 +87,6 @@ class CronController extends \yii\console\Controller {
         $executionTime = $endTime - $startTime;
 
         echo "Time taken: " . $executionTime . " seconds" . PHP_EOL;*/
-
     }
 
     /**
