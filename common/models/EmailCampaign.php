@@ -34,7 +34,7 @@ class EmailCampaign extends \yii\db\ActiveRecord
     const STATUS_COMPLETED = 2;
     const STATUS_READY = 3;
 
-    const TARGET_PART_TIMERS = 'part-timers';
+    const TARGET_PART_TIMERS = 'part-timer';
     const TARGET_FULL_TIMERS = 'full-timer';
     const TARGET_BOTH = 'both';
 
