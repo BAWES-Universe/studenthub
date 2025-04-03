@@ -54,7 +54,7 @@ class EmailCampaign extends \yii\db\ActiveRecord
         return [
             //[['campaign_uuid'], 'required'],
             [['message'], 'string'],
-            ['target', "in", 'range' => ['part-timers', 'full-timer', 'both']],
+            ['target', "in", 'range' => [self::TARGET_PART_TIMERS, self::TARGET_FULL_TIMERS, 'both']],
             [['trigger_date_time', 'last_trigger_date_time'], "string"],
             [['is_recurring'], 'boolean'],
             [['target'], "default", "value" => self::TARGET_PART_TIMERS],
@@ -316,9 +316,9 @@ class EmailCampaign extends \yii\db\ActiveRecord
             throw new Exception(print_r($this->errors, true));
         }
 
-        if ($this->target == "part-timer") {
+        if ($this->target == self::TARGET_PART_TIMERS) {
             $this->_processForPartTimers();
-        } else if ($this->target == "full-timer") {
+        } else if ($this->target == self::TARGET_FULL_TIMERS) {
             $this->_processForFullTimers();
         } else {
             $this->_processForPartTimers();
