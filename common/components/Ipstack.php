@@ -61,14 +61,18 @@ class Ipstack extends \yii\base\Component {
             return null;
         }
 
+        if (!$result) {
+            return $result;
+        }
+
         //Fix: https://www.pivotaltracker.com/story/show/165662472
 
         if (!isset($result->city)) {
-            if ($result->region_name)
+            if (!empty($result->region_name))
                 $result->city = $result->region_name;
-            else if ($result->location && $result->location->capital)
+            else if (!empty($result->location) && $result->location->capital)
                 $result->city = $result->location->capital;
-            else
+            else if (!empty($result->continent_name))
                 $result->city = $result->continent_name;
         }
 
