@@ -2960,9 +2960,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             $this->pendingProfile['education'] = true;
         }
 
-        if ($this->getCandidateExperiences()->count() == 0) {
-            $this->pendingProfile['experience'] = true;
-        }
 
         if ($this->getCandidateSkills()->count() == 0) {
             $this->pendingProfile['skill'] = true;
@@ -3056,9 +3053,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             $this->pendingProfile['education'] = true;
         }
 
-        if ($this->getCandidateExperiences()->count() == 0) {
-            $this->pendingProfile['experience'] = true;
-        }
 
         if ($this->getCandidateSkills()->count() == 0) {
             $this->pendingProfile['skill'] = true;
