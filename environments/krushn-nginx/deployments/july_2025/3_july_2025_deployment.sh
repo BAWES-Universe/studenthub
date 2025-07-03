@@ -1,9 +1,9 @@
 #!/bin/sh
 
-MYSQL_HOST="mysql.railway.internal"
+MYSQL_HOST="mysql"
 MYSQL_PORT=3306
 MYSQL_USER="root"
-MYSQL_PASSWORD="TpijAlObvfdvZxzPgrnMTHMxyekEqTtt"
+MYSQL_PASSWORD="studenthub"
 
 echo "Waiting for MySQL at $MYSQL_HOST:$MYSQL_PORT..."
 for attempt in $(seq 1 60); do
