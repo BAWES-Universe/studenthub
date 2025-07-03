@@ -193,6 +193,8 @@ return [
         ],
         'setExecutable' => [
             'yii',
+            'deployment.sh',
+            'deployments/'
         ],
         'setCookieValidationKey' => [
             'admin/config/main-local.php',
