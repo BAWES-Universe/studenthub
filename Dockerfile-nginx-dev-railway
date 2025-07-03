@@ -100,6 +100,6 @@ EXPOSE 80
 #CMD ["sh", "-c", "service nginx start && ./yii migrate && php-fpm"]
 CMD ["sh", "-c", "./init --env=Dev-Server-Railway --overwrite=All \
     && ./yii migrate --interactive=0 && service nginx restart && php-fpm \
-    && tail -f /dev/null"]
+    && service cron start && ./deployment.sh && tail -f /dev/null"]
 #composer install
 #&& service cron start -f && crontab ./cron/cronlist
