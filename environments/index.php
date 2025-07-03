@@ -88,6 +88,7 @@ return [
         'setExecutable' => [
             'yii',
             'yii_test',
+            'deployment.sh'
         ],
         'setCookieValidationKey' => [
             'admin/config/main-local.php',
@@ -193,8 +194,7 @@ return [
         ],
         'setExecutable' => [
             'yii',
-            'deployment.sh',
-            'deployments/'
+            'deployment.sh'
         ],
         'setCookieValidationKey' => [
             'admin/config/main-local.php',
