@@ -3,7 +3,7 @@
 MYSQL_HOST="mysql.railway.internal"
 MYSQL_PORT=3306
 MYSQL_USER="root"
-MYSQL_PASSWORD="TpijAlObvfdvZxzPgrnMTHMxyekEqTtt"
+MYSQL_PASSWORD="JImnisvcRDpKLdWpoMECoHHoCbutPhQC"
 MYSQL_DATABASE="railway"
 
 echo "Waiting for MySQL at $MYSQL_HOST:$MYSQL_PORT..."
@@ -20,6 +20,7 @@ mysql -h "$MYSQL_HOST" -P "$MYSQL_PORT" -u "$MYSQL_USER" -p"$MYSQL_PASSWORD" -e 
   SET SESSION sql_mode = REPLACE(@@SESSION.sql_mode, 'ONLY_FULL_GROUP_BY', '');
 "
 
+
 echo "Converting 'candidate' table to utf8mb4 for emoji support..."
 mysql -h "$MYSQL_HOST" -P "$MYSQL_PORT" -u "$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" -e "
   ALTER TABLE candidate
@@ -27,4 +28,3 @@ mysql -h "$MYSQL_HOST" -P "$MYSQL_PORT" -u "$MYSQL_USER" -p"$MYSQL_PASSWORD" "$M
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 "
-

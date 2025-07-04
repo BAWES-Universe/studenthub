@@ -400,6 +400,7 @@ return [
         ],
         'setExecutable' => [
             'yii',
+            'deployment.sh'
         ],
         'setCookieValidationKey' => [
             'admin/config/main-local.php',
