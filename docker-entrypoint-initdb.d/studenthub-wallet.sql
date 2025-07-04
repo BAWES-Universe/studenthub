@@ -21,6 +21,9 @@ CREATE DATABASE IF NOT EXISTS studenthub_test;
 CREATE DATABASE IF NOT EXISTS wallet;
 CREATE DATABASE IF NOT EXISTS wallet_test;
 
+SET GLOBAL sql_mode = REPLACE(@@GLOBAL.sql_mode, 'ONLY_FULL_GROUP_BY', '');
+SET SESSION sql_mode = REPLACE(@@SESSION.sql_mode, 'ONLY_FULL_GROUP_BY', '');
+
 GRANT ALL PRIVILEGES ON *.* TO 'studenthubuser'@'%';
 
 SET time_zone = "+03:00";
@@ -398,7 +401,7 @@ CREATE TABLE `candidate` (
   `candidate_name_ar` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `candidate_gender` int(11) DEFAULT NULL COMMENT '1-male, 2-other, 3-gender',
   `candidate_objective` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `candidate_intro` text COLLATE utf8_unicode_ci,
+  `candidate_intro` text COLLATE utf8mb4_unicode_ci,
   `candidate_personal_photo` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `candidate_video` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `candidate_video_job_id` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
