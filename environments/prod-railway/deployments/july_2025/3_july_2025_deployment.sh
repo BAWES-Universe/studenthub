@@ -27,4 +27,14 @@ mysql -h "$MYSQL_HOST" -P "$MYSQL_PORT" -u "$MYSQL_USER" -p"$MYSQL_PASSWORD" "$M
   MODIFY candidate_intro TEXT
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
+
+  ALTER TABLE job_interest
+  MODIFY notes TEXT
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+
+  ALTER TABLE candidate
+  MODIFY candidate_objective VARCHAR(255)
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
 "

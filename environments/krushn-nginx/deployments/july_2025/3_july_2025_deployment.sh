@@ -4,6 +4,7 @@ MYSQL_HOST="mysql"
 MYSQL_PORT=3306
 MYSQL_USER="root"
 MYSQL_PASSWORD="studenthub"
+MYSQL_DATABASE="studenthub"
 
 echo "Waiting for MySQL at $MYSQL_HOST:$MYSQL_PORT..."
 for attempt in $(seq 1 60); do
@@ -23,6 +24,16 @@ echo "Converting 'candidate' table to utf8mb4 for emoji support..."
 mysql -h "$MYSQL_HOST" -P "$MYSQL_PORT" -u "$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" -e "
   ALTER TABLE candidate
   MODIFY candidate_intro TEXT
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+
+  ALTER TABLE job_interest
+  MODIFY notes TEXT
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+
+  ALTER TABLE candidate
+  MODIFY candidate_objective VARCHAR(255)
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 "
