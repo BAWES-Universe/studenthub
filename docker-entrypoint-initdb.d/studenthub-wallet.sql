@@ -21,6 +21,9 @@ CREATE DATABASE IF NOT EXISTS studenthub_test;
 CREATE DATABASE IF NOT EXISTS wallet;
 CREATE DATABASE IF NOT EXISTS wallet_test;
 
+SET GLOBAL sql_mode = REPLACE(@@GLOBAL.sql_mode, 'ONLY_FULL_GROUP_BY', '');
+SET SESSION sql_mode = REPLACE(@@SESSION.sql_mode, 'ONLY_FULL_GROUP_BY', '');
+
 GRANT ALL PRIVILEGES ON *.* TO 'studenthubuser'@'%';
 
 SET time_zone = "+03:00";
@@ -397,8 +400,8 @@ CREATE TABLE `candidate` (
   `candidate_name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `candidate_name_ar` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `candidate_gender` int(11) DEFAULT NULL COMMENT '1-male, 2-other, 3-gender',
-  `candidate_objective` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `candidate_intro` text COLLATE utf8_unicode_ci,
+  `candidate_objective` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `candidate_intro` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `candidate_personal_photo` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `candidate_video` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `candidate_video_job_id` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -454,7 +457,7 @@ CREATE TABLE `candidate` (
   CONSTRAINT `fk-candidate-store_id` FOREIGN KEY (`store_id`) REFERENCES `store` (`store_id`) ON DELETE CASCADE,
   CONSTRAINT `fk-candidate-university_id` FOREIGN KEY (`university_id`) REFERENCES `university` (`university_id`) ON DELETE SET NULL,
   CONSTRAINT `fk-candidate-utm_uuid` FOREIGN KEY (`utm_uuid`) REFERENCES `campaign` (`utm_uuid`)
-) ENGINE=InnoDB AUTO_INCREMENT=71 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=71 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2864,7 +2867,7 @@ CREATE TABLE `job_interest` (
   `candidate_id` int(11) NOT NULL,
   `job_uuid` char(60) COLLATE utf8_unicode_ci NOT NULL,
   `status` varchar(255) COLLATE utf8_unicode_ci DEFAULT 'PENDING' COMMENT 'INTERESTED | SHORTLISTED | REJECTED',
-  `notes` text COLLATE utf8_unicode_ci,
+  `notes` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `seen_at` datetime DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
@@ -2873,7 +2876,7 @@ CREATE TABLE `job_interest` (
   KEY `idx-job_interest-candidate_id` (`candidate_id`),
   CONSTRAINT `fk-job_interest-candidate_id` FOREIGN KEY (`candidate_id`) REFERENCES `candidate` (`candidate_id`) ON DELETE CASCADE,
   CONSTRAINT `fk-job_interest-job_uuid` FOREIGN KEY (`job_uuid`) REFERENCES `job` (`job_uuid`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --

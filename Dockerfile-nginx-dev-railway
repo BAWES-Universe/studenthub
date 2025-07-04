@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y \
      nginx \
      cron \
      vim \
+     default-mysql-client \
     # wkhtmltopdf \
      #chromium \
      #imagemagick \
@@ -99,7 +100,7 @@ EXPOSE 80
 # Start Nginx and PHP-FPM
 #CMD ["sh", "-c", "service nginx start && ./yii migrate && php-fpm"]
 CMD ["sh", "-c", "./init --env=Dev-Server-Railway --overwrite=All \
-    && ./yii migrate --interactive=0 && service nginx restart && php-fpm \
-    && tail -f /dev/null"]
+    && ./yii migrate --interactive=0 && service nginx restart \
+    && ./deployment.sh && service cron start && php-fpm && tail -f /dev/null"]
 #composer install
 #&& service cron start -f && crontab ./cron/cronlist

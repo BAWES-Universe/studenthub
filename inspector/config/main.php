@@ -54,6 +54,7 @@ return [
                     'pluralize' => false,
                     'patterns' => [
                         'GET' => 'test',
+                        'HEAD' => 'test',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                     ]
