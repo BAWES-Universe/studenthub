@@ -11,6 +11,7 @@ use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use admin\models\Staff;
+use common\models\Currency;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\NotFoundHttpException;
@@ -316,6 +317,13 @@ class StaffController extends Controller
         $permissions =  Yii::$app->request->getBodyParam("permissions");
 
         $staff_photo = Yii::$app->request->getBodyParam('staff_photo');
+        
+        if(!Currency::findOne(['code' => $model->staff_salary_currency])){
+            return [
+                "operation" => "error",
+                "message" => "Invalid currency code"
+            ];
+        }
 
         if($staff_photo)
             $model->setLogo($staff_photo);
