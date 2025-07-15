@@ -6,7 +6,7 @@ return [
             'dsn' => 'mysql:host=mysql.railway.internal;dbname=railway',
             'username' => 'root',
             'password' => 'TpijAlObvfdvZxzPgrnMTHMxyekEqTtt',
-            'charset' => 'utf8',
+            'charset' => 'utf8mb4',
         ],
         'walletDb' => [
             'class' => 'yii\db\Connection',

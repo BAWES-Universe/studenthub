@@ -6,7 +6,7 @@ return [
             'dsn' => 'mysql:host=mysql.railway.internal;dbname=railway',
             'username' => 'root',
             'password' => 'JImnisvcRDpKLdWpoMECoHHoCbutPhQC',
-            'charset' => 'utf8',
+            'charset' => 'utf8mb4',
             // Enable Caching of Schema to Reduce SQL Queries
             'enableSchemaCache' => true,
             // Duration of schema cache.
