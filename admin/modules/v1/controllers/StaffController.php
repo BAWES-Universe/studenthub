@@ -129,7 +129,9 @@ class StaffController extends Controller
         }
 
         $query->orderBy('staff_status desc');
-        return $query->asArray()->all();
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
     }
 
     /**
