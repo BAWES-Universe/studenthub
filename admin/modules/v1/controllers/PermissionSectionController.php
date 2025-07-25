@@ -212,6 +212,7 @@ class PermissionSectionController extends Controller
 
         $type = Yii::$app->request->getBodyParam("type");
         $permission = Yii::$app->request->getBodyParam("permission");
+        $companies = Yii::$app->request->getBodyParam("companies");
 
         if ($type == 'staff') {
             PermissionUser::deleteAll(['staff_id'=>$id]);
@@ -219,23 +220,45 @@ class PermissionSectionController extends Controller
             PermissionUser::deleteAll(['admin_id'=>$id]);
         }
 
-        if (count($permission) >0) {
-            foreach($permission as $key => $per) {
-                if ($per) {
-                    $model = new PermissionUser();
-                    if ($type == 'staff') {
-                        $model->staff_id = $id;
-                    } else {
-                        $model->admin_id = $id;
+        if (!empty($permission) && is_array($permission)) {
+            $transaction = Yii::$app->db->beginTransaction();
+            try {
+                foreach ($permission as $key => $per) {
+                    if (empty($per)) {
+                        continue;
                     }
-                    $model->permission_sub_section_uuid = $key;
+
+                    $permissionSubSection = PermissionSubSection::findOne($key);
+                    if (!$permissionSubSection) {
+                        throw new \yii\web\NotFoundHttpException("Permission subsection not found: " . $key);
+                    }
+
+                    $model = new PermissionUser([
+                        'permission_sub_section_uuid' => $key,
+                        $type . '_id' => $id,
+                    ]);
+
+                    if (isset($companies[$permissionSubSection->permission_uuid])) {
+                        $model->companies = is_array($companies[$permissionSubSection->permission_uuid]) 
+                            ? $companies[$permissionSubSection->permission_uuid] 
+                            : [];
+                    }
+
                     if (!$model->save()) {
+                        $transaction->rollBack();
                         return [
                             "operation" => "error",
                             "message" => $model->errors
                         ];
                     }
                 }
+                $transaction->commit();
+            } catch (\Exception $e) {
+                $transaction->rollBack();
+                return [
+                    "operation" => "error",
+                    "message" => $e->getMessage()
+                ];
             }
         }
 
@@ -310,12 +333,25 @@ class PermissionSectionController extends Controller
      * @param $id
      * @return PermissionUser[]
      */
-    public function actionUserPermission($type,$id) {
+    public function actionUserPermission($type, $id) {
+        $query = PermissionUser::find()
+            ->select([
+                'permission_user.*',
+                'permission_sub_section.permission_uuid as permission_uuid'
+            ])
+            ->innerJoin('permission_sub_section', 'permission_sub_section.permission_sub_section_uuid = permission_user.permission_sub_section_uuid');
+            
         if ($type == 'staff') {
-            return PermissionUser::findAll(['staff_id' => $id]);
+            $query->where(['permission_user.staff_id' => $id]);
         } else {
-            return PermissionUser::findAll(['admin_id' => $id]);
+            $query->where(['permission_user.admin_id' => $id]);
         }
+        
+        $data = $query->asArray()->all();
+        return array_map(function ($item) {
+            $item['companies'] = json_decode($item['companies'], true);
+            return $item;
+        }, $data);
     }
     
     /**
