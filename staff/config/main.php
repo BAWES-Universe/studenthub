@@ -977,6 +977,17 @@ return [
                         'OPTIONS <id>' => 'options'
                     ]
                 ],
+                [ // PermissionSectionController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/permission-section',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET user-permission/<type>/<id>' => 'user-permission',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS user-permission/<type>/<id>' => 'options'
+                    ]
+                ],
             ],
         ],
     ],
