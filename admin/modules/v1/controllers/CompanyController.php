@@ -117,10 +117,22 @@ class CompanyController extends Controller
         $name = Yii::$app->request->getQueryParam("name",0);
         $staff_id = Yii::$app->request->getQueryParam("staff_id",0);
         $approved_to_hire = Yii::$app->request->getQueryParam("approved_to_hire");
-
+        $fields = Yii::$app->request->getQueryParam("fields", null);
+        
         $query = Company::find()
             ->filterParent();
 
+        // Apply field selection if provided
+        if ($fields) {
+            // Split comma-separated fields and sanitize to prevent SQL injection
+            $allowedFields = ['company_id', 'company_name', 'company_email', 'country_id']; // Define allowed fields
+            $requestedFields = array_map('trim', explode(',', $fields));
+            $selectedFields = array_intersect($requestedFields, $allowedFields);
+            if (!empty($selectedFields)) {
+                $query->select($selectedFields);
+            }
+        }
+        
         if($currency) {
             $query->andWhere(['company.currency_code' => $currency]);
         }
