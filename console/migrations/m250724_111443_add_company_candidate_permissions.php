@@ -32,7 +32,6 @@ class m250724_111443_add_company_candidate_permissions extends Migration
             ['Company Contact Login', 'company-contact-login'],
             ['Company Notes', 'company-notes'],
             ['Company Activity', 'company-activity'],
-            ['Company Impersonate', 'company-impersonate'],
         ];
 
         foreach ($companySubSections as [$name, $slug]) {
