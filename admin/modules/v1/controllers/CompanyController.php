@@ -118,9 +118,14 @@ class CompanyController extends Controller
         $staff_id = Yii::$app->request->getQueryParam("staff_id",0);
         $approved_to_hire = Yii::$app->request->getQueryParam("approved_to_hire");
         $fields = Yii::$app->request->getQueryParam("fields", null);
+        $pagination = Yii::$app->request->getQueryParam("pagination", True);
+        $isParent = Yii::$app->request->getQueryParam("isParent", True);
         
-        $query = Company::find()
-            ->filterParent();
+        $query = Company::find();
+
+        if($isParent){
+            $query->filterParent();
+        }
 
         // Apply field selection if provided
         if ($fields) {
@@ -160,9 +165,13 @@ class CompanyController extends Controller
         if (!is_null($approved_to_hire) && in_array ($approved_to_hire, [0, 1])) {
             $query->filterByApprovedToHire($approved_to_hire);
         }
-
+        
         return new ActiveDataProvider([
-            'query' => $query
+            'query' => $query,
+            'pagination' => $pagination ? [
+                'pageSizeParam' => 'per-page',
+                'pageSize' => Yii::$app->request->get('per-page', 20),
+            ] : false,
         ]);
     }
 
