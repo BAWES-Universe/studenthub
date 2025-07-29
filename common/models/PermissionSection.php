@@ -68,6 +68,8 @@ class PermissionSection extends \yii\db\ActiveRecord
             [['permission_uuid'], 'string', 'max' => 60],
             [['section_name'], 'string', 'max' => 255],
             [['permission_uuid'], 'unique'],
+            [['companies'], 'default', 'value' => []],
+            [['companies'], 'each', 'skipOnError' => true,'rule' => ['exist', 'targetClass' => Company::class, 'targetAttribute' => 'company_id']],
         ];
     }
 
@@ -79,6 +81,7 @@ class PermissionSection extends \yii\db\ActiveRecord
         return [
             'permission_uuid' => 'Permission Uuid',
             'section_name' => 'Section Name',
+            'companies' => 'Companies',
             'created_at' => 'Created At',
         ];
     }

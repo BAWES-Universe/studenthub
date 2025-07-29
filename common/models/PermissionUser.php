@@ -66,7 +66,6 @@ class PermissionUser extends \yii\db\ActiveRecord
             [['admin_id'], 'exist', 'skipOnError' => true, 'targetClass' => Admin::class, 'targetAttribute' => ['admin_id' => 'admin_id']],
             [['permission_sub_section_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => PermissionSubSection::class, 'targetAttribute' => ['permission_sub_section_uuid' => 'permission_sub_section_uuid']],
             [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::class, 'targetAttribute' => ['staff_id' => 'staff_id']],
-            [['companies'], 'each', 'skipOnError' => true,'rule' => ['exist', 'targetClass' => Company::class, 'targetAttribute' => 'company_id']],
         ];
     }
 
@@ -81,7 +80,6 @@ class PermissionUser extends \yii\db\ActiveRecord
             'staff_id' => 'Staff ID',
             'permission_sub_section_uuid' => 'Permission Sub Section Uuid',
             'created_at' => 'Created At',
-            'companies' => 'Companies',
         ];
     }
 

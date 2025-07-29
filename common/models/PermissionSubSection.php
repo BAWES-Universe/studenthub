@@ -62,9 +62,7 @@ class PermissionSubSection extends \yii\db\ActiveRecord
             [['permission_sub_section_uuid', 'permission_uuid'], 'string', 'max' => 60],
             [['sub_section_name'], 'string', 'max' => 255],
             [['permission_sub_section_uuid'], 'unique'],
-            [['permission_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => PermissionSection::class, 'targetAttribute' => ['permission_uuid' => 'permission_uuid']],
-            [['is_company_specific_permission'], 'boolean']
-            
+            [['permission_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => PermissionSection::class, 'targetAttribute' => ['permission_uuid' => 'permission_uuid']]            
         ];
     }
 
@@ -79,7 +77,6 @@ class PermissionSubSection extends \yii\db\ActiveRecord
             'sub_section_slug' => 'Sub Section slug',
             'permission_uuid' => 'Permission Uuid',
             'created_at' => 'Created At',
-            'is_company_specific_permission' => 'Is Company Specific Permission'
         ];
     }
 

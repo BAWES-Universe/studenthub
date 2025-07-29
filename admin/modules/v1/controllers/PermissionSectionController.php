@@ -2,6 +2,7 @@
 
 namespace admin\modules\v1\controllers;
 
+use common\models\Company;
 use common\models\PermissionSection;
 use common\models\PermissionSubSection;
 use common\models\PermissionUser;
@@ -84,11 +85,27 @@ class PermissionSectionController extends Controller
     {
         // Attempt to create new request
         $model = new PermissionSection();
-
         $model->section_name = Yii::$app->request->getBodyParam("section_name");
 
-        if (!$model->save())
-        {
+        // Get companies array from request
+        $companies = Yii::$app->request->getBodyParam("companies", []);
+        if (!is_array($companies)) {
+            return [
+                "operation" => "error",
+                "message" => "Companies must be an array of company IDs."
+            ];
+        }
+
+        // Validate all company IDs exist
+        if (Company::find()->where(['company_id' => $companies])->count() !== count($companies)) {
+            return [
+            "operation" => "error",
+            "message" => "One or more company IDs are invalid."
+            ];
+        }
+        $model->companies = $companies;
+
+        if (!$model->save()) {
             if(isset($model->errors)){
                 return [
                     "operation" => "error",
@@ -149,7 +166,23 @@ class PermissionSectionController extends Controller
             ];
         }
 
-        $model->section_name = Yii::$app->request->getBodyParam("section_name");
+        // Get companies array from request
+        $companies = Yii::$app->request->getBodyParam("companies", []);
+        if (!is_array($companies)) {
+            return [
+                "operation" => "error",
+                "message" => "Companies must be an array of company IDs."
+            ];
+        }
+
+        // Validate all company IDs exist
+        if (Company::find()->where(['company_id' => $companies])->count() !== count($companies)) {
+            return [
+            "operation" => "error",
+            "message" => "One or more company IDs are invalid."
+            ];
+        }
+        $model->companies = $companies;
 
         if (!$model->save())
         {
@@ -212,7 +245,6 @@ class PermissionSectionController extends Controller
 
         $type = Yii::$app->request->getBodyParam("type");
         $permission = Yii::$app->request->getBodyParam("permission");
-        $companies = Yii::$app->request->getBodyParam("companies");
 
         if ($type == 'staff') {
             PermissionUser::deleteAll(['staff_id'=>$id]);
@@ -228,21 +260,10 @@ class PermissionSectionController extends Controller
                         continue;
                     }
 
-                    $permissionSubSection = PermissionSubSection::findOne($key);
-                    if (!$permissionSubSection) {
-                        throw new \yii\web\NotFoundHttpException("Permission subsection not found: " . $key);
-                    }
-
                     $model = new PermissionUser([
                         'permission_sub_section_uuid' => $key,
                         $type . '_id' => $id,
                     ]);
-
-                    if (isset($companies[$permissionSubSection->permission_uuid])) {
-                        $model->companies = is_array($companies[$permissionSubSection->permission_uuid]) 
-                            ? $companies[$permissionSubSection->permission_uuid] 
-                            : [];
-                    }
 
                     if (!$model->save()) {
                         $transaction->rollBack();
@@ -348,10 +369,7 @@ class PermissionSectionController extends Controller
         }
         
         $data = $query->asArray()->all();
-        return array_map(function ($item) {
-            $item['companies'] = json_decode($item['companies'], true);
-            return $item;
-        }, $data);
+        return $data ? $data : [];
     }
     
     /**

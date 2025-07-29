@@ -94,7 +94,7 @@ class PermissionSectionController extends Controller
         
         $data = $query->asArray()->all();
         return array_map(function ($item) {
-            $item['companies'] = json_decode($item['companies'], true);
+            $item['companies'] = json_decode($item['companies'] ? $item['companies'] : '[]', true);
             return $item;
         }, $data);
     }
