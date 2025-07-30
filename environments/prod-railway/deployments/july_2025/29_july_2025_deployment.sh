@@ -15,6 +15,6 @@ for attempt in $(seq 1 60); do
 done
 
 mysql -h "$MYSQL_HOST" -P "$MYSQL_PORT" -u "$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" -e "
-ALTER TABLE permission_user DROP COLUMN companies;
+ALTER TABLE permission_user DROP COLUMN IF EXISTS companies;
 "
 
