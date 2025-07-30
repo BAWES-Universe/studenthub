@@ -982,6 +982,7 @@ return [
                     'controller' => 'v1/permission-section',
                     'pluralize' => false,
                     'patterns' => [
+                        'GET' => 'list',
                         'GET user-permission/<type>/<id>' => 'user-permission',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',

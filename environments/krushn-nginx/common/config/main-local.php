@@ -6,7 +6,7 @@ return [
             'dsn' => 'mysql:host=mysql:3306;dbname=studenthub',
             'username' => 'studenthubuser',
             'password' => 'studenthub',
-            'charset' => 'utf8',
+            'charset' => 'utf8mb4',
         ],
         'yeaster' => [
             'class' => 'common\components\Yeaster',
