@@ -279,13 +279,14 @@ class Invitation extends \yii\db\ActiveRecord
         $date_start = date('Y-m-d', strtotime('first day of -'.$months.' month'));
 
         $date_end = date('Y-m-d', strtotime('last day of previous month'));
+        $base_time = strtotime(date('Y-m-01'));
 
         for ($i = 0; $i <= $months; $i++) {
 
-            $month = date('F', strtotime('-'.($months - $i).' month'));
+            $month = date('F', strtotime('-'.($months - $i).' month'), $base_time);
 
             $data[$month] = array(
-                'month' => date('F', strtotime('-'.($months - $i).' month')),
+                'month' => date('F', strtotime('-'.($months - $i).' month'), $base_time),
                 "total" => 0,
                 "invited" => 0,
                 'accepted' => 0,
