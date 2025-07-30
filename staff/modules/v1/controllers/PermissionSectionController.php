@@ -3,10 +3,12 @@
 namespace staff\modules\v1\controllers;
 
 use common\models\PermissionUser;
+use common\models\PermissionSection;
 use Yii;
 use yii\rest\Controller;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
+use yii\data\ActiveDataProvider;
 
 
 /**
@@ -72,6 +74,35 @@ class PermissionSectionController extends Controller
     }
     
     /**
+     * Return a List of Permission Sections available.
+     * @return ActiveDataProvider
+     */
+    public function actionList()
+    {
+        $query = PermissionSection::find()
+            ->with('permissionSubSections');
+
+        $sections = $query->all();
+        
+        // Transform the data to include sub-sections
+        $result = [];
+        foreach ($sections as $section) {
+            $sectionData = $section->attributes;
+            $sectionData['subSections'] = [];
+            
+            if (!empty($section->permissionSubSections)) {
+                foreach ($section->permissionSubSections as $subSection) {
+                    $sectionData['subSections'][] = $subSection->attributes;
+                }
+            }
+            
+            $result[] = $sectionData;
+        }
+        
+        return $result;
+    }
+
+    /**
      * @param $type
      * @param $id
      * @return PermissionUser[]
@@ -94,7 +125,7 @@ class PermissionSectionController extends Controller
         
         $data = $query->asArray()->all();
         return array_map(function ($item) {
-            $item['companies'] = json_decode($item['companies'], true);
+            $item['companies'] = json_decode($item['companies'] ? $item['companies'] : '[]', true);
             return $item;
         }, $data);
     }

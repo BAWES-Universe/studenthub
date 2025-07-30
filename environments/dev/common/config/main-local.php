@@ -6,7 +6,7 @@ return [
             'dsn' => 'mysql:host=mysql;dbname=studenthub', // Docker mysql service name for host
             'username' => 'studenthubuser',
             'password' => '12345',
-            'charset' => 'utf8',
+            'charset' => 'utf8mb4',
         ],
         'walletDb' => [
             'class' => 'yii\db\Connection',
