@@ -2540,6 +2540,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             return false;
         }
         
+        if(!Yii::$app->temporaryBucketResourceManager->fileExists($this->candidate_personal_photo)) {
+            $this->addError('candidate_personal_photo', Yii::t('app', 'Your profile photo could not be uploaded. Please try again.'));
+            return false;
+        }
+        
         try {
             $url = Yii::$app->temporaryBucketResourceManager->getUrl($this->candidate_personal_photo);
 
