@@ -568,7 +568,12 @@ class CronController extends \yii\console\Controller {
         //$staffs = Staff::findAll(['deleted'=>'0', 'staff_notification' => 1]);
         $staffs = \common\models\Staff::find()
             ->joinWith('staffNotifications')
-            ->andWhere(['staff.deleted' => false, 'staff_notification' => true, 'permission' => "morning-report"])
+            ->andWhere([
+                'staff.deleted' => false, 
+                'staff_notification' => true, 
+                'permission' => "morning-report",
+                'staff_status' => \common\models\Staff::STATUS_ACTIVE
+            ])
             ->all();
 
         $emails = ArrayHelper::getColumn ($staffs, 'staff_email');
