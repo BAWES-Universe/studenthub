@@ -63,7 +63,7 @@ class CandidateEducation extends \yii\db\ActiveRecord
             [['candidate_id', 'university_id', 'graduation_year', 'is_currently_studying'], 'integer'],
             [['created_at', 'updated_at'], 'safe'],
             [['education_uuid', 'degree_uuid', 'major_uuid'], 'string', 'max' => 60],
-            [['custom_institution_name'], 'string', 'max' => 255],
+            [['custom_institution_name', 'custom_major'], 'string', 'max' => 255],
             [['education_type'], 'in', 'range' => array_keys(self::getEducationTypes())],
             [['education_uuid'], 'unique'],
             [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::class, 'targetAttribute' => ['candidate_id' => 'candidate_id']],
