@@ -182,11 +182,28 @@ class CandidateEducationController extends Controller
                 $this->findModel($candidateEducation['education_uuid']);
 
             $model->candidate_id = Yii::$app->user->getId();
-            $model->university_id = $candidateEducation['university_id'];
-            $model->degree_uuid = !empty($candidateEducation['degree_uuid'])? $candidateEducation['degree_uuid']: null;
-            $model->major_uuid = !empty($candidateEducation['major_uuid'])? $candidateEducation['major_uuid']: null;
-            $model->graduation_year = !empty($candidateEducation['graduation_year'])? $candidateEducation['graduation_year']: null;
-            $model->is_currently_studying = (int)$candidateEducation['is_currently_studying'];
+            $model->education_type = $candidateEducation['education_type'] ?? CandidateEducation::EDUCATION_TYPE_STANDARD;
+            
+            // Set university_id only if it's provided and not in a type that doesn't use it
+            if ($model->education_type === CandidateEducation::EDUCATION_TYPE_STANDARD) {
+                $model->university_id = $candidateEducation['university_id'];
+            } else {
+                $model->university_id = null;
+            }
+            
+            $model->degree_uuid = !empty($candidateEducation['degree_uuid']) ? $candidateEducation['degree_uuid'] : null;
+            $model->major_uuid = !empty($candidateEducation['major_uuid']) ? $candidateEducation['major_uuid'] : null;
+            $model->graduation_year = !empty($candidateEducation['graduation_year']) ? $candidateEducation['graduation_year'] : null;
+            $model->is_currently_studying = isset($candidateEducation['is_currently_studying']) ? (int)$candidateEducation['is_currently_studying'] : 0;
+            $model->custom_major = isset($candidateEducation['custom_major']) ? $candidateEducation['custom_major'] : null;
+
+            // Set custom_institution_name for applicable types
+            if (in_array($model->education_type, [
+                CandidateEducation::EDUCATION_TYPE_CUSTOM_UNIVERSITY,
+                CandidateEducation::EDUCATION_TYPE_STUDYING_ABROAD
+            ]) && isset($candidateEducation['custom_institution_name'])) {
+                $model->custom_institution_name = $candidateEducation['custom_institution_name'];
+            }
 
             if (isset($candidateEducation['graduation_year'])) {
                 if (
@@ -221,7 +238,7 @@ class CandidateEducationController extends Controller
             ->with(['major', 'degree', 'university'])
             ->asArray()
             ->all();
-
+              
         return [
             'operation' => 'success',
             "candidateEducations" => $candidateEducations
@@ -234,13 +251,29 @@ class CandidateEducationController extends Controller
     public function actionCreate() {
 
         $model = new CandidateEducation();
-
+        
         $model->candidate_id = Yii::$app->user->getId();
         $model->university_id = Yii::$app->request->getBodyParam("university_id");
         $model->degree_uuid = Yii::$app->request->getBodyParam("degree_uuid");
         $model->major_uuid = Yii::$app->request->getBodyParam("major_uuid");
         $model->graduation_year = Yii::$app->request->getBodyParam("graduation_year");
         $model->is_currently_studying = (int) Yii::$app->request->getBodyParam("is_currently_studying");
+        
+        $model->education_type = Yii::$app->request->getBodyParam('education_type', CandidateEducation::EDUCATION_TYPE_STANDARD);
+        $model->custom_major = Yii::$app->request->getBodyParam('custom_major', null);
+        
+        // Only set university_id for standard education type
+        if ($model->education_type === CandidateEducation::EDUCATION_TYPE_STANDARD) {
+            $model->university_id = Yii::$app->request->getBodyParam('university_id');
+        }
+        
+        // Set custom institution name for applicable types
+        if (in_array($model->education_type, [
+            CandidateEducation::EDUCATION_TYPE_CUSTOM_UNIVERSITY,
+            CandidateEducation::EDUCATION_TYPE_STUDYING_ABROAD
+        ])) {
+            $model->custom_institution_name = Yii::$app->request->getBodyParam('custom_institution_name');
+        }
 
         if (!$model->save()) {
             return [
@@ -269,6 +302,22 @@ class CandidateEducationController extends Controller
         $model->major_uuid = Yii::$app->request->getBodyParam("major_uuid");
         $model->graduation_year = Yii::$app->request->getBodyParam("graduation_year");
         $model->is_currently_studying = (int)Yii::$app->request->getBodyParam("is_currently_studying");
+        
+        $model->education_type = Yii::$app->request->getBodyParam('education_type', CandidateEducation::EDUCATION_TYPE_STANDARD);
+        $model->custom_major = Yii::$app->request->getBodyParam('custom_major', null);
+        
+        // Only set university_id for standard education type
+        if ($model->education_type === CandidateEducation::EDUCATION_TYPE_STANDARD) {
+            $model->university_id = Yii::$app->request->getBodyParam('university_id');
+        }
+        
+        // Set custom institution name for applicable types
+        if (in_array($model->education_type, [
+            CandidateEducation::EDUCATION_TYPE_CUSTOM_UNIVERSITY,
+            CandidateEducation::EDUCATION_TYPE_STUDYING_ABROAD
+        ])) {
+            $model->custom_institution_name = Yii::$app->request->getBodyParam('custom_institution_name');
+        }
 
         if (!$model->save()) {
             return [

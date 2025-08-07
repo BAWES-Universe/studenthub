@@ -27,6 +27,24 @@ use yii\db\Expression;
  */
 class CandidateEducation extends \yii\db\ActiveRecord
 {
+    // Education type constants
+    const EDUCATION_TYPE_STANDARD = 'standard';
+    const EDUCATION_TYPE_CUSTOM_UNIVERSITY = 'custom_university';
+    const EDUCATION_TYPE_STUDYING_ABROAD = 'studying_abroad';
+    const EDUCATION_TYPE_NOT_STUDYING = 'not_studying';
+
+    /**
+     * @return array List of education types
+     */
+    public static function getEducationTypes()
+    {
+        return [
+            self::EDUCATION_TYPE_STANDARD => 'Standard',
+            self::EDUCATION_TYPE_CUSTOM_UNIVERSITY => 'Custom University',
+            self::EDUCATION_TYPE_STUDYING_ABROAD => 'Studying Abroad',
+            self::EDUCATION_TYPE_NOT_STUDYING => 'Not Studying',
+        ];
+    }
     /**
      * {@inheritdoc}
      */
@@ -41,15 +59,28 @@ class CandidateEducation extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['candidate_id', 'university_id'], 'required'],//'education_uuid',
+            [['candidate_id', 'education_type'], 'required'],
             [['candidate_id', 'university_id', 'graduation_year', 'is_currently_studying'], 'integer'],
             [['created_at', 'updated_at'], 'safe'],
             [['education_uuid', 'degree_uuid', 'major_uuid'], 'string', 'max' => 60],
+            [['custom_institution_name', 'custom_major'], 'string', 'max' => 255],
+            [['education_type'], 'in', 'range' => array_keys(self::getEducationTypes())],
             [['education_uuid'], 'unique'],
             [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::class, 'targetAttribute' => ['candidate_id' => 'candidate_id']],
             [['degree_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Degree::class, 'targetAttribute' => ['degree_uuid' => 'degree_uuid']],
             [['major_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Major::class, 'targetAttribute' => ['major_uuid' => 'major_uuid']],
             [['university_id'], 'exist', 'skipOnError' => true, 'targetClass' => University::class, 'targetAttribute' => ['university_id' => 'university_id']],
+            
+            // Custom validation for education type specific rules
+            ['custom_institution_name', 'required', 'when' => function($model) {
+                return in_array($model->education_type, [
+                    self::EDUCATION_TYPE_CUSTOM_UNIVERSITY,
+                    self::EDUCATION_TYPE_STUDYING_ABROAD
+                ]);
+            }, 'message' => 'Custom institution name is required'],
+            
+            // Set default value for education_type
+            ['education_type', 'default', 'value' => self::EDUCATION_TYPE_STANDARD],
         ];
     }
 
@@ -92,6 +123,8 @@ class CandidateEducation extends \yii\db\ActiveRecord
             'major_uuid' => Yii::t('app', 'Major Uuid'),
             'graduation_year' => Yii::t('app', 'Graduation Year'),
             'is_currently_studying' => Yii::t('app', 'Is Currently Studying'),
+            'education_type' => Yii::t('app', 'Education Type'),
+            'custom_institution_name' => Yii::t('app', 'Institution Name'),
             'created_at' => Yii::t('app', 'Created At'),
             'updated_at' => Yii::t('app', 'Updated At'),
         ];
