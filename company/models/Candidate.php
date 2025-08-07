@@ -98,7 +98,9 @@ class Candidate extends \common\models\Candidate {
                 'candidateExperiences',
                 'invitations',
                 'invitedCount',
-                'isInvitedForCompany'
+                'isInvitedForCompany',
+                "candidateEducations",
+                "candidateEducations.university"
             ];
         }
 
@@ -122,6 +124,8 @@ class Candidate extends \common\models\Candidate {
             'currentWorkHistory',
             "currentContract",
             "currentContract.amount",
+            "candidateEducations",
+            "candidateEducations.university"
         ];
     }
 
