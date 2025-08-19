@@ -22,6 +22,13 @@ RUN apt-get update && apt-get install -y \
      && docker-php-ext-configure gd --with-freetype --with-jpeg \
      && docker-php-ext-install gd pdo pdo_mysql zip opcache exif 
 
+RUN apt-get update && apt-get install -y wget xfonts-base xfonts-75dpi \
+     && wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz \
+     && tar -xf wkhtmltox-0.12.4_linux-generic-amd64.tar.xz \
+     && mv wkhtmltox /usr/local/ \
+     && ln -s /usr/local/wkhtmltox/bin/wkhtmltopdf /usr/local/bin/wkhtmltopdf \
+     && ln -s /usr/local/wkhtmltox/bin/wkhtmltoimage /usr/local/bin/wkhtmltoimage \
+     && rm wkhtmltox-0.12.4_linux-generic-amd64.tar.xz
 # Install Imagick PHP extension
 #RUN apt-get install -y libmagickwand-dev \
 #    && pecl install imagick \

@@ -256,28 +256,28 @@ class CandidateIdCardController extends Controller
             }
         }
 
-        $model = new CandidateIdRequest();
-        $model->candidate_ids = implode(",", $candidate_ids);
+        // $model = new CandidateIdRequest();
+        // $model->candidate_ids = implode(",", $candidate_ids);
 
-        if (!$model->save()) {
-            if(empty(Yii::$app->params['inCodeception']))
-                $transaction->rollBack();
+        // if (!$model->save()) {
+        //     if(empty(Yii::$app->params['inCodeception']))
+        //         $transaction->rollBack();
 
-            return [
-                "operation" => "error",
-                "message" => $model->errors
-            ];
-        }
+        //     return [
+        //         "operation" => "error",
+        //         "message" => $model->errors
+        //     ];
+        // }
 
-        if(empty(Yii::$app->params['inCodeception']))
-            $transaction->commit();
+        // if(empty(Yii::$app->params['inCodeception']))
+        //     $transaction->commit();
 
-        return [
-            "operation" => "success",
-            "cir_uuid" => $model->cir_uuid,
-            "message" => "We processing your request"
-        ];
-        /*
+        // return [
+        //     "operation" => "success",
+        //     "cir_uuid" => $model->cir_uuid,
+        //     "message" => "We processing your request"
+        // ];
+        
         //create zip file to download generated IDs
 
         $candidates = Candidate::find()
@@ -314,15 +314,15 @@ class CandidateIdCardController extends Controller
 
         } else {// Download Zip File
             // Clear output buffer to avoid any additional data being sent
-            /*if (ob_get_level()) {
+            if (ob_get_level()) {
                 ob_end_clean();
-            }*
+            }
 
             return Yii::$app->response->sendFile($result['zip'], "IDCard.zip", [
-            //    'mimeType' => 'application/zip',
-            //    'inline' => false, // Force download
+               'mimeType' => 'application/zip',
+                'inline' => false, // Force download
             ]);
-        }*/
+        }
     }
 
     /**
