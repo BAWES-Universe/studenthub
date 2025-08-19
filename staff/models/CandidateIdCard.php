@@ -53,7 +53,7 @@ class CandidateIdCard extends \common\models\CandidateIdCard
      */
     public static function createIdCards($candidates)
     {
-        $path = sys_get_temp_dir().'/id-cards';
+        $path = Yii::getAlias("@staff/web/assets/id-cards");
         //Yii::getAlias("@common/runtime/id-cards");
         //
             //
@@ -65,7 +65,7 @@ class CandidateIdCard extends \common\models\CandidateIdCard
         //create directory if not exists 
 
         if (!is_dir($path)) {
-            FileHelper::createDirectory($path);
+            FileHelper::createDirectory($path, 0775, true);
         }
 
         // Create zip
@@ -81,7 +81,7 @@ class CandidateIdCard extends \common\models\CandidateIdCard
             ];
         }
 
-        $binPath = "/usr/bin/wkhtmltopdf";
+        $binPath = "wkhtmltopdf";
         //Yii::getAlias("@common"). "/bin/png-linux-arm";//linux-arm linux-386
 
         // Create card images
@@ -92,8 +92,9 @@ class CandidateIdCard extends \common\models\CandidateIdCard
                 continue;
             }
             
-            $token = Yii::$app->user->identity->accessTokens[0]->token_value;
-
+            $authHeader = Yii::$app->request->getHeaders()->get('Authorization');
+            $token = $authHeader ? trim(str_ireplace('Bearer', '', $authHeader)) : null;
+            
             $card_url = Yii::$app->urlManagerStaff->createAbsoluteUrl(
                 "/candidate-id-cards/".$value->candidateIdCard->id.'/'.$token);
 
@@ -183,9 +184,9 @@ class CandidateIdCard extends \common\models\CandidateIdCard
                 // Add photo folder to zip
 
             try {
-                $zip->addFile($path . '/' . $value->candidate_uid . '/front.png', $value->candidate_uid . '/front.pdf');
+                $zip->addFile($path . '/' . $value->candidate_uid . '/front.pdf', $value->candidate_uid . '/front.pdf');
 
-                $zip->addFile($path . '/' . $value->candidate_uid . '/back.png', $value->candidate_uid . '/back.pdf');
+                $zip->addFile($path . '/' . $value->candidate_uid . '/back.pdf', $value->candidate_uid . '/back.pdf');
               //  $zip->addFile($path . '/' . $value->candidate_uid . '/front.pdf', $value->candidate_uid . '/front.png');
               //  $zip->addFile($path . '/' . $value->candidate_uid . '/back.pdf', $value->candidate_uid . '/back.png');
             } catch ( \yii\base\ErrorException $e) {
