@@ -53,170 +53,122 @@ class CandidateIdCard extends \common\models\CandidateIdCard
      */
     public static function createIdCards($candidates)
     {
-        $path = Yii::getAlias("@staff/web/assets/id-cards");
-        //Yii::getAlias("@common/runtime/id-cards");
-        //
-            //
-
-        //remove old content
-
-        //FileHelper::removeDirectory($path);
-
-        //create directory if not exists 
-
+        $basePath = Yii::getAlias("@staff/web/assets/id-cards");
+        
+        // Create a unique directory for this request
+        $requestId = Yii::$app->security->generateRandomString(16);
+        $path = $basePath . '/' . $requestId;
+        
+        // Create the directory if it doesn't exist
         if (!is_dir($path)) {
             FileHelper::createDirectory($path, 0775, true);
         }
 
-        // Create zip
-        $zipname = 'IdCards.zip';
-        $zip = new \ZipArchive();
-        if (!$zip->open($path.'/'.$zipname, \ZipArchive::CREATE))
-        {
-            Yii::$app->response->statusCode = 500;
+        $binPath = "wkhtmltopdf";
+        $pdfFiles = []; // To store generated PDF files
+        $hasErrors = false;
+        
+        try {
+            // First pass: Generate all PDF files
+            foreach ($candidates as $key => $value) {
+                if (!$value->candidateIdCard) {
+                    continue;
+                }
+                
+                $candidateDir = $path . '/' . $value->candidate_uid;
+                if (!is_dir($candidateDir)) {
+                    FileHelper::createDirectory($candidateDir);
+                }
+                
+                $authHeader = Yii::$app->request->getHeaders()->get('Authorization');
+                $token = $authHeader ? trim(str_ireplace('Bearer', '', $authHeader)) : null;
+                
+                $card_url = Yii::$app->urlManagerStaff->createAbsoluteUrl(
+                    "/candidate-id-cards/".$value->candidateIdCard->id.'/'.$token);
 
+                // Generate PDFs with unique filenames
+                $frontPdf = $candidateDir . "/front.pdf";
+                $backPdf = $candidateDir . "/back.pdf";
+                
+                // Generate front and back PDFs
+                $output = exec($binPath . " " . $card_url . "?side=front " . $frontPdf);
+                $output = exec($binPath . " " . $card_url . "?side=back " . $backPdf);
+                
+                // Verify both PDFs were created
+                if (file_exists($frontPdf) && file_exists($backPdf)) {
+                    $pdfFiles[] = [
+                        'front' => $frontPdf,
+                        'back' => $backPdf,
+                        'uid' => $value->candidate_uid
+                    ];
+                } else {
+                    Yii::error("Failed to generate PDFs for candidate: " . $value->candidate_uid);
+                    $hasErrors = true;
+                }
+            }
+            
+            if (empty($pdfFiles)) {
+                throw new \Exception('No valid candidate ID cards were processed');
+            }
+            
+            if ($hasErrors) {
+                Yii::warning('Some candidates had errors during PDF generation');
+            }
+            
+            // Create zip with unique name
+            $zipname = 'IdCards_' . $requestId . '.zip';
+            $zipPath = $path . '/' . $zipname;
+            
+            // Create zip and add all files
+            $zip = new \ZipArchive();
+            if ($zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
+                throw new \Exception('Cannot create zip file');
+            }
+            
+            try {
+                // Add all PDFs to zip
+                foreach ($pdfFiles as $file) {
+                    $zip->addFile($file['front'], $file['uid'] . '/front.pdf');
+                    $zip->addFile($file['back'], $file['uid'] . '/back.pdf');
+                }
+                
+                if ($zip->numFiles === 0) {
+                    throw new \Exception('No files were added to the zip');
+                }
+                
+                $zip->close();
+                
+                // Schedule cleanup of old directories (older than 30 minutes)
+                self::cleanupOldDirectories($basePath);
+                
+                return [
+                    'operation' => 'success',
+                    'zip' => $zipPath,
+                    'tempDir' => $path  // Return the temp dir for cleanup after download
+                ];
+                
+            } catch (\Exception $e) {
+                if (isset($zip) && $zip instanceof \ZipArchive) {
+                    $zip->close();
+                }
+                throw $e; // Re-throw to be caught by outer try-catch
+            }
+            
+        } catch (\Exception $e) {
+            // Clean up on error
+            if (isset($zip) && $zip instanceof \ZipArchive) {
+                @$zip->close();
+            }
+            if (isset($zipPath) && file_exists($zipPath)) {
+                @unlink($zipPath);
+            }
+            
+            Yii::error("Error generating ID cards: " . $e->getMessage());
             return [
                 'operation' => 'error',
-                'message' => 'Cannot create a zip file'
+                'message' => 'Error generating ID cards: ' . $e->getMessage()
             ];
         }
-
-        $binPath = "wkhtmltopdf";
-        //Yii::getAlias("@common"). "/bin/png-linux-arm";//linux-arm linux-386
-
-        // Create card images
-        
-        foreach ($candidates as $key => $value) {
-            
-            if(!$value->candidateIdCard) {
-                continue;
-            }
-            
-            $authHeader = Yii::$app->request->getHeaders()->get('Authorization');
-            $token = $authHeader ? trim(str_ireplace('Bearer', '', $authHeader)) : null;
-            
-            $card_url = Yii::$app->urlManagerStaff->createAbsoluteUrl(
-                "/candidate-id-cards/".$value->candidateIdCard->id.'/'.$token);
-
-            if (!is_dir($path. '/' . $value->candidate_uid)) {
-                FileHelper::createDirectory($path . '/' . $value->candidate_uid);
-            }
-
-                //$command = $binPath . " " . $card_url. "?side=front " . $path . '/' . $value->candidate_uid . "/front.png";
-
-                $output = exec($binPath . " " . $card_url. "?side=front " . $path . '/' . $value->candidate_uid . "/front.pdf");
-                $output = exec($binPath . " " . $card_url. "?side=back " . $path . '/' . $value->candidate_uid . "/back.pdf");
-               /*
-                //Yii::debug($command);
-                try {
-                    $htmlContent = file_get_contents($path . '/' . $value->candidate_uid . "/front.pdf");
-                    $image = new \Imagick();
-                    $image->setResolution(638, 1011);
-                    $image->readImageBlob($htmlContent);
-                    $image->setImageFormat('png');
-                    $image->writeImage($path . '/' . $value->candidate_uid . '/front.png');
-                    $image->clear();
-                    $image->destroy();
-                } catch (\Exception $e) {
-                    Yii::error($e->getMessage());
-                    return [
-                        'operation' => 'error',
-                        "htmlContent" => $htmlContent,
-                        "message" => $e->getMessage()
-                    ];
-                }
-
-              /*  try {
-                    $htmlContent = file_get_contents($path . '/' . $value->candidate_uid . "/back.pdf");
-                    $image = new \Imagick();
-                    $image->setResolution(638, 1011);
-                    $image->readImageBlob($htmlContent);
-                    $image->setImageFormat('png');
-                    $image->writeImage($path . '/' . $value->candidate_uid . '/back.png');
-                    $image->clear();
-                    $image->destroy();
-                } catch (\Exception $e) {
-                    Yii::error($e->getMessage());
-                    return [
-                        'operation' => 'error',
-                        "htmlContent" => $htmlContent,
-                        "message" => $e->getMessage()
-                    ];
-                } */
-
-                //exec($command . " > /dev/null 2>&1");//, $output, $returnVar);
-
-                //$output = shell_exec($command);
-
-                /*if ($output) {
-                    return [
-                        'operation' => 'error',
-                        // 'zip' => $path.'/'.$zipname,
-                        "output" => $output,
-                        "command" => $command
-                    ];
-                }/*/
-
-                //sleep(5);
-
-                /*if ($returnVar !== 0) {
-                    Yii::error("Command failed: " . implode("\n", $output));
-                    return [
-                        'operation' => 'success',
-                        'message' => 'Command failed: ' .$command . " " . implode("\n", $output)
-                    ];
-                }*/
-
-                //Yii::debug(var_dump($output) . ":" . var_dump($returnVar));
-
-                /*Browsershot::url($card_url . '?side=front')
-                    ->timeout(0)
-                    ->waitUntilNetworkIdle()
-                    ->windowSize(638, 1011)
-                    ->save($path . '/' . $value->candidate_uid . '/front.png');
-
-                Browsershot::url($card_url . '?side=back')
-                    ->timeout(0)
-                    ->waitUntilNetworkIdle()
-                    ->windowSize(638, 1011)
-                    ->save($path . '/' . $value->candidate_uid . '/back.png');*/
-
-                // Add photo folder to zip
-
-            try {
-                $zip->addFile($path . '/' . $value->candidate_uid . '/front.pdf', $value->candidate_uid . '/front.pdf');
-
-                $zip->addFile($path . '/' . $value->candidate_uid . '/back.pdf', $value->candidate_uid . '/back.pdf');
-              //  $zip->addFile($path . '/' . $value->candidate_uid . '/front.pdf', $value->candidate_uid . '/front.png');
-              //  $zip->addFile($path . '/' . $value->candidate_uid . '/back.pdf', $value->candidate_uid . '/back.png');
-            } catch ( \yii\base\ErrorException $e) {
-                return [
-                    'operation' => 'error',
-                    // 'zip' => $path.'/'.$zipname,
-                    //"output" => $output,
-                    //"command" => $command,
-                    "message" => $e->getMessage()
-                ];
-            }
-            catch (\Exception $e) {
-                return [
-                    'operation' => 'error',
-                    // 'zip' => $path.'/'.$zipname,
-                    //"output" => $output,
-                    //"command" => $command,
-                    "message" => $e->getMessage()
-                ];
-            }
-
-          //  }
-        }
-        
-        $zip->close();
-
-        return [
-            'operation' => 'success',
-            'zip' => $path.'/'.$zipname
-        ];
     }
 
     /**
@@ -336,5 +288,31 @@ class CandidateIdCard extends \common\models\CandidateIdCard
                 'candidate_civil_id' => 'Civil ID Number'
             ]
         ]);
+    }
+
+    /**
+     * Clean up temporary directories older than 30 minutes
+     * @param string $basePath Base directory containing temp directories
+     */
+    private static function cleanupOldDirectories($basePath)
+    {
+        try {
+            $dirs = glob(rtrim($basePath, '/') . '/*', GLOB_ONLYDIR);
+            $now = time();
+            $thirtyMinutes = 1800; // 30 minutes in seconds
+            
+            foreach ($dirs as $dir) {
+                if (is_dir($dir) && ($now - filemtime($dir)) > $thirtyMinutes) {
+                    try {
+                        FileHelper::removeDirectory($dir);
+                        Yii::info("Cleaned up old directory: {$dir}", __METHOD__);
+                    } catch (\Exception $e) {
+                        Yii::error("Error cleaning up directory {$dir}: " . $e->getMessage(), __METHOD__);
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            Yii::error("Error in cleanupOldDirectories: " . $e->getMessage(), __METHOD__);
+        }
     }
 }
