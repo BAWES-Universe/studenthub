@@ -156,7 +156,18 @@ $candidate_personal_photo = "https://res.cloudinary.com/studenthub/image/upload/
             <div class="address">
                 <div class="main-address">
                     <p class="uni-label">طالب</p>
-                    <p class="uni-data"><?= $model->candidate->university->university_name_ar ?></p>
+                    <p class="uni-data">
+                        <?php 
+                            $edu = $model->candidate->candidateEducations[0] ?? null;
+                            if (!$edu) {
+                            echo "University (not set)";
+                            } elseif ($edu->education_type === 'standard') {
+                            echo $edu->university->university_name_ar;
+                            } else {
+                            echo $edu->custom_institution_name;
+                            }
+                        ?>
+                    </p>
                     <p class="civil-lbl">الرقم المدني</p>
                     <p style="margin: -7px 0 0 0;font-size: 36px;"><?=$model->candidate->candidate_civil_id;?></p>
                 </div>
