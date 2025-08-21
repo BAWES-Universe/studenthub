@@ -7,7 +7,7 @@ $path = (YII_ENV == 'prod') ?  "candidate-photo/" : "dev/candidate-photo/";
 $candidate_personal_photo = "https://res.cloudinary.com/studenthub/image/upload/w_319,h_319,c_thumb,g_face/v1596453482/" . $path . $model->candidate->candidate_personal_photo;
 
 // Base URL for assets (important for Chromium)
-$baseUrl = Yii::$app->request->hostInfo . Yii::getAlias("@web");
+$baseUrl =  Yii::getAlias("@web");
 ?>
 <html>
 
@@ -229,16 +229,16 @@ $baseUrl = Yii::$app->request->hostInfo . Yii::getAlias("@web");
         <span class="code"><?= $model->candidate->employeeId ?></span>
         <div class="image">
           <?php if ($model->candidate->candidate_personal_photo) { ?>
-            <img onerror="this.src='<?= $baseUrl ?>/images/no_image.png';" src="<?= $candidate_personal_photo; ?>" style="width: 100%; min-height: 100%">
+            <img onerror="this.src='../../../images/no_image.png';" src="<?= $candidate_personal_photo; ?>" style="width: 100%; min-height: 100%">
           <?php } else { ?>
-            <img src="<?= $baseUrl ?>/images/no_image.png" style="width: 100%; min-height: 100%">
+            <?= \yii\helpers\Html::img('@web/images/no_image.png', ['style' => 'width: 100%;min-height: : 100%']); ?>
           <?php } ?>
         </div>
         <span class="name-top"><?= (isset($nameSections[0])) ? $nameSections[0] : '-' ?></span>
       </div>
       <div class="bottom-part">
         <span class="name-bottom"><?= (isset($nameSections[1])) ? $nameSections[1] : '-' ?></span>
-        <img src="<?= $baseUrl ?>/images/logo.svg" class="logo-1">
+        <?= \yii\helpers\Html::img('@web/images/logo.svg', ['class' => 'logo-1']) ?>
       </div>
     </div>
   <?php } ?>
@@ -280,7 +280,7 @@ $baseUrl = Yii::$app->request->hostInfo . Yii::getAlias("@web");
           <p>contact@bawes.net</p>
           <p>+965 98009771</p>
         </div>
-        <img src="<?= $baseUrl ?>/images/back-logo.svg" style="position: absolute; left: 35px; bottom: 30px">
+        <?= \yii\helpers\Html::img('@web/images/back-logo.svg', ['style' => 'position: absolute;left: 35px;bottom: 30px']) ?>
       </div>
     </div>
   <?php } ?>
