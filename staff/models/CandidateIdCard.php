@@ -64,12 +64,12 @@ class CandidateIdCard extends \common\models\CandidateIdCard
             FileHelper::createDirectory($path, 0775, true);
         }
 
-        $binPath = "wkhtmltopdf";
-        $pdfFiles = []; // To store generated PDF files
+        $binPath = "wkhtmltoimage";
+        $generatedFiles = []; // To store generated files
         $hasErrors = false;
         
         try {
-            // First pass: Generate all PDF files
+            // First pass: Generate all files
             foreach ($candidates as $key => $value) {
                 if (!$value->candidateIdCard) {
                     continue;
@@ -86,33 +86,52 @@ class CandidateIdCard extends \common\models\CandidateIdCard
                 $card_url = Yii::$app->urlManagerStaff->createAbsoluteUrl(
                     "/candidate-id-cards/".$value->candidateIdCard->id.'/'.$token);
 
-                // Generate PDFs with unique filenames
-                $frontPdf = $candidateDir . "/front.pdf";
-                $backPdf = $candidateDir . "/back.pdf";
+                // Generate files with unique filenames
+                $frontFile = $candidateDir . "/front.png";
+                $backFile = $candidateDir . "/back.png";
                 
-                // Generate front and back PDFs
-                $output = exec($binPath . " " . $card_url . "?side=front " . $frontPdf);
-                $output = exec($binPath . " " . $card_url . "?side=back " . $backPdf);
-                
-                // Verify both PDFs were created
-                if (file_exists($frontPdf) && file_exists($backPdf)) {
-                    $pdfFiles[] = [
-                        'front' => $frontPdf,
-                        'back' => $backPdf,
-                        'uid' => $value->candidate_uid
-                    ];
-                } else {
-                    Yii::error("Failed to generate PDFs for candidate: " . $value->candidate_uid);
+                // Generate front and back files in background
+                exec($binPath . " '{$card_url}?side=front' '{$frontFile}' > /dev/null 2>&1 &");
+                exec($binPath . " '{$card_url}?side=back'  '{$backFile}'  > /dev/null 2>&1 &");
+
+                // Track expected files (don’t check yet)
+                $generatedFiles[] = [
+                    'front' => $frontFile,
+                    'back'  => $backFile,
+                    'uid'   => $value->candidate_uid
+                ];
+            }
+            
+            if (empty($generatedFiles)) {
+                throw new \Exception('No valid candidate ID cards were processed');
+            }
+            
+            // Wait until all files are ready (max 90s)
+            $maxWait = 90;
+            $start   = time();
+
+            do {
+                $allReady = true;
+                foreach ($generatedFiles as $file) {
+                    if (!file_exists($file['front']) || !file_exists($file['back'])) {
+                        $allReady = false;
+                        break;
+                    }
+                }
+                if ($allReady) break;
+                usleep(500000); // wait 0.5s
+            } while (time() - $start < $maxWait);
+
+            // Mark errors if some files never appeared
+            foreach ($generatedFiles as $file) {
+                if (!file_exists($file['front']) || !file_exists($file['back'])) {
+                    Yii::error("Failed to generate files for candidate: " . $file['uid']);
                     $hasErrors = true;
                 }
             }
             
-            if (empty($pdfFiles)) {
-                throw new \Exception('No valid candidate ID cards were processed');
-            }
-            
             if ($hasErrors) {
-                Yii::warning('Some candidates had errors during PDF generation');
+                Yii::warning('Some candidates had errors during file generation');
             }
             
             // Create zip with unique name
@@ -126,10 +145,10 @@ class CandidateIdCard extends \common\models\CandidateIdCard
             }
             
             try {
-                // Add all PDFs to zip
-                foreach ($pdfFiles as $file) {
-                    $zip->addFile($file['front'], $file['uid'] . '/front.pdf');
-                    $zip->addFile($file['back'], $file['uid'] . '/back.pdf');
+                // Add all files to zip
+                foreach ($generatedFiles as $file) {
+                    $zip->addFile($file['front'], $file['uid'] . '/front.png');
+                    $zip->addFile($file['back'], $file['uid'] . '/back.png');
                 }
                 
                 if ($zip->numFiles === 0) {
