@@ -64,7 +64,7 @@ class CandidateIdCard extends \common\models\CandidateIdCard
             FileHelper::createDirectory($path, 0775, true);
         }
 
-        $binPath = "wkhtmltoimage";
+        $binPath = "/usr/bin/chromium";
         $generatedFiles = []; // To store generated files
         $hasErrors = false;
         
@@ -90,11 +90,22 @@ class CandidateIdCard extends \common\models\CandidateIdCard
                 $frontFile = $candidateDir . "/front.png";
                 $backFile = $candidateDir . "/back.png";
                 
-                // Generate front and back files in background
-                exec($binPath . " '{$card_url}?side=front' '{$frontFile}' > /dev/null 2>&1 &");
-                exec($binPath . " '{$card_url}?side=back'  '{$backFile}'  > /dev/null 2>&1 &");
+                // Common Chromium command
+                $chromeBase = "HOME=/tmp PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin $binPath" .
+                  " --headless --no-sandbox --disable-gpu" .
+                  " --disable-software-rasterizer --disable-dev-shm-usage" .
+                  " --window-size=638,1080 --hide-scrollbars --full-page" .
+                  " --user-data-dir=/tmp/chrome-temp --disable-breakpad";
+                    
+              
+                $logFront = $path . "/chrome_front_{$value->candidate_uid}.log";
+                $cmdFront = "$chromeBase --screenshot='$frontFile' '$card_url?side=front' > $logFront 2>&1";
+                exec($cmdFront);
 
-                // Track expected files (don’t check yet)
+                $logBack = $path . "/chrome_back_{$value->candidate_uid}.log";
+                $cmdBack = "$chromeBase --screenshot='$backFile' '$card_url?side=back' > $logBack 2>&1";
+                exec($cmdBack); 
+                
                 $generatedFiles[] = [
                     'front' => $frontFile,
                     'back'  => $backFile,
@@ -107,7 +118,7 @@ class CandidateIdCard extends \common\models\CandidateIdCard
             }
             
             // Wait until all files are ready (max 90s)
-            $maxWait = 90;
+            $maxWait = 60;
             $start   = time();
 
             do {
