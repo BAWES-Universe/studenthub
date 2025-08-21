@@ -93,44 +93,52 @@ class CandidateIdCardController extends Controller
             throw new \yii\web\ForbiddenHttpException('Invalid Access');
         }
 
-        $side = Yii::$app->request->get('side');
+        try {
+            $side = Yii::$app->request->get('side');
 
-        $model = $this->findModel($id);
+            $model = $this->findModel($id);
 
-        Yii::$app->response->format = yii\web\Response::FORMAT_HTML;
-        
-        $qrCode = null;
-        
-        if ($model->candidate->candidate_uid) {
-            //$writer = new \Da\QrCode\Writer\JpgWriter();
+            Yii::$app->response->format = yii\web\Response::FORMAT_HTML;
+            
+            $qrCode = null;
+            
+            if ($model->candidate->candidate_uid) {
+                //$writer = new \Da\QrCode\Writer\JpgWriter();
 
-            $path = (YII_ENV == 'prod') ? "https://v.studenthub.co/" : "https://v.dev.studenthub.co/";
+                $path = (YII_ENV == 'prod') ? "https://v.studenthub.co/" : "https://v.dev.studenthub.co/";
 
-            $options = new QROptions(
-                [
-                    'eccLevel' => EccLevel::L,// QRCode::ECC_L,
-                   // 'outputType' => QROutputInterface::MARKUP_SVG,
-                    'outputInterface' => QRGdImagePNG::class,
-                    'version' => 7,
-                ]
-            );
+                $options = new QROptions(
+                    [
+                        'eccLevel' => EccLevel::L,// QRCode::ECC_L,
+                       // 'outputType' => QROutputInterface::MARKUP_SVG,
+                        'outputInterface' => QRGdImagePNG::class,
+                        'version' => 7,
+                    ]
+                );
 
-            $qrCode = (new QRCode($options))
-                ->render($path . $model->candidate->candidate_uid);
+                $qrCode = (new QRCode($options))
+                    ->render($path . $model->candidate->candidate_uid);
 
-            /*$qrCode = (new QrCode($path . $model->candidate->candidate_uid, null, $writer))
-                ->setSize(500)
-                ->setMargin(5);*/
+                /*$qrCode = (new QrCode($path . $model->candidate->candidate_uid, null, $writer))
+                    ->setSize(500)
+                    ->setMargin(5);*/
 
-         //   echo $qrcode;
-           // die();
+             //   echo $qrcode;
+               // die();
+            }
+            
+            return $this->renderPartial('view', [
+                'model' => $model,
+                'qrCode' => $qrCode,
+                'side' => $side
+            ]);
+        } catch (\Throwable $e) {
+            Yii::error('CandidateIdCardController actionView error: ' . $e->getMessage() . "\n" . $e->getTraceAsString(), __METHOD__);
+            $message = (YII_ENV === 'prod')
+                ? 'An unexpected error occurred. Please try again later.'
+                : ('Error generating candidate ID card: ' . $e->getMessage());
+            throw new \yii\web\ServerErrorHttpException($message, 0, $e);
         }
-        
-        return $this->renderPartial('view', [
-            'model' => $model,
-            'qrCode' => $qrCode,
-            'side' => $side
-        ]);
     }
 
     /**
