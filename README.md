@@ -13,6 +13,7 @@ StudentHub is a platform that enables corporate recruitment and management of tr
    - Inspector: http://localhost:24080
    - Staff: http://localhost:25080
    - Verification: http://localhost:26080
+   
 
 ## Documentation
 
