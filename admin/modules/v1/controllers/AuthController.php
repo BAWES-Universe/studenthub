@@ -90,17 +90,17 @@ class AuthController extends Controller
 
         $token = Yii::$app->request->headers->get("g-recaptcha-response");
 
-        if(YII_ENV != 'test') {
-            $response = Yii::$app->reCaptcha->verify($token);
+        // if(YII_ENV != 'test') {
+        //     $response = Yii::$app->reCaptcha->verify($token);
 
-            if (!$response->data || !$response->data['success']) {
-                return [
-                    "operation" => "error",
-                    "code" => 0,
-                    "message" => Yii::t('candidate', "Invalid captcha validation")
-                ];
-            }
-        }
+        //     if (!$response->data || !$response->data['success']) {
+        //         return [
+        //             "operation" => "error",
+        //             "code" => 0,
+        //             "message" => Yii::t('candidate', "Invalid captcha validation")
+        //         ];
+        //     }
+        // }
 
         $token = Yii::$app->request->getBodyParam("token");
         $otp = Yii::$app->request->getBodyParam("otp");
@@ -136,17 +136,17 @@ class AuthController extends Controller
     {
         $token = Yii::$app->request->headers->get("g-recaptcha-response");
 
-        if(YII_ENV != 'test') {
-            $response = Yii::$app->reCaptcha->verify($token);
+        // if(YII_ENV != 'test') {
+        //     $response = Yii::$app->reCaptcha->verify($token);
 
-            if (!$response->data || !$response->data['success']) {
-                return [
-                    "operation" => "error",
-                    "code" => 0,
-                    "message" => Yii::t('candidate', "Invalid captcha validation")
-                ];
-            }
-        }
+        //     if (!$response->data || !$response->data['success']) {
+        //         return [
+        //             "operation" => "error",
+        //             "code" => 0,
+        //             "message" => Yii::t('candidate', "Invalid captcha validation")
+        //         ];
+        //     }
+        // }
 
         $admin = Yii::$app->user->identity;
 

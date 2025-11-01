@@ -106,17 +106,17 @@ class AuthController extends Controller
 
         $token = Yii::$app->request->headers->get("g-recaptcha-response");
 
-        if(YII_ENV != 'test') {
-            $response = Yii::$app->reCaptcha->verify($token);
+        // if(YII_ENV != 'test') {
+        //     $response = Yii::$app->reCaptcha->verify($token);
 
-            if (!$response->data || !$response->data['success']) {
-                return [
-                    "operation" => "error",
-                    "code" => 0,
-                    "message" => Yii::t('candidate', "Invalid captcha validation")
-                ];
-            }
-        }
+        //     if (!$response->data || !$response->data['success']) {
+        //         return [
+        //             "operation" => "error",
+        //             "code" => 0,
+        //             "message" => Yii::t('candidate', "Invalid captcha validation")
+        //         ];
+        //     }
+        // }
 
         $token = Yii::$app->request->getBodyParam("token");
         $otp = Yii::$app->request->getBodyParam("otp");
@@ -200,17 +200,17 @@ class AuthController extends Controller
     {
         $token = Yii::$app->request->headers->get("g-recaptcha-response");
 
-        if(YII_ENV != 'test') {
-            $response = Yii::$app->reCaptcha->verify($token);
+        // if(YII_ENV != 'test') {
+        //     $response = Yii::$app->reCaptcha->verify($token);
 
-            if (!$response->data || !$response->data['success']) {
-                return [
-                    "operation" => "error",
-                    "code" => 0,
-                    "message" => Yii::t('candidate', "Invalid captcha validation")
-                ];
-            }
-        }
+        //     if (!$response->data || !$response->data['success']) {
+        //         return [
+        //             "operation" => "error",
+        //             "code" => 0,
+        //             "message" => Yii::t('candidate', "Invalid captcha validation")
+        //         ];
+        //     }
+        // }
 
         $candidate = Yii::$app->user->identity;
 
@@ -428,17 +428,17 @@ class AuthController extends Controller
 
         //TODO: make token as required field once we update android app
 
-        if(YII_ENV != 'test') {
-            $response = Yii::$app->reCaptcha->verify($token);
+        // if(YII_ENV != 'test') {
+        //     $response = Yii::$app->reCaptcha->verify($token);
 
-            if (!$response->data || !$response->data['success']) {
-                return [
-                    "operation" => "error",
-                    "code" => 0,
-                    "message" => Yii::t('candidate', "Invalid captcha validation")
-                ];
-            }
-        }
+        //     if (!$response->data || !$response->data['success']) {
+        //         return [
+        //             "operation" => "error",
+        //             "code" => 0,
+        //             "message" => Yii::t('candidate', "Invalid captcha validation")
+        //         ];
+        //     }
+        // }
 
         $candidate = Candidate::find()->andWhere([
                 'candidate_email' => $emailInput
@@ -584,17 +584,17 @@ class AuthController extends Controller
 
         //TODO: make token as required field once we update android app
 
-        if (YII_ENV != 'test') {
-            $response = Yii::$app->reCaptcha->verify($token);
+        // if (YII_ENV != 'test') {
+        //     $response = Yii::$app->reCaptcha->verify($token);
 
-            if (!$response->data || !$response->data['success']) {
-                return [
-                    "operation" => "error",
-                    "code" => 0,
-                    "message" => Yii::t('candidate', "Invalid captcha validation")
-                ];
-            }
-        }
+        //     if (!$response->data || !$response->data['success']) {
+        //         return [
+        //             "operation" => "error",
+        //             "code" => 0,
+        //             "message" => Yii::t('candidate', "Invalid captcha validation")
+        //         ];
+        //     }
+        // }
 
         $model = new \candidate\models\PasswordResetRequestForm();
         $model->phone_number = $phone_number;
@@ -673,17 +673,17 @@ class AuthController extends Controller
 
         //TODO: make token as required field once we update android app
 
-        if(YII_ENV != 'test') {
-            $response = Yii::$app->reCaptcha->verify($token);
+        // if(YII_ENV != 'test') {
+        //     $response = Yii::$app->reCaptcha->verify($token);
 
-            if (!$response->data || !$response->data['success']) {
-                return [
-                    "operation" => "error",
-                    "code" => 0,
-                    "message" => Yii::t('candidate', "Invalid captcha validation")
-                ];
-            }
-        }
+        //     if (!$response->data || !$response->data['success']) {
+        //         return [
+        //             "operation" => "error",
+        //             "code" => 0,
+        //             "message" => Yii::t('candidate', "Invalid captcha validation")
+        //         ];
+        //     }
+        // }
 
         $model = new \candidate\models\PasswordResetRequestForm();
         $model->email = $emailInput;
@@ -849,17 +849,17 @@ class AuthController extends Controller
 
         //TODO: make token as required field once we update android app
 
-        if(YII_ENV != 'test') {
-            $response = Yii::$app->reCaptcha->verify($token);
+        // if(YII_ENV != 'test') {
+        //     $response = Yii::$app->reCaptcha->verify($token);
 
-            if (!$response->data || !$response->data['success']) {
-                return [
-                    "operation" => "error",
-                    "code" => 0,
-                    "message" => Yii::t('candidate', "Invalid captcha validation")
-                ];
-            }
-        }
+        //     if (!$response->data || !$response->data['success']) {
+        //         return [
+        //             "operation" => "error",
+        //             "code" => 0,
+        //             "message" => Yii::t('candidate', "Invalid captcha validation")
+        //         ];
+        //     }
+        // }
 
         if (!$name) {
             return [
