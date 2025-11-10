@@ -43,7 +43,7 @@ services:
       - MYSQL_PASSWORD=12345
     entrypoint:
       sh -c "echo 'CREATE DATABASE IF NOT EXISTS studenthub;CREATE DATABASE IF NOT EXISTS studenthub_test;' > /docker-entrypoint-initdb.d/init.sql;
-        /usr/local/bin/docker-entrypoint.sh --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci"
+        /usr/local/bin/docker-entrypoint.sh --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --sql-mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"
     networks:
       - studenthub-network
   
@@ -62,7 +62,7 @@ services:
       - MYSQL_PASSWORD=12345
     entrypoint:
       sh -c "echo 'CREATE DATABASE IF NOT EXISTS wallet;CREATE DATABASE IF NOT EXISTS wallet_test;' > /docker-entrypoint-initdb.d/init.sql;
-        /usr/local/bin/docker-entrypoint.sh --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci"
+        /usr/local/bin/docker-entrypoint.sh --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --sql-mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"
     networks:
       - studenthub-network
 

@@ -117,8 +117,8 @@ class m210108_092910_rename_company_contact_to_contact extends Migration
 
         // adding contact detail for those who have contact details
 
-        $queryCompanies = 'SELECT * FROM `contact` left join `company` on `contact`.`company_id` = `company`.`company_id`';
-        $queryCompanies .= ' where company.deleted=0 group by `contact`.`company_id`';
+        $queryCompanies = 'SELECT `contact`.`contact_uuid`, `contact`.`company_id`, `company`.`company_email`, `company`.`company_auth_key`, `company`.`company_password_hash` FROM `contact` left join `company` on `contact`.`company_id` = `company`.`company_id`';
+        $queryCompanies .= ' where company.deleted=0 group by `contact`.`company_id`, `contact`.`contact_uuid`, `company`.`company_email`, `company`.`company_auth_key`, `company`.`company_password_hash`';
 
         $queryAll = Yii::$app->db->createCommand($queryCompanies)->queryAll();
 
