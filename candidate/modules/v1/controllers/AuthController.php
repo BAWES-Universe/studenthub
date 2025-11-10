@@ -24,10 +24,6 @@ use yii\web\UnauthorizedHttpException;
  *     version="1.0.0",
  *     description="API for candidate management and authentication"
  * )
- * @OA\Server(
- *     url="https://student.api.dev.studenthub.co/v1",
- *     description="Development server"
- * )
  * @OA\SecurityScheme(
  *     securityScheme="basicAuth",
  *     type="http",
