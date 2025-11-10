@@ -16,6 +16,11 @@ use yii\web\NotFoundHttpException;
 
 /**
  * Candidate controller - Manage Candidate accounts as Admin
+ * 
+ * @OA\Tag(
+ *     name="Candidate Management",
+ *     description="Manage candidate accounts, search, approve, and view candidate information"
+ * )
  */
 class CandidateController extends Controller
 {
@@ -70,8 +75,43 @@ class CandidateController extends Controller
     }
 
     /**
-     * Return a List of Candidate Accounts by
-     * search criteria
+     * Search candidates
+     * 
+     * @OA\Post(
+     *     path="/candidate/search",
+     *     summary="Search candidates",
+     *     description="Search candidates by various criteria (name, email, phone, civil ID, company, country, university, etc.)",
+     *     tags={"Candidate Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\RequestBody(
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="by", type="string", description="Filter by: country_id, university_id, review, store_id"),
+     *             @OA\Property(property="name", type="string", description="Search by name or ID"),
+     *             @OA\Property(property="email", type="string", description="Filter by email"),
+     *             @OA\Property(property="phone", type="string", description="Filter by phone"),
+     *             @OA\Property(property="civil", type="string", description="Filter by civil ID"),
+     *             @OA\Property(property="company_id", type="integer", description="Filter by company ID"),
+     *             @OA\Property(property="match_request_id", type="integer", description="Filter by request requirements"),
+     *             @OA\Property(property="assigned", type="boolean", description="Filter by assigned status"),
+     *             @OA\Property(property="type", type="string", description="Date filter type"),
+     *             @OA\Property(property="start_date", type="string", format="date", description="Start date"),
+     *             @OA\Property(property="end_date", type="string", format="date", description="End date")
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="Currency",
+     *         in="header",
+     *         description="Currency code (default: KWD)",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of candidates",
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Candidate"))
+     *     ),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      */
     public function actionSearch()
     {
@@ -145,8 +185,36 @@ class CandidateController extends Controller
     }
 
     /**
-     * Return a List of Candidate Accounts by
-     * search criteria
+     * Search candidate work history report
+     * 
+     * @OA\Post(
+     *     path="/candidate/report-search",
+     *     summary="Search candidate work history",
+     *     description="Search candidate work history for reporting purposes",
+     *     tags={"Candidate Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\RequestBody(
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="company_id", type="integer", description="Filter by company ID"),
+     *             @OA\Property(property="start", type="string", format="date", description="Start date"),
+     *             @OA\Property(property="end", type="string", format="date", description="End date"),
+     *             @OA\Property(property="currently_working", type="boolean", description="Filter currently working candidates")
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="Currency",
+     *         in="header",
+     *         description="Currency code (default: KWD)",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of candidate work history",
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/CandidateWorkHistory"))
+     *     ),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      */
     public function actionReportSearch()
     {
@@ -193,8 +261,31 @@ class CandidateController extends Controller
     }
 
     /**
-     * Return a No of Candidate to review
-     * Return a No of Payable candidate also
+     * Get total candidates to review
+     * 
+     * @OA\Get(
+     *     path="/candidate/total-to-review",
+     *     summary="Get review statistics",
+     *     description="Get count of candidates pending review and total payable candidates",
+     *     tags={"Candidate Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="Currency",
+     *         in="header",
+     *         description="Currency code (default: KWD)",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Review statistics",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="total", type="integer", description="Total candidates pending review"),
+     *             @OA\Property(property="payable", type="integer", description="Total payable candidates")
+     *         )
+     *     ),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      */
     public function actionTotalToReview()
     {
@@ -216,6 +307,32 @@ class CandidateController extends Controller
     }
 
     /**
+     * Login as candidate (admin impersonation)
+     * 
+     * @OA\Post(
+     *     path="/candidate/{id}/login",
+     *     summary="Login as candidate",
+     *     description="Generate auth key and redirect URL to login as a candidate (admin impersonation)",
+     *     tags={"Candidate Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Candidate ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Login URL generated",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="redirect", type="string", description="Redirect URL with auth key")
+     *         )
+     *     ),
+     *     @OA\Response(response=404, description="Candidate not found"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      * @param $id
      * @return \yii\web\Response
      * @throws NotFoundHttpException
@@ -243,6 +360,32 @@ class CandidateController extends Controller
 
     /**
      * Approve candidate account
+     * 
+     * @OA\Post(
+     *     path="/candidate/{id}/approve",
+     *     summary="Approve candidate",
+     *     description="Approve a candidate account",
+     *     tags={"Candidate Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Candidate ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Candidate approved successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="operation", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Candidate account approved successfully")
+     *         )
+     *     ),
+     *     @OA\Response(response=404, description="Candidate not found"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      * @param $id
      * @return array
      */
@@ -283,7 +426,33 @@ class CandidateController extends Controller
     }
 
     /**
-     * Approve candidate account
+     * Restore deleted candidate account
+     * 
+     * @OA\Post(
+     *     path="/candidate/{id}/restore",
+     *     summary="Restore candidate",
+     *     description="Restore a previously deleted candidate account",
+     *     tags={"Candidate Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Candidate ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Candidate restored successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="operation", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Candidate account restored successfully")
+     *         )
+     *     ),
+     *     @OA\Response(response=404, description="Candidate not found"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      * @param $id
      * @return array
      */
@@ -325,7 +494,29 @@ class CandidateController extends Controller
     }
 
     /**
-     * Return candidate's salary transfer with status
+     * Get candidate salary transfers
+     * 
+     * @OA\Get(
+     *     path="/candidate/{id}/transfers",
+     *     summary="Get candidate transfers",
+     *     description="Get list of salary transfers for a candidate",
+     *     tags={"Candidate Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Candidate ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of transfers",
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/TransferCandidate"))
+     *     ),
+     *     @OA\Response(response=404, description="Candidate not found"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      */
     public function actionTransfers($id)
     {
@@ -335,7 +526,29 @@ class CandidateController extends Controller
     }
 
     /**
-     * load candidate details
+     * Get candidate details
+     * 
+     * @OA\Get(
+     *     path="/candidate/{id}",
+     *     summary="Get candidate",
+     *     description="Get detailed information about a candidate",
+     *     tags={"Candidate Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Candidate ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Candidate details",
+     *         @OA\JsonContent(ref="#/components/schemas/Candidate")
+     *     ),
+     *     @OA\Response(response=404, description="Candidate not found"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      * @param type $id
      * @return type
      */
@@ -346,7 +559,29 @@ class CandidateController extends Controller
     }
     
     /**
-     * get candidate work history
+     * Get candidate work history
+     * 
+     * @OA\Get(
+     *     path="/candidate/{id}/work-history",
+     *     summary="Get work history",
+     *     description="Get work history for a candidate",
+     *     tags={"Candidate Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Candidate ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of work history entries",
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/CandidateWorkHistory"))
+     *     ),
+     *     @OA\Response(response=404, description="Candidate not found"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      * @param $id
      * @return array|static[]
      */
@@ -363,7 +598,34 @@ class CandidateController extends Controller
     }
 
     /**
-     * Delete an account
+     * Delete candidate account
+     * 
+     * @OA\Delete(
+     *     path="/candidate/{id}",
+     *     summary="Delete candidate",
+     *     description="Soft delete a candidate account",
+     *     tags={"Candidate Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Candidate ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Candidate deleted successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="operation", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Candidate account deleted successfully")
+     *         )
+     *     ),
+     *     @OA\Response(response=404, description="Candidate not found"),
+     *     @OA\Response(response=401, description="Unauthorized"),
+     *     @OA\Response(response=403, description="Limited access admin cannot delete")
+     * )
      * @param  integer $id
      * @return array
      */
@@ -412,7 +674,39 @@ class CandidateController extends Controller
     }
 
     /**
-     * Reset staff password
+     * Reset candidate password
+     * 
+     * @OA\Post(
+     *     path="/candidate/{id}/reset-password",
+     *     summary="Reset candidate password",
+     *     description="Generate and send a new password to the candidate's email, or set a custom password",
+     *     tags={"Candidate Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Candidate ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="password", type="string", format="password", description="Optional custom password (if not provided, random password will be generated)")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Password reset successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="operation", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="New password sent to registered email successfully")
+     *         )
+     *     ),
+     *     @OA\Response(response=404, description="Candidate not found"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      * @param $id
      * @return array
      */

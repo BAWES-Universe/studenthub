@@ -13,6 +13,11 @@ use yii\web\NotFoundHttpException;
 
 /**
  * Admin controller - Manage Admin accounts as Admin
+ * 
+ * @OA\Tag(
+ *     name="Admin Management",
+ *     description="Manage admin accounts, permissions, and settings"
+ * )
  */
 class AdminController extends Controller
 {
@@ -67,7 +72,21 @@ class AdminController extends Controller
     }
 
     /**
-     * Return a List of admin Accounts available.
+     * List all admin accounts
+     * 
+     * @OA\Get(
+     *     path="/admin/list",
+     *     summary="List admin accounts",
+     *     description="Get a paginated list of all admin accounts",
+     *     tags={"Admin Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of admin accounts",
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Admin"))
+     *     ),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      * @return ActiveDataProvider
      */
     public function actionList()
@@ -80,6 +99,29 @@ class AdminController extends Controller
     }
 
     /**
+     * Get admin account details
+     * 
+     * @OA\Get(
+     *     path="/admin/{id}",
+     *     summary="Get admin account",
+     *     description="Get details of a specific admin account",
+     *     tags={"Admin Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Admin ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Admin account details",
+     *         @OA\JsonContent(ref="#/components/schemas/Admin")
+     *     ),
+     *     @OA\Response(response=404, description="Admin not found"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      * @param $id
      * @return Admin
      * @throws NotFoundHttpException
@@ -90,7 +132,38 @@ class AdminController extends Controller
     }
 
     /**
-     * Create a admin account
+     * Create a new admin account
+     * 
+     * @OA\Post(
+     *     path="/admin/create",
+     *     summary="Create admin account",
+     *     description="Create a new admin account",
+     *     tags={"Admin Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             required={"name", "email", "password"},
+     *             @OA\Property(property="name", type="string", description="Admin name"),
+     *             @OA\Property(property="email", type="string", format="email", description="Admin email"),
+     *             @OA\Property(property="password", type="string", format="password", description="Admin password"),
+     *             @OA\Property(property="limited_access", type="boolean", description="Limited access flag"),
+     *             @OA\Property(property="enable_two_step_auth", type="boolean", description="Enable two-step authentication")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Admin account created successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="operation", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Admin account successfully created")
+     *         )
+     *     ),
+     *     @OA\Response(response=400, description="Validation error"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      * @return array|string[]
      */
     public function actionCreate()
@@ -132,7 +205,43 @@ class AdminController extends Controller
     }
 
     /**
-     * Create a admin account
+     * Update admin account
+     * 
+     * @OA\Patch(
+     *     path="/admin/{id}",
+     *     summary="Update admin account",
+     *     description="Update an existing admin account",
+     *     tags={"Admin Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Admin ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="name", type="string", description="Admin name"),
+     *             @OA\Property(property="email", type="string", format="email", description="Admin email"),
+     *             @OA\Property(property="limited_access", type="boolean", description="Limited access flag"),
+     *             @OA\Property(property="enable_two_step_auth", type="boolean", description="Enable two-step authentication")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Admin account updated successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="operation", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Admin account successfully updated")
+     *         )
+     *     ),
+     *     @OA\Response(response=404, description="Admin not found"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      * @param $id
      * @return array|string[]
      * @throws NotFoundHttpException
@@ -181,7 +290,33 @@ class AdminController extends Controller
     }
 
     /**
-     * Delete an account
+     * Delete admin account
+     * 
+     * @OA\Delete(
+     *     path="/admin/{id}",
+     *     summary="Delete admin account",
+     *     description="Delete an admin account",
+     *     tags={"Admin Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Admin ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Admin account deleted successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="operation", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Admin account deleted successfully")
+     *         )
+     *     ),
+     *     @OA\Response(response=404, description="Admin not found"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      * @param $id
      * @return array|string[]
      * @throws NotFoundHttpException
@@ -229,6 +364,32 @@ class AdminController extends Controller
 
     /**
      * Reset admin password
+     * 
+     * @OA\Post(
+     *     path="/admin/{id}/reset-password",
+     *     summary="Reset admin password",
+     *     description="Generate and send a new password to the admin's email",
+     *     tags={"Admin Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Admin ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Password reset successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="operation", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="New password sent to registered email successfully")
+     *         )
+     *     ),
+     *     @OA\Response(response=404, description="Admin not found"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      * @param $id
      * @return array|string[]
      * @throws NotFoundHttpException
@@ -261,7 +422,40 @@ class AdminController extends Controller
     }
 
     /**
-     * Delete an account
+     * Update admin status
+     * 
+     * @OA\Post(
+     *     path="/admin/{id}/status",
+     *     summary="Update admin status",
+     *     description="Update the status of an admin account (active/inactive)",
+     *     tags={"Admin Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Admin ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="integer", description="Status (0=inactive, 1=active)")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Admin status updated successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="operation", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Admin status changed successfully")
+     *         )
+     *     ),
+     *     @OA\Response(response=404, description="Admin not found"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      * @param  integer $id
      * @return array
      */

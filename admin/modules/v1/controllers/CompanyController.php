@@ -19,6 +19,11 @@ use yii\web\NotFoundHttpException;
 
 /**
  * Company controller - Manage company accounts as Admin
+ * 
+ * @OA\Tag(
+ *     name="Company Management",
+ *     description="Manage company accounts, sub-companies, files, and company settings"
+ * )
  */
 class CompanyController extends Controller
 {
@@ -73,6 +78,32 @@ class CompanyController extends Controller
     }
 
     /**
+     * Login as company (admin impersonation)
+     * 
+     * @OA\Post(
+     *     path="/company/{id}/login",
+     *     summary="Login as company",
+     *     description="Generate auth key and redirect URL to login as a company (admin impersonation)",
+     *     tags={"Company Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Company ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Login URL generated",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="redirect", type="string", description="Redirect URL with auth key")
+     *         )
+     *     ),
+     *     @OA\Response(response=404, description="Company not found"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      * @param $id
      * @return \yii\web\Response
      * @throws NotFoundHttpException
@@ -106,7 +137,63 @@ class CompanyController extends Controller
     }
 
     /**
-     * Return a List of Company Accounts available.
+     * List companies
+     * 
+     * @OA\Get(
+     *     path="/company/list",
+     *     summary="List companies",
+     *     description="Get a paginated list of companies with optional filtering",
+     *     tags={"Company Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="Filter by status: 0=all, 1=active, 2=inactive, 3=active 40+ days without payment",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="name",
+     *         in="query",
+     *         description="Filter by company name",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="staff_id",
+     *         in="query",
+     *         description="Filter by staff ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="approved_to_hire",
+     *         in="query",
+     *         description="Filter by approved to hire status",
+     *         @OA\Schema(type="boolean")
+     *     ),
+     *     @OA\Parameter(
+     *         name="fields",
+     *         in="query",
+     *         description="Comma-separated list of fields to return",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="isParent",
+     *         in="query",
+     *         description="Filter parent companies only",
+     *         @OA\Schema(type="boolean", default=true)
+     *     ),
+     *     @OA\Parameter(
+     *         name="currency",
+     *         in="header",
+     *         description="Currency code (default: KWD)",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of companies",
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Company"))
+     *     ),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      * @return ActiveDataProvider
      */
     public function actionList()
@@ -176,7 +263,27 @@ class CompanyController extends Controller
     }
 
     /**
-     * Return a List of Company Accounts need followups.
+     * List companies needing followups
+     * 
+     * @OA\Get(
+     *     path="/company/followups",
+     *     summary="List companies needing followups",
+     *     description="Get list of companies that need followup attention",
+     *     tags={"Company Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="currency",
+     *         in="header",
+     *         description="Currency code (default: KWD)",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of companies needing followups",
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Company"))
+     *     ),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      * @return ActiveDataProvider
      */
     public function actionFollowups()
@@ -200,7 +307,35 @@ class CompanyController extends Controller
     }
 
     /**
-     * Return a List of Sub Company Accounts by company_id
+     * Get sub-companies
+     * 
+     * @OA\Get(
+     *     path="/company/{id}/sub-companies",
+     *     summary="Get sub-companies",
+     *     description="Get list of sub-companies for a parent company",
+     *     tags={"Company Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Parent company ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="currency",
+     *         in="header",
+     *         description="Currency code (default: KWD)",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of sub-companies",
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Company"))
+     *     ),
+     *     @OA\Response(response=404, description="Company not found"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      * @param $id
      * @return ActiveDataProvider
      */
@@ -228,7 +363,49 @@ class CompanyController extends Controller
     }
 
     /**
-     * Create a company account
+     * Create company account
+     * 
+     * @OA\Post(
+     *     path="/company/create",
+     *     summary="Create company",
+     *     description="Create a new company account (parent or sub-company)",
+     *     tags={"Company Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             required={"name"},
+     *             @OA\Property(property="name", type="string", description="Company name"),
+     *             @OA\Property(property="email", type="string", format="email", description="Company email (required for parent company)"),
+     *             @OA\Property(property="password", type="string", format="password", description="Password (required for parent company)"),
+     *             @OA\Property(property="parent", type="integer", description="Parent company ID (for sub-company)"),
+     *             @OA\Property(property="country_id", type="integer", description="Country ID"),
+     *             @OA\Property(property="currency_code", type="string", description="Currency code"),
+     *             @OA\Property(property="hourly_rate", type="number", description="Hourly rate"),
+     *             @OA\Property(property="bonus_commission", type="number", description="Bonus commission"),
+     *             @OA\Property(property="common_name_en", type="string", description="Common name (English)"),
+     *             @OA\Property(property="common_name_ar", type="string", description="Common name (Arabic)"),
+     *             @OA\Property(property="description_en", type="string", description="Description (English)"),
+     *             @OA\Property(property="description_ar", type="string", description="Description (Arabic)"),
+     *             @OA\Property(property="website", type="string", description="Website URL"),
+     *             @OA\Property(property="logo", type="string", description="Logo URL"),
+     *             @OA\Property(property="commercial_licence", type="string", description="Commercial licence"),
+     *             @OA\Property(property="approved_to_hire", type="boolean", description="Approved to hire flag")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Company created successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="operation", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Company account successfully created")
+     *         )
+     *     ),
+     *     @OA\Response(response=400, description="Validation error"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      * @return array
      */
     public function actionCreate()
@@ -330,7 +507,29 @@ class CompanyController extends Controller
     }
 
     /**
-     * View company detail
+     * Get company details
+     * 
+     * @OA\Get(
+     *     path="/company/{id}",
+     *     summary="Get company",
+     *     description="Get detailed information about a company",
+     *     tags={"Company Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Company ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Company details",
+     *         @OA\JsonContent(ref="#/components/schemas/Company")
+     *     ),
+     *     @OA\Response(response=404, description="Company not found"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      * @param $id
      * @return array|null|\yii\db\ActiveRecord
      */
@@ -348,7 +547,53 @@ class CompanyController extends Controller
     }
 
     /**
-     * Create a company account
+     * Update company account
+     * 
+     * @OA\Patch(
+     *     path="/company/{id}",
+     *     summary="Update company",
+     *     description="Update an existing company account",
+     *     tags={"Company Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Company ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="name", type="string", description="Company name"),
+     *             @OA\Property(property="email", type="string", format="email", description="Company email"),
+     *             @OA\Property(property="parent", type="integer", description="Parent company ID"),
+     *             @OA\Property(property="country_id", type="integer", description="Country ID"),
+     *             @OA\Property(property="currency_code", type="string", description="Currency code"),
+     *             @OA\Property(property="hourly_rate", type="number", description="Hourly rate"),
+     *             @OA\Property(property="bonus_commission", type="number", description="Bonus commission"),
+     *             @OA\Property(property="common_name_en", type="string", description="Common name (English)"),
+     *             @OA\Property(property="common_name_ar", type="string", description="Common name (Arabic)"),
+     *             @OA\Property(property="description_en", type="string", description="Description (English)"),
+     *             @OA\Property(property="description_ar", type="string", description="Description (Arabic)"),
+     *             @OA\Property(property="website", type="string", description="Website URL"),
+     *             @OA\Property(property="logo", type="string", description="Logo URL"),
+     *             @OA\Property(property="commercial_licence", type="string", description="Commercial licence"),
+     *             @OA\Property(property="approved_to_hire", type="boolean", description="Approved to hire flag")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Company updated successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="operation", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Company account successfully updated")
+     *         )
+     *     ),
+     *     @OA\Response(response=404, description="Company not found"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      * @param $id
      * @return array
      */
@@ -411,7 +656,34 @@ class CompanyController extends Controller
     }
 
     /**
-     * Delete an account
+     * Delete company account
+     * 
+     * @OA\Delete(
+     *     path="/company/{id}",
+     *     summary="Delete company",
+     *     description="Soft delete a company account (only if no stores, transfers, or sub-companies)",
+     *     tags={"Company Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Company ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Company deleted successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="operation", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Company account successfully deleted")
+     *         )
+     *     ),
+     *     @OA\Response(response=400, description="Cannot delete (has stores/transfers/sub-companies)"),
+     *     @OA\Response(response=404, description="Company not found"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      * @param  integer $id
      * @return array
      */
@@ -470,7 +742,33 @@ class CompanyController extends Controller
     }
 
     /**
-     * Delete an account
+     * Delete company file
+     * 
+     * @OA\Delete(
+     *     path="/company/{id}/delete-file",
+     *     summary="Delete company file",
+     *     description="Delete a file/document associated with a company",
+     *     tags={"Company Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="File UUID",
+     *         @OA\Schema(type="string", format="uuid")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="File deleted successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="operation", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Company Document successfully deleted")
+     *         )
+     *     ),
+     *     @OA\Response(response=404, description="File not found"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      * @param  integer $id
      * @return array
      */
@@ -529,7 +827,44 @@ class CompanyController extends Controller
     }
 
     /**
-     * Create a company account
+     * Upload company file
+     * 
+     * @OA\Post(
+     *     path="/company/{id}/create-file",
+     *     summary="Upload company file",
+     *     description="Upload a file/document for a company",
+     *     tags={"Company Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Company ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             required={"file_title", "file_s3_path"},
+     *             @OA\Property(property="file_title", type="string", description="File title"),
+     *             @OA\Property(property="file_description", type="string", description="File description"),
+     *             @OA\Property(property="file_s3_path", type="string", description="S3 path to the file")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="File uploaded successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="operation", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Company document uploaded successfully")
+     *         )
+     *     ),
+     *     @OA\Response(response=400, description="Validation error"),
+     *     @OA\Response(response=404, description="Company not found"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      * @param $id
      * @return array
      */
@@ -569,6 +904,40 @@ class CompanyController extends Controller
     }
 
     /**
+     * Update company file
+     * 
+     * @OA\Patch(
+     *     path="/company/{id}/update-file",
+     *     summary="Update company file",
+     *     description="Update file metadata (title, description)",
+     *     tags={"Company Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="File UUID",
+     *         @OA\Schema(type="string", format="uuid")
+     *     ),
+     *     @OA\RequestBody(
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="file_title", type="string", description="File title"),
+     *             @OA\Property(property="file_description", type="string", description="File description")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="File updated successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="operation", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Company document data updated successfully")
+     *         )
+     *     ),
+     *     @OA\Response(response=404, description="File not found"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      * @param $id
      * @return array|string[]
      */
@@ -610,6 +979,41 @@ class CompanyController extends Controller
     }
 
     /**
+     * Change company status
+     * 
+     * @OA\Post(
+     *     path="/company/{id}/change-status",
+     *     summary="Change company status",
+     *     description="Override company status (active/inactive)",
+     *     tags={"Company Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Company ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             required={"status"},
+     *             @OA\Property(property="status", type="integer", description="Status override value")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Status changed successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="operation", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Company account status changed successfully")
+     *         )
+     *     ),
+     *     @OA\Response(response=404, description="Company not found"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      * @param $id
      * @return array|string[]
      * @throws NotFoundHttpException
@@ -648,6 +1052,41 @@ class CompanyController extends Controller
     }
 
     /**
+     * Update company assigned staff
+     * 
+     * @OA\Patch(
+     *     path="/company/{id}/update-staff",
+     *     summary="Update assigned staff",
+     *     description="Update the staff member assigned to manage this company",
+     *     tags={"Company Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Company ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             required={"staff_id"},
+     *             @OA\Property(property="staff_id", type="integer", description="Staff ID to assign")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Staff updated successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="operation", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Company account staff changed successfully")
+     *         )
+     *     ),
+     *     @OA\Response(response=404, description="Company not found"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      * @param $id
      * @return array|string[]
      * @throws NotFoundHttpException
@@ -686,6 +1125,41 @@ class CompanyController extends Controller
     }
 
     /**
+     * Update company followup status
+     * 
+     * @OA\Patch(
+     *     path="/company/{id}/update-followup",
+     *     summary="Update followup status",
+     *     description="Update the followup status for a company",
+     *     tags={"Company Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Company ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             required={"followup"},
+     *             @OA\Property(property="followup", type="string", description="Followup status")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Followup updated successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="operation", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Company account followup status changed successfully")
+     *         )
+     *     ),
+     *     @OA\Response(response=404, description="Company not found"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      * @param $id
      * @return array|string[]
      * @throws NotFoundHttpException
@@ -731,6 +1205,41 @@ class CompanyController extends Controller
     }
 
     /**
+     * Update company followup interval
+     * 
+     * @OA\Patch(
+     *     path="/company/{id}/update-followup-interval",
+     *     summary="Update followup interval",
+     *     description="Update the followup interval in weeks for a company",
+     *     tags={"Company Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Company ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             required={"followup_interval_weeks"},
+     *             @OA\Property(property="followup_interval_weeks", type="integer", description="Followup interval in weeks")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Followup interval updated successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="operation", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Company account followup interval changed successfully")
+     *         )
+     *     ),
+     *     @OA\Response(response=404, description="Company not found"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      * @param $id
      * @return array|string[]
      * @throws NotFoundHttpException
@@ -773,6 +1282,43 @@ class CompanyController extends Controller
     }
 
     /**
+     * Get company year report
+     * 
+     * @OA\Get(
+     *     path="/company/year-report",
+     *     summary="Get year report",
+     *     description="Get monthly statistics for a year (requests, suggestions, hired candidates)",
+     *     tags={"Company Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="year",
+     *         in="query",
+     *         description="Year (default: current year)",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="company_id",
+     *         in="query",
+     *         description="Filter by company ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Year report data",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(
+     *                 type="object",
+     *                 @OA\Property(property="request", type="integer", description="Number of requests"),
+     *                 @OA\Property(property="suggestions", type="integer", description="Number of suggestions"),
+     *                 @OA\Property(property="hired", type="integer", description="Number of hired candidates"),
+     *                 @OA\Property(property="month", type="string", description="Month name"),
+     *                 @OA\Property(property="month_number", type="string", description="Month number")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      * @return array|\yii\db\DataReader
      * @throws \yii\db\Exception
      */
@@ -823,6 +1369,31 @@ class CompanyController extends Controller
     }
 
     /**
+     * Download company candidates Excel
+     * 
+     * @OA\Get(
+     *     path="/company/{id}/download-candidates-excel",
+     *     summary="Download candidates Excel",
+     *     description="Download Excel file with all candidates who worked for the company",
+     *     tags={"Company Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Company ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Excel file download",
+     *         @OA\MediaType(
+     *             mediaType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+     *         )
+     *     ),
+     *     @OA\Response(response=404, description="Company not found"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      * @return void
      * @throws \yii\db\Exception
      */
@@ -927,7 +1498,53 @@ class CompanyController extends Controller
     }
 
     /**
-     * Return a List of Company Accounts available.
+     * Download companies list Excel
+     * 
+     * @OA\Get(
+     *     path="/company/download-list-excel",
+     *     summary="Download companies Excel",
+     *     description="Download Excel file with list of companies",
+     *     tags={"Company Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="Filter by status: 0=all, 1=active, 2=inactive, 3=active 40+ days without payment",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="name",
+     *         in="query",
+     *         description="Filter by company name",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="approved_to_hire",
+     *         in="query",
+     *         description="Filter by approved to hire status",
+     *         @OA\Schema(type="boolean")
+     *     ),
+     *     @OA\Parameter(
+     *         name="last_payment_from",
+     *         in="query",
+     *         description="Filter by last payment date (from)",
+     *         @OA\Schema(type="string", format="date")
+     *     ),
+     *     @OA\Parameter(
+     *         name="last_payment_to",
+     *         in="query",
+     *         description="Filter by last payment date (to)",
+     *         @OA\Schema(type="string", format="date")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Excel file download",
+     *         @OA\MediaType(
+     *             mediaType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+     *         )
+     *     ),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      * @return ActiveDataProvider
      */
     public function actionDownloadListExcel()

@@ -18,6 +18,11 @@ use yii\web\NotFoundHttpException;
 
 /**
  * Staff controller - Manage staff accounts as Admin
+ * 
+ * @OA\Tag(
+ *     name="Staff Management",
+ *     description="Manage staff accounts, salaries, permissions, and staff settings"
+ * )
  */
 class StaffController extends Controller
 {
@@ -72,6 +77,32 @@ class StaffController extends Controller
     }
 
     /**
+     * Login as staff (admin impersonation)
+     * 
+     * @OA\Post(
+     *     path="/staff/{id}/login",
+     *     summary="Login as staff",
+     *     description="Generate auth key and redirect URL to login as a staff member (admin impersonation)",
+     *     tags={"Staff Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Staff ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Login URL generated",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="redirect", type="string", description="Redirect URL with auth key")
+     *         )
+     *     ),
+     *     @OA\Response(response=404, description="Staff not found"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      * @param $id
      * @return \yii\web\Response
      * @throws NotFoundHttpException
@@ -98,7 +129,45 @@ class StaffController extends Controller
     }
 
     /**
-     * Return a List of Staff Accounts available.
+     * List staff accounts
+     * 
+     * @OA\Get(
+     *     path="/staff/list",
+     *     summary="List staff",
+     *     description="Get a list of all staff accounts with optional filtering",
+     *     tags={"Staff Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="role",
+     *         in="query",
+     *         description="Filter by staff role",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="Filter by status",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="name",
+     *         in="query",
+     *         description="Filter by name",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="deleted",
+     *         in="query",
+     *         description="Filter by deleted status (0=active, 1=deleted)",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of staff accounts",
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Staff"))
+     *     ),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      */
     public function actionList()
     {
@@ -134,7 +203,29 @@ class StaffController extends Controller
     }
 
     /**
-     * Return a List of Staff Salaries available.
+     * Get staff salaries
+     * 
+     * @OA\Get(
+     *     path="/staff/{id}/salaries",
+     *     summary="Get staff salaries",
+     *     description="Get list of salaries for a staff member",
+     *     tags={"Staff Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Staff ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of salaries",
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/StaffSalary"))
+     *     ),
+     *     @OA\Response(response=404, description="Staff not found"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      */
     public function actionListSalaries($id)
     {
@@ -148,7 +239,29 @@ class StaffController extends Controller
     }
 
     /**
-     * Return a List of Staff Salaries available.
+     * Get staff assigned companies
+     * 
+     * @OA\Get(
+     *     path="/staff/{id}/companies",
+     *     summary="Get assigned companies",
+     *     description="Get list of companies assigned to a staff member",
+     *     tags={"Staff Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Staff ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of companies",
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Company"))
+     *     ),
+     *     @OA\Response(response=404, description="Staff not found"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      */
     public function actionListCompanies($id)
     {
@@ -160,7 +273,34 @@ class StaffController extends Controller
     }
 
     /**
-     * import bank excel to extract candidate data
+     * Import staff salaries from Excel
+     * 
+     * @OA\Post(
+     *     path="/staff/import-salary",
+     *     summary="Import salaries",
+     *     description="Import staff salaries from an Excel file",
+     *     tags={"Staff Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             required={"excel"},
+     *             @OA\Property(property="excel", type="string", description="S3 path to Excel file")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Salaries imported successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="operation", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Salaries imported successfully")
+     *         )
+     *     ),
+     *     @OA\Response(response=400, description="Validation error"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      * @return type
      */
     public function actionImportSalary() {
@@ -280,7 +420,29 @@ class StaffController extends Controller
     }
 
     /**
-     * load staff details
+     * Get staff details
+     * 
+     * @OA\Get(
+     *     path="/staff/{id}",
+     *     summary="Get staff",
+     *     description="Get detailed information about a staff member",
+     *     tags={"Staff Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Staff ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Staff details",
+     *         @OA\JsonContent(ref="#/components/schemas/Staff")
+     *     ),
+     *     @OA\Response(response=404, description="Staff not found"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      * @param type $id
      * @return type
      */
@@ -290,7 +452,49 @@ class StaffController extends Controller
     }
     
     /**
-     * Create a staff account
+     * Create staff account
+     * 
+     * @OA\Post(
+     *     path="/staff/create",
+     *     summary="Create staff",
+     *     description="Create a new staff account",
+     *     tags={"Staff Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             required={"name", "email", "password", "role"},
+     *             @OA\Property(property="name", type="string", description="Staff name"),
+     *             @OA\Property(property="email", type="string", format="email", description="Staff email"),
+     *             @OA\Property(property="password", type="string", format="password", description="Staff password"),
+     *             @OA\Property(property="role", type="string", description="Staff role"),
+     *             @OA\Property(property="gmail_username", type="string", description="Gmail username"),
+     *             @OA\Property(property="gmail_password", type="string", description="Gmail password"),
+     *             @OA\Property(property="job_title", type="string", description="Job title"),
+     *             @OA\Property(property="salary", type="number", description="Salary"),
+     *             @OA\Property(property="salary_currency", type="string", description="Salary currency code"),
+     *             @OA\Property(property="week_start_day", type="integer", description="Week start day"),
+     *             @OA\Property(property="work_days", type="array", @OA\Items(type="integer"), description="Work days"),
+     *             @OA\Property(property="hours_per_day", type="number", description="Hours per day"),
+     *             @OA\Property(property="staff_notification", type="boolean", description="Staff notification enabled"),
+     *             @OA\Property(property="permissions", type="array", @OA\Items(type="string"), description="Permission list"),
+     *             @OA\Property(property="staff_photo", type="string", description="Staff photo URL")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Staff created successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="operation", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Staff account successfully created"),
+     *             @OA\Property(property="staffNotifications", type="array", @OA\Items(ref="#/components/schemas/StaffNotification"))
+     *         )
+     *     ),
+     *     @OA\Response(response=400, description="Validation error"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      */
     public function actionCreate()
     {
@@ -379,7 +583,53 @@ class StaffController extends Controller
     }
 
     /**
-     * Create a staff account
+     * Update staff account
+     * 
+     * @OA\Patch(
+     *     path="/staff/{id}/update",
+     *     summary="Update staff",
+     *     description="Update an existing staff account",
+     *     tags={"Staff Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Staff ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="name", type="string", description="Staff name"),
+     *             @OA\Property(property="email", type="string", format="email", description="Staff email"),
+     *             @OA\Property(property="role", type="string", description="Staff role"),
+     *             @OA\Property(property="gmail_username", type="string", description="Gmail username"),
+     *             @OA\Property(property="gmail_password", type="string", description="Gmail password"),
+     *             @OA\Property(property="job_title", type="string", description="Job title"),
+     *             @OA\Property(property="salary", type="number", description="Salary"),
+     *             @OA\Property(property="salary_currency", type="string", description="Salary currency code"),
+     *             @OA\Property(property="week_start_day", type="integer", description="Week start day"),
+     *             @OA\Property(property="work_days", type="array", @OA\Items(type="integer"), description="Work days"),
+     *             @OA\Property(property="hours_per_day", type="number", description="Hours per day"),
+     *             @OA\Property(property="staff_notification", type="boolean", description="Staff notification enabled"),
+     *             @OA\Property(property="permissions", type="array", @OA\Items(type="string"), description="Permission list"),
+     *             @OA\Property(property="staff_photo", type="string", description="Staff photo URL")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Staff updated successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="operation", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Staff account successfully updated"),
+     *             @OA\Property(property="staffNotifications", type="array", @OA\Items(ref="#/components/schemas/StaffNotification"))
+     *         )
+     *     ),
+     *     @OA\Response(response=404, description="Staff not found"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      */
     public function actionUpdate($id)
     {
@@ -477,7 +727,33 @@ class StaffController extends Controller
     }
 
     /**
-     * Delete an account
+     * Delete staff account
+     * 
+     * @OA\Delete(
+     *     path="/staff/{id}",
+     *     summary="Delete staff",
+     *     description="Soft delete a staff account",
+     *     tags={"Staff Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Staff ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Staff deleted successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="operation", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Staff account deleted successfully")
+     *         )
+     *     ),
+     *     @OA\Response(response=404, description="Staff not found"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      * @param  integer $id
      * @return array
      */
@@ -514,7 +790,40 @@ class StaffController extends Controller
     }
 
     /**
-     * Delete an account
+     * Update staff status
+     * 
+     * @OA\Post(
+     *     path="/staff/{id}/status",
+     *     summary="Update staff status",
+     *     description="Update the status of a staff account (active/inactive)",
+     *     tags={"Staff Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Staff ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="integer", description="Status (0=inactive, 1=active)")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Status updated successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="operation", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Staff status changed successfully")
+     *         )
+     *     ),
+     *     @OA\Response(response=404, description="Staff not found"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      * @param  integer $id
      * @return array
      */
@@ -547,6 +856,35 @@ class StaffController extends Controller
         return Yii::getLogger()->getDbProfiling();
     }
 
+    /**
+     * Recover deleted staff account
+     * 
+     * @OA\Post(
+     *     path="/staff/{id}/recover",
+     *     summary="Recover staff account",
+     *     description="Recover a previously deleted staff account",
+     *     tags={"Staff Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Staff ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Staff recovered successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="operation", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Staff recovered changed successfully")
+     *         )
+     *     ),
+     *     @OA\Response(response=404, description="Staff not found"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
+     */
     public function actionRecoverAccount($id)
     {
         $model = $this->findModel((int)$id);
@@ -577,7 +915,33 @@ class StaffController extends Controller
     }
     
     /**
-     * Reset staff password
+     * Reset staff password (via email)
+     * 
+     * @OA\Post(
+     *     path="/staff/{id}/reset-password",
+     *     summary="Reset staff password",
+     *     description="Generate password reset token and send reset email to staff",
+     *     tags={"Staff Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Staff ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Password reset email sent",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="operation", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="New password sent to registered email successfully")
+     *         )
+     *     ),
+     *     @OA\Response(response=404, description="Staff not found"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      * @param $id
      * @return array
      */
@@ -606,7 +970,39 @@ class StaffController extends Controller
     }
 
     /**
-     * Reset staff password
+     * Reset staff password directly
+     * 
+     * @OA\Post(
+     *     path="/staff/{id}/reset-password-direct",
+     *     summary="Reset staff password directly",
+     *     description="Set a new password for staff (generate random or use provided password) and send via email",
+     *     tags={"Staff Management"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Staff ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="password", type="string", format="password", description="Optional custom password (if not provided, random password will be generated)")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Password reset successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="operation", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="New password sent to registered email successfully")
+     *         )
+     *     ),
+     *     @OA\Response(response=404, description="Staff not found"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      * @param $id
      * @return array
      */
