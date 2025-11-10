@@ -28,6 +28,7 @@ After adding or modifying OpenAPI annotations in controllers, regenerate the spe
 
 ```bash
 docker-compose exec admin ./yii swagger/generate
+docker-compose exec admin ./yii swagger/generate-modules
 ```
 
 The documentation will automatically reflect changes after refreshing the browser.
