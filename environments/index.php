@@ -29,7 +29,6 @@
  * ```
  */
 return [
-    'Krushn' => [
     'Development' => [
         'path' => 'dev',
         'setWritable' => [

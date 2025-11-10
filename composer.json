@@ -8,7 +8,7 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "php": ">=8.2",
+        "php": ">=7.4.0",
         "yiisoft/yii2": "^2.0.45",
         "yiisoft/yii2-bootstrap": "^2.0.10",
         "yiisoft/yii2-swiftmailer": "^2.0.10",
@@ -32,21 +32,20 @@
         "segmentio/analytics-php": "^3.0",
         "yiisoft/yii2-redis": "^2.0.17",
         "xeroapi/xero-php-oauth2": "^7.0",
-        "yiisoft/yii2-symfonymailer": "^4.0",
-        "chillerlan/php-qrcode": "^5.0",
-        "mobiledetect/mobiledetectlib": "^4.8"
+        "yiisoft/yii2-symfonymailer": "~2.0.3",
+        "chillerlan/php-qrcode": "^5.0"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "^2.1",
         "yiisoft/yii2-gii": "^2.2.0",
         "yiisoft/yii2-faker": "^2.0.5",
-        "codeception/module-filesystem": "^3.0",
-        "codeception/module-yii2": "^1.1.8",
-        "codeception/codeception": "^5.0",
-        "codeception/module-rest": "^3.0",
-        "codeception/module-asserts": "^2.0",
+        "codeception/module-filesystem": "^3.0 || ^2.0 || ^1.1",
+        "codeception/module-yii2": "^1.1",
+        "codeception/codeception": "^5.0.0 || ^4.0",
+        "codeception/lib-innerbrowser": "^4.0 || ^3.0 || ^1.1",
+        "codeception/module-asserts": "^3.0 || ^1.1",
         "phpunit/phpunit": "^9.0",
-        "codeception/verify": "^2.0",
+        "codeception/verify": "^3.0 || ^2.2",
         "codeception/specify": "^1.1"
     },
     "config": {

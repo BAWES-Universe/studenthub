@@ -1,6 +1,33 @@
 version: '3.2'
 
+networks:
+  studenthub-network:
+    driver: bridge
+
 services:
+  traefik:
+    image: traefik:v2.10
+    container_name: traefik
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik.yml:/traefik.yml:ro
+    command:
+      - --configfile=/traefik.yml
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.studenthub.local`)"
+      - "traefik.http.routers.traefik.entrypoints=web"
+      - "traefik.http.services.traefik.loadbalancer.server.port=8080"
+    networks:
+      - studenthub-network
+    depends_on:
+      - mysql
+      - redis
+
   mysql:
     image: mysql:5.7
     restart: always
@@ -17,13 +44,15 @@ services:
     entrypoint:
       sh -c "echo 'CREATE DATABASE IF NOT EXISTS studenthub;CREATE DATABASE IF NOT EXISTS studenthub_test;' > /docker-entrypoint-initdb.d/init.sql;
         /usr/local/bin/docker-entrypoint.sh --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci"
+    networks:
+      - studenthub-network
   
   mysql-wallet:
     image: mysql:5.7
     restart: always
     ports:
-      - 3306:3306    
-      - 33060:33060
+      - 3307:3306    
+      - 33061:33060
     #volumes:
     #  - mysql-data:/var/lib/mysql
     environment:
@@ -34,11 +63,15 @@ services:
     entrypoint:
       sh -c "echo 'CREATE DATABASE IF NOT EXISTS wallet;CREATE DATABASE IF NOT EXISTS wallet_test;' > /docker-entrypoint-initdb.d/init.sql;
         /usr/local/bin/docker-entrypoint.sh --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci"
+    networks:
+      - studenthub-network
 
   redis:
     image: redis:6.2.3
     volumes:
       - redis-data:/data
+    networks:
+      - studenthub-network
  
   #adminer:
   #  image: adminer
@@ -52,13 +85,18 @@ services:
       sudo apt-get update
       sudo apt-get install -y libpng-dev libmcrypt-dev libreadline-dev zip zlib1g-dev default-mysql-client
     restart: always
-    ports:
-      - 8080:80 
     environment:
-      - PMA_HOST=localhost
+      - PMA_HOST=mysql
       - PMA_PORT=3306
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.phpmyadmin.rule=Host(`phpmyadmin.studenthub.local`)"
+      - "traefik.http.routers.phpmyadmin.entrypoints=web"
+      - "traefik.http.services.phpmyadmin.loadbalancer.server.port=80"
     depends_on:
       - "mysql"
+    networks:
+      - studenthub-network
  
   # Start container to install composer deps and kill after
   composer-deps:
@@ -69,6 +107,8 @@ services:
       - ~/.composer-docker/cache:/root/.composer/cache:delegated
       # Mount source-code for development
       - ./:/app
+    networks:
+      - studenthub-network
 
   # Start container to init dev environment and kill after
   init-environment:
@@ -81,6 +121,8 @@ services:
       - ./:/app
     depends_on:
       - "composer-deps"
+    networks:
+      - studenthub-network
 
   # Start container to run db migrations and kill after
   db-migration:
@@ -96,6 +138,8 @@ services:
       - "mysql"
       - "redis"
       - "composer-deps"
+    networks:
+      - studenthub-network
 
   # Load fixture data
   load-fixture:
@@ -108,6 +152,8 @@ services:
       - ./:/app
     depends_on:
       - "db-migration"
+    networks:
+      - studenthub-network
 
   #cron:
   #  build: cron
@@ -121,87 +167,122 @@ services:
 
   admin:
     build: admin
-    ports:
-      - 21080:80
     volumes:
       # Re-use local composer cache via host-volume
       - ~/.composer-docker/cache:/root/.composer/cache:delegated
       # Mount source-code for development
       - ./:/app
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.admin.rule=Host(`admin.studenthub.local`)"
+      - "traefik.http.routers.admin.entrypoints=web"
+      - "traefik.http.services.admin.loadbalancer.server.port=80"
     depends_on:
       - "load-fixture"
+    networks:
+      - studenthub-network
 
   candidate:
     build: candidate
-    ports:
-      - 22080:80
     volumes:
       # Re-use local composer cache via host-volume
       - ~/.composer-docker/cache:/root/.composer/cache:delegated
       # Mount source-code for development
       - ./:/app
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.candidate.rule=Host(`candidate.studenthub.local`)"
+      - "traefik.http.routers.candidate.entrypoints=web"
+      - "traefik.http.services.candidate.loadbalancer.server.port=80"
     depends_on:
       - "load-fixture"
+    networks:
+      - studenthub-network
 
   company:
     build: company
-    ports:
-      - 23080:80
     volumes:
       # Re-use local composer cache via host-volume
       - ~/.composer-docker/cache:/root/.composer/cache:delegated
       # Mount source-code for development
       - ./:/app
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.company.rule=Host(`company.studenthub.local`)"
+      - "traefik.http.routers.company.entrypoints=web"
+      - "traefik.http.services.company.loadbalancer.server.port=80"
     depends_on:
       - "load-fixture"
+    networks:
+      - studenthub-network
 
   staff:
     build: staff
-    ports:
-      - 24080:80
     volumes:
       # Re-use local composer cache via host-volume
       - ~/.composer-docker/cache:/root/.composer/cache:delegated
       # Mount source-code for development
       - ./:/app
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.staff.rule=Host(`staff.studenthub.local`)"
+      - "traefik.http.routers.staff.entrypoints=web"
+      - "traefik.http.services.staff.loadbalancer.server.port=80"
     depends_on:
       - "load-fixture"
+    networks:
+      - studenthub-network
 
   manager:
     build: manager
-    ports:
-      - 25080:80
     volumes:
       # Re-use local composer cache via host-volume
       - ~/.composer-docker/cache:/root/.composer/cache:delegated
       # Mount source-code for development
       - ./:/app
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.manager.rule=Host(`manager.studenthub.local`)"
+      - "traefik.http.routers.manager.entrypoints=web"
+      - "traefik.http.services.manager.loadbalancer.server.port=80"
     depends_on:
       - "load-fixture"
+    networks:
+      - studenthub-network
 
   inspector:
     build: inspector
-    ports:
-      - 26080:80
     volumes:
       # Re-use local composer cache via host-volume
       - ~/.composer-docker/cache:/root/.composer/cache:delegated
       # Mount source-code for development
       - ./:/app
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.inspector.rule=Host(`inspector.studenthub.local`)"
+      - "traefik.http.routers.inspector.entrypoints=web"
+      - "traefik.http.services.inspector.loadbalancer.server.port=80"
     depends_on:
       - "load-fixture"
+    networks:
+      - studenthub-network
 
   verification:
     build: verification
-    ports:
-      - 27080:80
     volumes:
       # Re-use local composer cache via host-volume
       - ~/.composer-docker/cache:/root/.composer/cache:delegated
       # Mount source-code for development
       - ./:/app
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.verification.rule=Host(`verification.studenthub.local`)"
+      - "traefik.http.routers.verification.entrypoints=web"
+      - "traefik.http.services.verification.loadbalancer.server.port=80"
     depends_on:
       - "load-fixture"
+    networks:
+      - studenthub-network
 
 volumes:
   mysql-data:
