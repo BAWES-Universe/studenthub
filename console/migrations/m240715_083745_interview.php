@@ -28,15 +28,12 @@ class m240715_083745_interview extends Migration
 
         //candidate_id
 
-        $indexes = $this->getDb()->getSchema()->findUniqueIndexes($tableSchema);
         $indexExists = false;
         if ($tableSchema) {
-            foreach ($tableSchema->indexes as $index) {
-                if ($index->name === 'idx-interview_evaluation-candidate_id') {
-                    $indexExists = true;
-                    break;
-                }
-            }
+            // Check if index exists using raw SQL query
+            $indexCheck = $this->db->createCommand("SHOW INDEX FROM `interview_evaluation` WHERE Key_name = 'idx-interview_evaluation-candidate_id'")
+                ->queryOne();
+            $indexExists = $indexCheck !== false;
         }
         
         if (!$indexExists) {
