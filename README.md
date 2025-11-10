@@ -13,6 +13,22 @@ StudentHub is a platform that enables corporate recruitment and management of tr
    - Inspector: http://localhost:24080
    - Staff: http://localhost:25080
    - Verification: http://localhost:26080
+
+## Traefic Reverse Proxy Config
+
+Add these entries to your /etc/hosts file (or C:\Windows\System32\drivers\etc\hosts on Windows)
+
+```
+127.0.0.1 admin.studenthub.local
+127.0.0.1 candidate.studenthub.local
+127.0.0.1 company.studenthub.local
+127.0.0.1 staff.studenthub.local
+127.0.0.1 manager.studenthub.local
+127.0.0.1 inspector.studenthub.local
+127.0.0.1 verification.studenthub.local
+127.0.0.1 phpmyadmin.studenthub.local
+127.0.0.1 traefik.studenthub.local
+```
    
 
 ## Documentation
