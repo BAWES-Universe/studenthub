@@ -75,7 +75,7 @@ class AdminController extends Controller
      * List all admin accounts
      * 
      * @OA\Get(
-     *     path="/admin/list",
+     *     path="/admin",
      *     summary="List admin accounts",
      *     description="Get a paginated list of all admin accounts",
      *     tags={"Admin Management"},
@@ -135,7 +135,7 @@ class AdminController extends Controller
      * Create a new admin account
      * 
      * @OA\Post(
-     *     path="/admin/create",
+     *     path="/admin",
      *     summary="Create admin account",
      *     description="Create a new admin account",
      *     tags={"Admin Management"},
@@ -365,8 +365,8 @@ class AdminController extends Controller
     /**
      * Reset admin password
      * 
-     * @OA\Post(
-     *     path="/admin/{id}/reset-password",
+     * @OA\Patch(
+     *     path="/admin/reset-password/{id}",
      *     summary="Reset admin password",
      *     description="Generate and send a new password to the admin's email",
      *     tags={"Admin Management"},
@@ -424,8 +424,8 @@ class AdminController extends Controller
     /**
      * Update admin status
      * 
-     * @OA\Post(
-     *     path="/admin/{id}/status",
+     * @OA\Patch(
+     *     path="/admin/status-change/{id}",
      *     summary="Update admin status",
      *     description="Update the status of an admin account (active/inactive)",
      *     tags={"Admin Management"},

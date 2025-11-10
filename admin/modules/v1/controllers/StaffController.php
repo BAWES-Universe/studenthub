@@ -132,7 +132,7 @@ class StaffController extends Controller
      * List staff accounts
      * 
      * @OA\Get(
-     *     path="/staff/list",
+     *     path="/staff",
      *     summary="List staff",
      *     description="Get a list of all staff accounts with optional filtering",
      *     tags={"Staff Management"},
@@ -206,7 +206,7 @@ class StaffController extends Controller
      * Get staff salaries
      * 
      * @OA\Get(
-     *     path="/staff/{id}/salaries",
+     *     path="/staff/list-salaries/{id}",
      *     summary="Get staff salaries",
      *     description="Get list of salaries for a staff member",
      *     tags={"Staff Management"},
@@ -242,7 +242,7 @@ class StaffController extends Controller
      * Get staff assigned companies
      * 
      * @OA\Get(
-     *     path="/staff/{id}/companies",
+     *     path="/staff/list-companies/{id}",
      *     summary="Get assigned companies",
      *     description="Get list of companies assigned to a staff member",
      *     tags={"Staff Management"},
@@ -586,7 +586,7 @@ class StaffController extends Controller
      * Update staff account
      * 
      * @OA\Patch(
-     *     path="/staff/{id}/update",
+     *     path="/staff/{id}",
      *     summary="Update staff",
      *     description="Update an existing staff account",
      *     tags={"Staff Management"},
@@ -792,8 +792,8 @@ class StaffController extends Controller
     /**
      * Update staff status
      * 
-     * @OA\Post(
-     *     path="/staff/{id}/status",
+     * @OA\Patch(
+     *     path="/staff/status-change/{id}",
      *     summary="Update staff status",
      *     description="Update the status of a staff account (active/inactive)",
      *     tags={"Staff Management"},
@@ -859,8 +859,8 @@ class StaffController extends Controller
     /**
      * Recover deleted staff account
      * 
-     * @OA\Post(
-     *     path="/staff/{id}/recover",
+     * @OA\Patch(
+     *     path="/staff/recover-account/{id}",
      *     summary="Recover staff account",
      *     description="Recover a previously deleted staff account",
      *     tags={"Staff Management"},
@@ -917,8 +917,8 @@ class StaffController extends Controller
     /**
      * Reset staff password (via email)
      * 
-     * @OA\Post(
-     *     path="/staff/{id}/reset-password",
+     * @OA\Patch(
+     *     path="/staff/reset-password/{id}",
      *     summary="Reset staff password",
      *     description="Generate password reset token and send reset email to staff",
      *     tags={"Staff Management"},

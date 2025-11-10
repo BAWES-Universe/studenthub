@@ -140,7 +140,7 @@ class CompanyController extends Controller
      * List companies
      * 
      * @OA\Get(
-     *     path="/company/list",
+     *     path="/company",
      *     summary="List companies",
      *     description="Get a paginated list of companies with optional filtering",
      *     tags={"Company Management"},
@@ -366,7 +366,7 @@ class CompanyController extends Controller
      * Create company account
      * 
      * @OA\Post(
-     *     path="/company/create",
+     *     path="/company",
      *     summary="Create company",
      *     description="Create a new company account (parent or sub-company)",
      *     tags={"Company Management"},
@@ -745,7 +745,7 @@ class CompanyController extends Controller
      * Delete company file
      * 
      * @OA\Delete(
-     *     path="/company/{id}/delete-file",
+     *     path="/company/remove-file/{id}",
      *     summary="Delete company file",
      *     description="Delete a file/document associated with a company",
      *     tags={"Company Management"},
@@ -830,7 +830,7 @@ class CompanyController extends Controller
      * Upload company file
      * 
      * @OA\Post(
-     *     path="/company/{id}/create-file",
+     *     path="/company/file-create/{id}",
      *     summary="Upload company file",
      *     description="Upload a file/document for a company",
      *     tags={"Company Management"},
@@ -907,7 +907,7 @@ class CompanyController extends Controller
      * Update company file
      * 
      * @OA\Patch(
-     *     path="/company/{id}/update-file",
+     *     path="/company/file-update/{id}",
      *     summary="Update company file",
      *     description="Update file metadata (title, description)",
      *     tags={"Company Management"},
@@ -981,8 +981,8 @@ class CompanyController extends Controller
     /**
      * Change company status
      * 
-     * @OA\Post(
-     *     path="/company/{id}/change-status",
+     * @OA\Patch(
+     *     path="/company/change-status/{id}",
      *     summary="Change company status",
      *     description="Override company status (active/inactive)",
      *     tags={"Company Management"},
@@ -1055,7 +1055,7 @@ class CompanyController extends Controller
      * Update company assigned staff
      * 
      * @OA\Patch(
-     *     path="/company/{id}/update-staff",
+     *     path="/company/update-staff/{id}",
      *     summary="Update assigned staff",
      *     description="Update the staff member assigned to manage this company",
      *     tags={"Company Management"},
@@ -1128,7 +1128,7 @@ class CompanyController extends Controller
      * Update company followup status
      * 
      * @OA\Patch(
-     *     path="/company/{id}/update-followup",
+     *     path="/company/update-followup/{id}",
      *     summary="Update followup status",
      *     description="Update the followup status for a company",
      *     tags={"Company Management"},
@@ -1208,7 +1208,7 @@ class CompanyController extends Controller
      * Update company followup interval
      * 
      * @OA\Patch(
-     *     path="/company/{id}/update-followup-interval",
+     *     path="/company/update-followup-interval/{id}",
      *     summary="Update followup interval",
      *     description="Update the followup interval in weeks for a company",
      *     tags={"Company Management"},
@@ -1372,7 +1372,7 @@ class CompanyController extends Controller
      * Download company candidates Excel
      * 
      * @OA\Get(
-     *     path="/company/{id}/download-candidates-excel",
+     *     path="/company/download-candidates-excel/{id}",
      *     summary="Download candidates Excel",
      *     description="Download Excel file with all candidates who worked for the company",
      *     tags={"Company Management"},

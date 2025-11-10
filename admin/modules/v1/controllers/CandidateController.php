@@ -77,27 +77,77 @@ class CandidateController extends Controller
     /**
      * Search candidates
      * 
-     * @OA\Post(
+     * @OA\Get(
      *     path="/candidate/search",
      *     summary="Search candidates",
      *     description="Search candidates by various criteria (name, email, phone, civil ID, company, country, university, etc.)",
      *     tags={"Candidate Management"},
      *     security={{"bearerAuth": {}}},
-     *     @OA\RequestBody(
-     *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(property="by", type="string", description="Filter by: country_id, university_id, review, store_id"),
-     *             @OA\Property(property="name", type="string", description="Search by name or ID"),
-     *             @OA\Property(property="email", type="string", description="Filter by email"),
-     *             @OA\Property(property="phone", type="string", description="Filter by phone"),
-     *             @OA\Property(property="civil", type="string", description="Filter by civil ID"),
-     *             @OA\Property(property="company_id", type="integer", description="Filter by company ID"),
-     *             @OA\Property(property="match_request_id", type="integer", description="Filter by request requirements"),
-     *             @OA\Property(property="assigned", type="boolean", description="Filter by assigned status"),
-     *             @OA\Property(property="type", type="string", description="Date filter type"),
-     *             @OA\Property(property="start_date", type="string", format="date", description="Start date"),
-     *             @OA\Property(property="end_date", type="string", format="date", description="End date")
-     *         )
+     *     @OA\Parameter(
+     *         name="by",
+     *         in="query",
+     *         description="Filter by: country_id, university_id, review, store_id",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="name",
+     *         in="query",
+     *         description="Search by name or ID",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="email",
+     *         in="query",
+     *         description="Filter by email",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="phone",
+     *         in="query",
+     *         description="Filter by phone",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="civil",
+     *         in="query",
+     *         description="Filter by civil ID",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="company_id",
+     *         in="query",
+     *         description="Filter by company ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="match_request_id",
+     *         in="query",
+     *         description="Filter by request requirements",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="assigned",
+     *         in="query",
+     *         description="Filter by assigned status",
+     *         @OA\Schema(type="boolean")
+     *     ),
+     *     @OA\Parameter(
+     *         name="type",
+     *         in="query",
+     *         description="Date filter type",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="start_date",
+     *         in="query",
+     *         description="Start date",
+     *         @OA\Schema(type="string", format="date")
+     *     ),
+     *     @OA\Parameter(
+     *         name="end_date",
+     *         in="query",
+     *         description="End date",
+     *         @OA\Schema(type="string", format="date")
      *     ),
      *     @OA\Parameter(
      *         name="Currency",
@@ -187,20 +237,35 @@ class CandidateController extends Controller
     /**
      * Search candidate work history report
      * 
-     * @OA\Post(
+     * @OA\Get(
      *     path="/candidate/report-search",
      *     summary="Search candidate work history",
      *     description="Search candidate work history for reporting purposes",
      *     tags={"Candidate Management"},
      *     security={{"bearerAuth": {}}},
-     *     @OA\RequestBody(
-     *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(property="company_id", type="integer", description="Filter by company ID"),
-     *             @OA\Property(property="start", type="string", format="date", description="Start date"),
-     *             @OA\Property(property="end", type="string", format="date", description="End date"),
-     *             @OA\Property(property="currently_working", type="boolean", description="Filter currently working candidates")
-     *         )
+     *     @OA\Parameter(
+     *         name="company_id",
+     *         in="query",
+     *         description="Filter by company ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="start",
+     *         in="query",
+     *         description="Start date",
+     *         @OA\Schema(type="string", format="date")
+     *     ),
+     *     @OA\Parameter(
+     *         name="end",
+     *         in="query",
+     *         description="End date",
+     *         @OA\Schema(type="string", format="date")
+     *     ),
+     *     @OA\Parameter(
+     *         name="currently_working",
+     *         in="query",
+     *         description="Filter currently working candidates",
+     *         @OA\Schema(type="boolean")
      *     ),
      *     @OA\Parameter(
      *         name="Currency",
@@ -361,8 +426,8 @@ class CandidateController extends Controller
     /**
      * Approve candidate account
      * 
-     * @OA\Post(
-     *     path="/candidate/{id}/approve",
+     * @OA\Patch(
+     *     path="/candidate/approve/{id}",
      *     summary="Approve candidate",
      *     description="Approve a candidate account",
      *     tags={"Candidate Management"},
@@ -428,8 +493,8 @@ class CandidateController extends Controller
     /**
      * Restore deleted candidate account
      * 
-     * @OA\Post(
-     *     path="/candidate/{id}/restore",
+     * @OA\Patch(
+     *     path="/candidate/restore/{id}",
      *     summary="Restore candidate",
      *     description="Restore a previously deleted candidate account",
      *     tags={"Candidate Management"},
@@ -676,8 +741,8 @@ class CandidateController extends Controller
     /**
      * Reset candidate password
      * 
-     * @OA\Post(
-     *     path="/candidate/{id}/reset-password",
+     * @OA\Patch(
+     *     path="/candidate/reset-password/{id}",
      *     summary="Reset candidate password",
      *     description="Generate and send a new password to the candidate's email, or set a custom password",
      *     tags={"Candidate Management"},
