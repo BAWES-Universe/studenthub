@@ -18,6 +18,29 @@ use yii\web\UnauthorizedHttpException;
 /**
  * Auth controller provides the initial access token that is required for further requests
  * It initially authorizes via Http Basic Auth using a base64 encoded username and password
+ * 
+ * @OA\Info(
+ *     title="StudentHub Candidate API",
+ *     version="1.0.0",
+ *     description="API for candidate management and authentication"
+ * )
+ * @OA\Server(
+ *     url="https://student.api.dev.studenthub.co/v1",
+ *     description="Development server"
+ * )
+ * @OA\SecurityScheme(
+ *     securityScheme="basicAuth",
+ *     type="http",
+ *     scheme="basic",
+ *     description="HTTP Basic Authentication using email and password"
+ * )
+ * @OA\SecurityScheme(
+ *     securityScheme="bearerAuth",
+ *     type="http",
+ *     scheme="bearer",
+ *     bearerFormat="JWT",
+ *     description="Bearer token authentication for authenticated requests"
+ * )
  */
 class AuthController extends Controller
 {
@@ -99,7 +122,37 @@ class AuthController extends Controller
     }
 
     /**
-     * two step auth
+     * Two step authentication with OTP
+     * 
+     * @OA\Post(
+     *     path="/auth/login-two-step",
+     *     summary="Two-step authentication",
+     *     description="Complete two-step authentication using token and OTP",
+     *     tags={"Authentication"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             required={"token", "otp"},
+     *             @OA\Property(property="token", type="string", description="Temporary token from initial login"),
+     *             @OA\Property(property="otp", type="string", description="One-time password")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Authentication successful",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="operation", type="string", example="success"),
+     *             @OA\Property(property="token", type="string", description="Bearer token"),
+     *             @OA\Property(property="candidate", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Invalid token or OTP"
+     *     )
+     * )
      * @return array
      */
     public function actionLoginTwoStep() {
@@ -143,7 +196,24 @@ class AuthController extends Controller
     }
 
     /**
-     * return user location detail by user ip address
+     * Get user location details by IP address
+     * 
+     * @OA\Get(
+     *     path="/auth/locate",
+     *     summary="Get location by IP",
+     *     description="Returns location information based on the user's IP address",
+     *     tags={"Authentication"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Location information",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="ip", type="string"),
+     *             @OA\Property(property="country", type="string"),
+     *             @OA\Property(property="city", type="string")
+     *         )
+     *     )
+     * )
      * @return type
      */
     public function actionLocate() {
@@ -194,6 +264,39 @@ class AuthController extends Controller
      * Perform validation on the candidate account (check if he's allowed login to platform)
      * If everything is alright,
      * Returns the BEARER access token required for futher requests to the API
+     * 
+     * @OA\Get(
+     *     path="/auth/login",
+     *     summary="Candidate login",
+     *     description="Authenticate candidate using HTTP Basic Auth (email and password). Returns bearer token for subsequent requests.",
+     *     tags={"Authentication"},
+     *     security={{"basicAuth": {}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Login successful",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="operation", type="string", example="success"),
+     *             @OA\Property(property="token", type="string", description="Bearer token for API authentication"),
+     *             @OA\Property(property="candidate", type="object", description="Candidate information")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - Invalid credentials"
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Email not verified",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="operation", type="string", example="error"),
+     *             @OA\Property(property="errorType", type="string", example="email-not-verified"),
+     *             @OA\Property(property="message", type="string"),
+     *             @OA\Property(property="unVerifiedToken", type="string", description="Temporary token for email verification")
+     *         )
+     *     )
+     * )
      * @return array
      */
     public function actionLogin()

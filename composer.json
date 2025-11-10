@@ -33,7 +33,9 @@
         "yiisoft/yii2-redis": "^2.0.17",
         "xeroapi/xero-php-oauth2": "^7.0",
         "yiisoft/yii2-symfonymailer": "~2.0.3",
-        "chillerlan/php-qrcode": "^5.0"
+        "chillerlan/php-qrcode": "^5.0",
+        "zircote/swagger-php": "^4.7",
+        "doctrine/annotations": "^2.0"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "^2.1",

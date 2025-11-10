@@ -28,7 +28,16 @@ Add these entries to your /etc/hosts file (or C:\Windows\System32\drivers\etc\ho
 127.0.0.1 verification.studenthub.local
 127.0.0.1 phpmyadmin.studenthub.local
 127.0.0.1 traefik.studenthub.local
+127.0.0.1 api-docs.studenthub.local
 ```
+
+## Swagger and api docs
+
+http://api-docs.studenthub.local/
+
+To update docs:
+`./yii swagger/generate`
+`docker-compose exec admin ./yii swagger/generate`
    
 
 ## Documentation
