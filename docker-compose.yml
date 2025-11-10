@@ -11,11 +11,28 @@ services:
     #  - mysql-data:/var/lib/mysql
     environment:
       - MYSQL_ROOT_PASSWORD=12345
-      - MYSQL_DATABASE=plugn
-      - MYSQL_USER=plugnuser
+      - MYSQL_DATABASE=studenthub
+      - MYSQL_USER=studenthubuser
       - MYSQL_PASSWORD=12345
     entrypoint:
-      sh -c "echo 'CREATE DATABASE IF NOT EXISTS plugn;CREATE DATABASE IF NOT EXISTS plugn_test;' > /docker-entrypoint-initdb.d/init.sql;
+      sh -c "echo 'CREATE DATABASE IF NOT EXISTS studenthub;CREATE DATABASE IF NOT EXISTS studenthub_test;' > /docker-entrypoint-initdb.d/init.sql;
+        /usr/local/bin/docker-entrypoint.sh --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci"
+  
+  mysql-wallet:
+    image: mysql:5.7
+    restart: always
+    ports:
+      - 3306:3306    
+      - 33060:33060
+    #volumes:
+    #  - mysql-data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=12345
+      - MYSQL_DATABASE=wallet
+      - MYSQL_USER=studenthubuser
+      - MYSQL_PASSWORD=12345
+    entrypoint:
+      sh -c "echo 'CREATE DATABASE IF NOT EXISTS wallet;CREATE DATABASE IF NOT EXISTS wallet_test;' > /docker-entrypoint-initdb.d/init.sql;
         /usr/local/bin/docker-entrypoint.sh --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci"
 
   redis:
