@@ -2,7 +2,7 @@
 
 namespace common\models;
 
-use Detection\MobileDetect;
+use common\helpers\DeviceDetector;
 use Yii;
 use yii\behaviors\AttributeBehavior;
 use yii\behaviors\TimestampBehavior;
@@ -341,7 +341,7 @@ class Inspector extends ActiveRecord implements IdentityInterface
             return $token;
         }*/
 
-        $detect = new MobileDetect();
+        $detect = new DeviceDetector();
 
         $device = "Desktop Device";
 

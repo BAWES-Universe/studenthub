@@ -2,7 +2,7 @@
 
 namespace common\models;
 
-use Detection\MobileDetect;
+use common\helpers\DeviceDetector;
 use staff\models\Staff;
 use Yii;
 use yii\behaviors\TimestampBehavior;
@@ -417,7 +417,7 @@ class Contact extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             return $token;
         }*/
 
-        $detect = new MobileDetect();
+        $detect = new DeviceDetector();
 
         $device = "Desktop Device";
 

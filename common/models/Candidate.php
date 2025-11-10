@@ -3,7 +3,7 @@
 namespace common\models;
 
 
-use Detection\MobileDetect;
+use common\helpers\DeviceDetector;
 use Yii;
 use yii\db\Exception;
 use yii\db\Expression;
@@ -1947,7 +1947,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             return $token;
         }*/
 
-        $detect = new MobileDetect();
+        $detect = new DeviceDetector();
 
         $device = "Desktop Device";
 

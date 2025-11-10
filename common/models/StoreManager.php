@@ -2,7 +2,7 @@
 
 namespace common\models;
 
-use Detection\MobileDetect;
+use common\helpers\DeviceDetector;
 use Yii;
 use yii\behaviors\AttributeBehavior;
 use yii\behaviors\TimestampBehavior;
@@ -133,7 +133,7 @@ class StoreManager extends \yii\db\ActiveRecord implements \yii\web\IdentityInte
             return $token;
         }
 
-        $detect = new MobileDetect();
+        $detect = new DeviceDetector();
 
         $device = "Desktop Device";
 

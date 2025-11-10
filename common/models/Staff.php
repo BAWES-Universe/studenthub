@@ -3,7 +3,7 @@
 namespace common\models;
 
 use company\models\Request;
-use Detection\MobileDetect;
+use common\helpers\DeviceDetector;
 use Yii;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
@@ -987,7 +987,7 @@ class Staff extends ActiveRecord implements IdentityInterface
             return $token;
         }*/
 
-        $detect = new MobileDetect();
+        $detect = new DeviceDetector();
 
         $device = "Desktop Device";
 
