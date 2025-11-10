@@ -258,9 +258,11 @@ class AuthController extends Controller
 
         // Return Admin access token if everything valid
         if (!$accessToken) {
-            $accessToken = $admin->getAccessToken(
-                $admin->enable_two_step_auth ? AdminToken::STATUS_INACTIVE: AdminToken::STATUS_ACTIVE
-            );
+            // Two-step auth disabled - always use STATUS_ACTIVE
+            // $accessToken = $admin->getAccessToken(
+            //     $admin->enable_two_step_auth ? AdminToken::STATUS_INACTIVE: AdminToken::STATUS_ACTIVE
+            // );
+            $accessToken = $admin->getAccessToken(AdminToken::STATUS_ACTIVE);
         }
 
         return [

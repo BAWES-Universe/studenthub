@@ -1228,9 +1228,11 @@ class AuthController extends Controller
  
         // Return candidate access token if everything valid
         if (!$accessToken) {
-            $accessToken = $candidate->getAccessToken(
-                $candidate->enable_two_step_auth ? CandidateToken::STATUS_INACTIVE: CandidateToken::STATUS_ACTIVE
-            );
+            // Two-step auth disabled - always use STATUS_ACTIVE
+            // $accessToken = $candidate->getAccessToken(
+            //     $candidate->enable_two_step_auth ? CandidateToken::STATUS_INACTIVE: CandidateToken::STATUS_ACTIVE
+            // );
+            $accessToken = $candidate->getAccessToken(CandidateToken::STATUS_ACTIVE);
         }
 
         return [

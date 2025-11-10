@@ -5,22 +5,137 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StudentHub API Documentation</title>
     <style>
-        body {
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
-        #api-reference {
-            width: 100%;
-            height: 100vh;
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 60px;
+        }
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .module-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+            color: inherit;
+        }
+        .module-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+        .module-card h2 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+        }
+        .module-card p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        .module-card .badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .footer {
+            text-align: center;
+            color: white;
+            opacity: 0.8;
+            margin-top: 40px;
         }
     </style>
 </head>
 <body>
-    <div id="api-reference" data-configuration='{"spec":{"url":"/openapi/openapi.json"}}'></div>
-    <script
-        type="application/javascript"
-        src="https://cdn.jsdelivr.net/npm/@scalar/api-reference@latest/dist/browser/standalone.js"
-    ></script>
+    <div class="container">
+        <div class="header">
+            <h1>StudentHub API Documentation</h1>
+            <p>Select an API module to view its documentation</p>
+        </div>
+        
+        <div class="modules-grid">
+            <a href="candidate.html" class="module-card">
+                <h2>🎓 Candidate API</h2>
+                <p>For students and candidates to manage their profiles, search jobs, apply for positions, and track applications.</p>
+                <span class="badge">Student Portal</span>
+            </a>
+            
+            <a href="staff.html" class="module-card">
+                <h2>👔 Staff API</h2>
+                <p>For staff members to manage candidates, review applications, schedule interviews, and handle job requests.</p>
+                <span class="badge">Staff Portal</span>
+            </a>
+            
+            <a href="admin.html" class="module-card">
+                <h2>⚙️ Admin API</h2>
+                <p>For administrators to manage the platform, users, settings, and system-wide operations.</p>
+                <span class="badge">Admin Portal</span>
+            </a>
+            
+            <a href="company.html" class="module-card">
+                <h2>🏢 Company API</h2>
+                <p>For employers and companies to post jobs, manage requests, review candidates, and handle hiring.</p>
+                <span class="badge">Employer Portal</span>
+            </a>
+            
+            <a href="manager.html" class="module-card">
+                <h2>👨‍💼 Manager API</h2>
+                <p>For store managers to manage their locations, employees, and operations.</p>
+                <span class="badge">Manager Portal</span>
+            </a>
+            
+            <a href="inspector.html" class="module-card">
+                <h2>🔍 Inspector API</h2>
+                <p>For inspectors to verify candidates, conduct inspections, and manage verification processes.</p>
+                <span class="badge">Inspector Portal</span>
+            </a>
+            
+            <a href="status.html" class="module-card">
+                <h2>📊 Status API</h2>
+                <p>API endpoints for system status and health checks.</p>
+                <span class="badge">System Status</span>
+            </a>
+        </div>
+        
+        <div class="footer">
+            <p>Powered by Scalar API Reference</p>
+        </div>
+    </div>
 </body>
 </html>
-

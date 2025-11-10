@@ -314,9 +314,11 @@ class AuthController extends Controller
 
         // Return staff access token if everything valid
         if (!$accessToken) {
-            $accessToken = $staff->getAccessToken(
-                $staff->enable_two_step_auth ? StaffToken::STATUS_INACTIVE: StaffToken::STATUS_ACTIVE
-            );
+            // Two-step auth disabled - always use STATUS_ACTIVE
+            // $accessToken = $staff->getAccessToken(
+            //     $staff->enable_two_step_auth ? StaffToken::STATUS_INACTIVE: StaffToken::STATUS_ACTIVE
+            // );
+            $accessToken = $staff->getAccessToken(StaffToken::STATUS_ACTIVE);
         }
 
         return [

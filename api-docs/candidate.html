@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidate API - StudentHub</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        #api-reference {
+            width: 100%;
+            height: 100vh;
+        }
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            text-decoration: none;
+            display: inline-block;
+        }
+        .back-button:hover {
+            background: #5568d3;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-button">← Back to Modules</a>
+    <div id="api-reference" data-configuration='{"spec":{"url":"/openapi/candidate-openapi.json"}}'></div>
+    <script
+        type="application/javascript"
+        src="https://cdn.jsdelivr.net/npm/@scalar/api-reference@latest/dist/browser/standalone.js"
+    ></script>
+</body>
+</html>
+

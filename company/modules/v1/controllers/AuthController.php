@@ -562,9 +562,11 @@ class AuthController extends Controller
         }
 
         if (!$accessToken) {
-            $accessToken = $contact->getAccessToken(
-                $contact->enable_two_step_auth ? ContactToken::STATUS_INACTIVE: ContactToken::STATUS_ACTIVE
-            );
+            // Two-step auth disabled - always use STATUS_ACTIVE
+            // $accessToken = $contact->getAccessToken(
+            //     $contact->enable_two_step_auth ? ContactToken::STATUS_INACTIVE: ContactToken::STATUS_ACTIVE
+            // );
+            $accessToken = $contact->getAccessToken(ContactToken::STATUS_ACTIVE);
         }
 
         return [
