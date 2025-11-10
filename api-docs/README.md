@@ -32,6 +32,12 @@ docker-compose exec admin ./yii swagger/generate
 
 The documentation will automatically reflect changes after refreshing the browser.
 
+## Rebuild api-docs to clear cache and see changes
+
+```bash
+docker-compose build api-docs && docker-compose up -d api-docs
+```
+
 ## Adding Annotations
 
 **Important:** OpenAPI documentation only includes endpoints that have `@OA\*` annotations. Currently, only 3 endpoints are documented (from AuthController). To document all API features:
