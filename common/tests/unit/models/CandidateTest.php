@@ -157,24 +157,24 @@ class CandidateTest extends \Codeception\Test\Unit
             // ... existing code ...
 
             $candidate->country_id = 9999;
-            assert('Invalid Country ID passed', $candidate->validate(['country_id']) === false);
+            $this->assertFalse($candidate->validate(['country_id']), 'Invalid Country ID passed');
             $candidate->country_id = $country->country_id;
-            assert('Valid Country ID passed', $candidate->validate(['country_id']) === true);
+            $this->assertTrue($candidate->validate(['country_id']), 'Valid Country ID passed');
 
             //university
             $univesity = $this->tester->grabFixture('university', 0);
 
             $candidate->university_id = 9999;
-            assert('Invalid University ID passed', $candidate->validate(['university_id']) === false);
+            $this->assertFalse($candidate->validate(['university_id']), 'Invalid University ID passed');
             $candidate->university_id = $univesity->university_id;
-            assert('Valid University ID passed', $candidate->validate(['university_id']) === true);
+            $this->assertTrue($candidate->validate(['university_id']), 'Valid University ID passed');
         //});
 
         //$this->specify('Candidate model store validation', function() {
             $candidate = new Candidate;
             $candidate->store_id = 9999;
             $candidate->store_id = Store::find()->one()->store_id;
-            assert('Valid Store ID passed', !isset($candidate->errors['store_id']));
+            $this->assertTrue(!isset($candidate->errors['store_id']), 'Valid Store ID passed');
         //});
 
         //$this->specify('Candidate model hourly rate validation', function() {
@@ -197,11 +197,11 @@ class CandidateTest extends \Codeception\Test\Unit
                 return null;
 
             $candidate->candidate_hourly_rate = 0;
-            assert('Invalid value passed', $candidate->validate(['candidate_hourly_rate']) === false);
+            $this->assertFalse($candidate->validate(['candidate_hourly_rate']), 'Invalid value passed');
             $candidate->candidate_hourly_rate = $max + 1;
-            assert('Higher than max allowed value passed', $candidate->validate(['candidate_hourly_rate']) === false);
+            $this->assertFalse($candidate->validate(['candidate_hourly_rate']), 'Higher than max allowed value passed');
             $candidate->candidate_hourly_rate = $max;
-            assert('Valid Hourly rate passed', $candidate->validate(['candidate_hourly_rate']) === true);
+            $this->assertTrue($candidate->validate(['candidate_hourly_rate']), 'Valid Hourly rate passed');
         //});
 
         //$this->specify('Candidate email validation', function() {
@@ -210,24 +210,24 @@ class CandidateTest extends \Codeception\Test\Unit
             $candidate = new Candidate;
 
             $candidate->candidate_email = $candidateData->candidate_email;
-            assert('Duplicate email passed', $candidate->validate(['candidate_email']) === false);
+            $this->assertFalse($candidate->validate(['candidate_email']), 'Duplicate email passed');
 
             $candidate->candidate_email = 'test';
-            assert('Random string passed', $candidate->validate(['candidate_email']) === false);
+            $this->assertFalse($candidate->validate(['candidate_email']), 'Random string passed');
 
             $candidate->candidate_email = 'candidate1@unique.net';
-            assert('Valid email passed', $candidate->validate(['candidate_email']) === true);
+            $this->assertTrue($candidate->validate(['candidate_email']), 'Valid email passed');
 
             //candidate_new_email
 
             $candidate->candidate_new_email = $candidateData->candidate_email;
-            assert('Duplicate new email passed', $candidate->validate(['candidate_new_email']) === false);
+            $this->assertFalse($candidate->validate(['candidate_new_email']), 'Duplicate new email passed');
 
             $candidate->candidate_new_email = 'test';
-            assert('Random string passed for candidate new email ', $candidate->validate(['candidate_new_email']) === false);
+            $this->assertFalse($candidate->validate(['candidate_new_email']), 'Random string passed for candidate new email');
 
             $candidate->candidate_new_email = 'candidate2@unique.net';
-            assert('Valid new email passed', $candidate->validate(['candidate_new_email']) === true);
+            $this->assertTrue($candidate->validate(['candidate_new_email']), 'Valid new email passed');
 
         //});
 
@@ -237,15 +237,15 @@ class CandidateTest extends \Codeception\Test\Unit
             //assert('Duplicate candidate_civil_id passed', $candidate->validate(['candidate_civil_id']) === false);
 
             $candidate->candidate_civil_id = '241397002346';
-            assert('Valid candidate_civil_id passed', $candidate->validate(['candidate_civil_id']) === true);
+            $this->assertTrue($candidate->validate(['candidate_civil_id']), 'Valid candidate_civil_id passed');
         //});
 
         //$this->specify('Candidate candidate civil expiry date validation', function() {
             $candidate = new Candidate;
             $candidate->candidate_civil_expiry_date = date('Y-m-d', strtotime('-1 day'));
-            assert('Invalid value passed', $candidate->validate(['candidate_civil_expiry_date']) === false);
+            $this->assertFalse($candidate->validate(['candidate_civil_expiry_date']), 'Invalid value passed');
             $candidate->candidate_civil_expiry_date = date('Y-m-d', strtotime('+1 day'));
-            assert('Valid value passed', $candidate->validate(['candidate_civil_expiry_date']) === true);
+            $this->assertTrue($candidate->validate(['candidate_civil_expiry_date']), 'Valid value passed');
 
         //});
 
@@ -253,12 +253,12 @@ class CandidateTest extends \Codeception\Test\Unit
             $candidate = new Candidate;
             $candidate->bank_account_name = '???????';
             $candidate->candidate_iban = '???????';
-            assert('Bank account name should not contain special characters', $candidate->validate(['bank_account_name']) === false);
-            assert('Candidate IBAN should not contain special characters', $candidate->validate(['candidate_iban']) === false);
+            $this->assertFalse($candidate->validate(['bank_account_name']), 'Bank account name should not contain special characters');
+            $this->assertFalse($candidate->validate(['candidate_iban']), 'Candidate IBAN should not contain special characters');
             $candidate->bank_account_name = 'Manmohan Kumar';
             $candidate->candidate_iban = 'KWKW12345612345612345612345612';
-            assert('Bank account name should accept valid value', $candidate->validate(['bank_account_name']) === true);
-            assert('Candidate IBAN should accept valid value', $candidate->validate(['candidate_iban']) === true);
+            $this->assertTrue($candidate->validate(['bank_account_name']), 'Bank account name should accept valid value');
+            $this->assertTrue($candidate->validate(['candidate_iban']), 'Candidate IBAN should accept valid value');
         //});
     }
 
