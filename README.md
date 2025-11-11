@@ -50,11 +50,12 @@ Detailed documentation is available in the `docs/` directory:
 - [Database Documentation](docs/database/README.md) - Database structure and diagrams
 - [Cron Jobs](docs/cron-jobs.md) - Scheduled tasks
 - [Analytics](docs/analytics.md) - Event tracking and analytics
+- [Testing Guide](docs/testing.md) - Running tests and TDD workflow
 
 ## Development
 
-- Run tests: `./run-tests.sh`
-- Access backend container: `docker-compose exec backend bash`
+- Run tests: `./run-tests.sh` (see [Testing Guide](docs/testing.md) for details)
+- Access backend container: `docker-compose exec admin bash` (or `docker-compose exec backend bash`)
 - Code generator: http://localhost:8888/bawes/studenthub/admin/web/gii
 
 ## allow access from docker to local mysql server 
