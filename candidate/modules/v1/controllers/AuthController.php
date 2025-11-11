@@ -48,13 +48,17 @@ class AuthController extends Controller
         unset($behaviors['authenticator']);
 
         // Allow XHR Requests from our different subdomains and dev machines
+        $allowedOrigins = Yii::$app->params['allowedOrigins'];
+        // Convert to array format - Yii2 CORS filter expects array
+        $originArray = is_array($allowedOrigins) ? $allowedOrigins : ($allowedOrigins === '*' ? ['*'] : [$allowedOrigins]);
+        
         $behaviors['corsFilter'] = [
             'class' => Cors::class,
             'cors' => [
-                'Origin' => Yii::$app->params['allowedOrigins'],
+                'Origin' => $originArray,
                 'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
                 'Access-Control-Request-Headers' => ['*'],
-                'Access-Control-Allow-Credentials' => null,
+                'Access-Control-Allow-Credentials' => false, // Must be false when Origin is '*'
                 'Access-Control-Max-Age' => 86400,
                 'Access-Control-Expose-Headers' => [],
             ],

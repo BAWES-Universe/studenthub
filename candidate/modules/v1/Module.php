@@ -43,12 +43,6 @@ class Module extends \yii\base\Module
             }
         }
 
-        // Check if request is forwarded via load balancer or cloudfront on behalf of user
-
-        if($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-            return true;
-        }
-
         // Get initial IP address of requester
         $ip = Yii::$app->request->getRemoteIP();
 
