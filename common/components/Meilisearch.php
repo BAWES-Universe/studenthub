@@ -54,8 +54,10 @@ class Meilisearch extends \yii\base\Component {
         $keyParams['actions'] = ['search'];
         
         try {
-            $response = $client->createKey($keyParams);
-            return $response['key'];
+            $keyObject = $client->createKey($keyParams);
+            // Meilisearch PHP client returns a Key object, not an array
+            // Use getKey() method to get the actual key string
+            return $keyObject->getKey();
         } catch (\Exception $e) {
             Yii::error('Failed to generate Meilisearch key: ' . $e->getMessage());
             throw $e;
@@ -256,7 +258,16 @@ class Meilisearch extends \yii\base\Component {
         // Map Algolia-style params to Meilisearch format
         $meiliParams = $this->mapSearchParams($params);
         
-        return $indexInstance->search($query, $meiliParams);
+        $searchResult = $indexInstance->search($query, $meiliParams);
+        
+        // Convert SearchResult object to array for compatibility
+        // Meilisearch PHP client returns a SearchResult object, not an array
+        return [
+            'hits' => $searchResult->getHits(),
+            'estimatedTotalHits' => $searchResult->getEstimatedTotalHits(),
+            'processingTimeMs' => $searchResult->getProcessingTimeMs(),
+            'query' => $searchResult->getQuery(),
+        ];
     }
 
     /**
