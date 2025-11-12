@@ -61,14 +61,14 @@ services:
   #    - 8080:8080
 
   phpmyadmin:
-    image: phpmyadmin
-    command: |
-      sudo apt-get update
-      sudo apt-get install -y libpng-dev libmcrypt-dev libreadline-dev zip zlib1g-dev default-mysql-client
+    image: phpmyadmin/phpmyadmin:latest
     restart: always
     environment:
       - PMA_HOST=mysql
       - PMA_PORT=3306
+      - PMA_USER=root
+      - PMA_PASSWORD=12345
+      - UPLOAD_LIMIT=300M
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.phpmyadmin.rule=Host(`phpmyadmin.studenthub.local`)"
