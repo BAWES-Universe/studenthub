@@ -9,22 +9,22 @@ use common\models\Candidate;
 
 
 /**
- * All Cron actions related algolia 
+ * All Cron actions related to Meilisearch 
  */
 class AlgoliaController extends \yii\console\Controller {
 
     /**
-     * Synch selected enity 
+     * Sync selected entity to Meilisearch
      */
     public function actionIndex($entity, $type = "all") {
         switch ($entity) {
             case 'candidate':
                 $count = Candidate::synchWithAlgolia($type);
-                $this->stdout(PHP_EOL . $count . " Candidate synchronized. \n", Console::FG_RED, Console::BOLD);
+                $this->stdout(PHP_EOL . $count . " Candidate synchronized to Meilisearch. \n", Console::FG_RED, Console::BOLD);
                 break;
             case 'fulltimer':
                 $count = Fulltimer::synchWithAlgolia($type);
-                $this->stdout(PHP_EOL . $count . " Fulltimer synchronized. \n", Console::FG_RED, Console::BOLD);
+                $this->stdout(PHP_EOL . $count . " Fulltimer synchronized to Meilisearch. \n", Console::FG_RED, Console::BOLD);
                 break;
             default:
                 break;

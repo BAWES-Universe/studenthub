@@ -51,3 +51,6 @@ temp.md
 # Generated OpenAPI specifications
 api-docs/openapi/*.json
 api-docs/openapi/*.yaml
+
+# Environment variables (secrets)
+.env

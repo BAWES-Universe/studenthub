@@ -73,9 +73,9 @@ return [
                         'OPTIONS' => 'options',
                     ]
                 ],
-                [ // AlgoliaController
+                [ // MeilisearchController
                     'class' => 'yii\rest\UrlRule',
-                    'controller' => 'v1/algolia',
+                    'controller' => 'v1/meilisearch',
                     'pluralize' => false,
                     'patterns' => [
                         'GET key' => 'key',

@@ -6,13 +6,12 @@ use company\models\Request;
 use Yii;
 
 /**
- * Algolia controller
+ * Meilisearch controller
  */
-class AlgoliaController extends BaseController
+class MeilisearchController extends BaseController
 {
     /**
-     * Return auto disposable secure api key
-     * Supports both Algolia and Meilisearch based on config
+     * Return temporary Meilisearch search key with restrictions
      */
     public function actionKey()
     {
@@ -30,59 +29,10 @@ class AlgoliaController extends BaseController
             ];
         }
 
-        // Check if Meilisearch should be used (default to Algolia for backward compatibility)
-        $useMeilisearch = isset(Yii::$app->params['use_meilisearch']) && Yii::$app->params['use_meilisearch'] === true;
-        
-        if ($useMeilisearch) {
-            return $this->getMeilisearchKey();
-        }
-        
-        return $this->getAlgoliaKey();
-    }
-    
-    /**
-     * Get Algolia key (legacy)
-     */
-    private function getAlgoliaKey()
-    {
-        $ttl = 60 * 2; //2 min
-
-        $params = [
-            'restrictIndices' => [
-                Yii::$app->params['algolia_candidate_index']
-            ],
-            //'filters' => 'assigned=0 AND ',
-            'facetFilters' => [
-                'candidate_committed:Yes',
-                'assigned:0',
-            ],
-            'validUntil' => time() + $ttl,
-            'userToken' => Yii::$app->user->getId(),
-           // 'getRankingInfo' => true,
-           // 'aroundLatLngViaIP' => true,
-           // 'aroundRadius' => 'all'
-        ];
-
-        $securedApiKey = Yii::$app->algolia->getSecureApiKey($params);
-
-        return [
-            'securedApiKey' => $securedApiKey,
-            'securedApiKeyValidUntil' => $params['validUntil'],
-            'appId' => Yii::$app->algolia->appId
-        ];
-    }
-    
-    /**
-     * Get Meilisearch key
-     */
-    private function getMeilisearchKey()
-    {
         $ttl = 60 * 2; // 2 minutes
         
         // Get index name
-        $candidateIndex = isset(Yii::$app->params['meilisearch_candidate_index']) 
-            ? Yii::$app->params['meilisearch_candidate_index'] 
-            : Yii::$app->params['algolia_candidate_index'];
+        $candidateIndex = Yii::$app->params['meilisearch_candidate_index'];
         
         // Generate temporary search key with restrictions
         $keyParams = [
@@ -93,38 +43,25 @@ class AlgoliaController extends BaseController
         
         try {
             $temporaryKey = Yii::$app->meilisearch->generateSearchKey($keyParams);
-            $host = isset(Yii::$app->params['meilisearch_host']) 
-                ? Yii::$app->params['meilisearch_host'] 
-                : 'http://meilisearch:7700';
+            $host = Yii::$app->params['meilisearch_host'];
             
             return [
                 'host' => $host,
                 'apiKey' => $temporaryKey,
-                'apiKeyValidUntil' => time() + $ttl,
-                // For backward compatibility with frontend
-                'securedApiKey' => $temporaryKey,
-                'securedApiKeyValidUntil' => time() + $ttl,
-                'appId' => null
+                'apiKeyValidUntil' => time() + $ttl
             ];
         } catch (\Exception $e) {
             Yii::error('Failed to generate Meilisearch key: ' . $e->getMessage());
-            // Fallback to Algolia on error
-            return $this->getAlgoliaKey();
+            throw new \yii\web\ServerErrorHttpException('Failed to generate search key: ' . $e->getMessage());
         }
     }
     
     /**
-     * Search proxy endpoint - accepts Algolia-compatible requests and translates to Meilisearch
-     * POST /v1/algolia/search or /v1/meilisearch/search
+     * Search endpoint - accepts search requests and returns results
+     * POST /v1/meilisearch/search
      */
     public function actionSearch()
     {
-        $useMeilisearch = isset(Yii::$app->params['use_meilisearch']) && Yii::$app->params['use_meilisearch'] === true;
-        
-        if (!$useMeilisearch) {
-            throw new \yii\web\BadRequestHttpException('Meilisearch is not enabled');
-        }
-        
         $request = Yii::$app->request;
         $body = json_decode($request->getRawBody(), true);
         
@@ -142,11 +79,11 @@ class AlgoliaController extends BaseController
         try {
             $result = Yii::$app->meilisearch->search($indexName, $query, $searchParams);
             
-            // Transform Meilisearch response to Algolia format
+            // Transform Meilisearch response to frontend-compatible format
             $hitsPerPage = isset($searchParams['hitsPerPage']) ? $searchParams['hitsPerPage'] : 20;
             $page = isset($searchParams['page']) ? $searchParams['page'] : 0;
             
-            // Convert objectID back from id for compatibility
+            // Convert id to objectID for compatibility
             foreach ($result['hits'] as &$hit) {
                 if (isset($hit['id']) && !isset($hit['objectID'])) {
                     $hit['objectID'] = $hit['id'];

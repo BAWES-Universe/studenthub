@@ -209,7 +209,7 @@ class Fulltimer extends \yii\db\ActiveRecord
             }
         }
 
-        $this->updateAlgoliaIndex($insert);
+        $this->updateMeilisearchIndex($insert);
 
         if(YII_ENV == 'prod') {
             if ($insert)
@@ -295,36 +295,11 @@ class Fulltimer extends \yii\db\ActiveRecord
     }
 
     /**
-     * Update/Insert data on algolia index
-     * @param bool $insert
-     */
-    public function updateAlgoliaIndex($insert = false) {
-
-        $data = $this->prepareAlgoliaData($insert);
-
-        //if profile incomplete
-
-        if (!$data) {
-            return false;
-        }
-
-        if ($insert) { // candidate registered
-            Yii::$app->algolia->add(Yii::$app->params['algolia_fulltimer_index'], $data);
-        } else { // candidate data updated
-            Yii::$app->algolia->partialUpdate(Yii::$app->params['algolia_fulltimer_index'], $data);
-        }
-        
-        // Also sync to Meilisearch if enabled
-        $this->updateMeilisearchIndex($insert);
-    }
-    
-    /**
      * Update/Insert data on Meilisearch index
      * @param bool $insert
      */
     public function updateMeilisearchIndex($insert = false) {
         
-        // Check if Meilisearch is configured
         if (!isset(Yii::$app->meilisearch) || empty(Yii::$app->params['meilisearch_fulltimer_index'])) {
             return false;
         }
@@ -346,7 +321,6 @@ class Fulltimer extends \yii\db\ActiveRecord
             }
         } catch (\Exception $e) {
             Yii::error('Failed to update Meilisearch index for fulltimer ' . $this->fulltimer_uuid . ': ' . $e->getMessage());
-            // Don't throw - allow Algolia to continue working
             return false;
         }
         
@@ -354,13 +328,12 @@ class Fulltimer extends \yii\db\ActiveRecord
     }
     
     /**
-     * Prepare data for Meilisearch index (reuses Algolia data structure)
+     * Prepare data for Meilisearch index
      * @param bool $insert
      * @return array|false
      */
     public function prepareMeilisearchData($insert = false) {
-        // Meilisearch uses the same data structure as Algolia
-        // Just reuse prepareAlgoliaData
+        // Reuse the existing data preparation method
         return $this->prepareAlgoliaData($insert);
     }
 
@@ -570,9 +543,6 @@ class Fulltimer extends \yii\db\ActiveRecord
             }
 
             if ($data) {
-                Yii::$app->algolia->updates(Yii::$app->params['algolia_fulltimer_index'], $data);
-                
-                // Also sync to Meilisearch if enabled
                 if (isset(Yii::$app->meilisearch) && !empty(Yii::$app->params['meilisearch_fulltimer_index'])) {
                     try {
                         Yii::$app->meilisearch->updates(Yii::$app->params['meilisearch_fulltimer_index'], $data);
