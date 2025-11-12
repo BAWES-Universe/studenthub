@@ -33,27 +33,6 @@ return [
             // Name of the cache component used to store schema information
             'schemaCache' => 'cache',
         ],
-        'walletDb' => [
-            'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=studenthub-prod.cluster-c8mekjvvbygf.eu-west-2.rds.amazonaws.com;dbname=wallet',
-            'username' => 'bawes',
-            'password' => 'bawes12student!hub',
-            
-            //'dsn' => 'mysql:host=wallet-prod.cluster-c8mekjvvbygf.eu-west-2.rds.amazonaws.com;dbname=bawes_wallet',
-            //'username' => 'wll3t1232',
-            //'password' => '24uJQLOx55q$',
-            'charset' => 'utf8',
-            // Enable Caching of Schema to Reduce SQL Queries
-            'enableSchemaCache' => true,
-            // Duration of schema cache.
-            'schemaCacheDuration' => 3600, // 1 hr
-            // Name of the cache component used to store schema information
-            'schemaCache' => 'cache',
-        ],
-        'walletManager' => [
-            'class' => 'common\components\WalletManager',
-            'apiKey' => 'imx4kpyVCXbi7sVy-zEvEITL63sQWisn',//QSw2ByGUITXFNjJVNNjyzxdbvYP9rXbG
-        ],
         'redis' => [
             'class' => 'yii\redis\Connection',
             'hostname' => 'localhost',
@@ -162,10 +141,6 @@ return [
              * https://studenthub-uploads.s3.amazonaws.com/
              * https://studenthub-uploads.s3.amazonaws.com/folderName/fileName.jpg
              */
-        ],
-        'yeaster' => [
-            'class' => 'common\components\Yeaster',
-            "apiEndpoint" => "http://ec2-18-130-75-235.eu-west-2.compute.amazonaws.com:3001"
         ],
         'urlManagerStaff' => [
             'class' => 'yii\web\UrlManager',
