@@ -78,6 +78,10 @@ return [
         'log' => [
             'targets' => [
                 [
+                    'class' => 'yii\log\FileTarget',
+                    'levels' => ['error', 'warning'],
+                ],
+                [
                     'class' => 'notamedia\sentry\SentryTarget',
                     'dsn' => 'https://6cbd2100e1ff41e7875352655ffbf50d:e18336b09d864b29aa12aca3fbc6706c@sentry.io/168200',
                     'levels' => ['error', 'warning'],
@@ -95,12 +99,12 @@ return [
                     ],
                     'context' => true // Write the context information. The default is true.
                 ],
-                [
-                    'class' => 'common\components\SlackLogger',
-                    'logVars' => [],
-                    'levels' => ['info', 'warning'],
-                    'categories' => ['admin\*', 'candidate\*', 'company\*', 'staff\*', 'remail\*', 'common\*', 'console\*'],
-                ],
+                // [
+                //     'class' => 'common\components\SlackLogger',
+                //     'logVars' => [],
+                //     'levels' => ['info', 'warning'],
+                //     'categories' => ['admin\*', 'candidate\*', 'company\*', 'staff\*', 'remail\*', 'common\*', 'console\*'],
+                // ],
             ],
         ],
     ],
