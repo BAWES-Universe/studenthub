@@ -6,6 +6,11 @@ $params = array_merge(
     require(__DIR__ . '/params-local.php')
 );
 
+// Normalize allowedOrigins to array format for CORS filter
+if (isset($params['allowedOrigins']) && !is_array($params['allowedOrigins'])) {
+    $params['allowedOrigins'] = $params['allowedOrigins'] === '*' ? ['*'] : [$params['allowedOrigins']];
+}
+
 return [
     'id' => 'app-console',
     'basePath' => dirname(__DIR__),
