@@ -3436,13 +3436,14 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $total = $query->count();
 
-        //send 100 in each request
+        //send 50 in each request (reduced from 100 to prevent memory issues)
+        $batchSize = 50;
 
         Console::startProgress(0, $total);
 
         $n = 0;
 
-        foreach ($query->batch(100) as $candidates) {
+        foreach ($query->batch($batchSize) as $candidates) {
 
             $data = [];
 
@@ -3451,13 +3452,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
                 if ($meilisearchData) {
                     $data[] = $meilisearchData;
-                    gc_collect_cycles();
-                    unset($meilisearchData);
                 }
-
-                //echo (memory_get_usage()/ 1000) . "KB \n";
             }
-
+            
+            // Process batch and clear memory
             if ($data) {
                 if (isset(Yii::$app->meilisearch) && !empty(Yii::$app->params['meilisearch_candidate_index'])) {
                     try {
@@ -3467,11 +3465,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                     }
                 }
             }
-
-            $n += sizeof($data);
-
-            unset($data);
-            unset($candidates);
+            
+            // Clear memory after each batch
+            $n += count($data ?? []);
+            unset($data, $candidates);
             gc_collect_cycles();
 
             Console::updateProgress($n, $total);

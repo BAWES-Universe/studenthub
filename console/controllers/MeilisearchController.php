@@ -17,8 +17,13 @@ class MeilisearchController extends \yii\console\Controller {
     /**
      * Sync all data to Meilisearch (candidates and fulltimers)
      * Usage: ./yii meilisearch/sync
+     * 
+     * Note: For large datasets, increase PHP memory limit:
+     * php -d memory_limit=512M ./yii meilisearch/sync
      */
     public function actionSync() {
+        // Increase memory limit for large syncs
+        ini_set('memory_limit', '512M');
         $this->stdout("Starting Meilisearch sync...\n", Console::FG_YELLOW);
         
         // Initialize indexes first
