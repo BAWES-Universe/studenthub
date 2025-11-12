@@ -79,8 +79,10 @@ return [
                     'pluralize' => false,
                     'patterns' => [
                         'GET key' => 'key',
+                        'POST search' => 'search',
                         // OPTIONS VERBS
-                        'OPTIONS key' => 'options'
+                        'OPTIONS key' => 'options',
+                        'OPTIONS search' => 'options'
                     ]
                 ],
                 [ // AuthController

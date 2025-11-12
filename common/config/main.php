@@ -48,6 +48,11 @@ return [
             'apiKey' => 'bce91c65c212d2bb20c079eb15c2283b', 
            // 'publicKey' => '381f91f1c08f4d2788a6821cad1ccbbb'
         ],
+        'meilisearch' => [
+            'class' => 'common\components\Meilisearch',
+            'host' => isset(Yii::$app->params['meilisearch_host']) ? Yii::$app->params['meilisearch_host'] : 'http://meilisearch:7700',
+            'masterKey' => isset(Yii::$app->params['meilisearch_master_key']) ? Yii::$app->params['meilisearch_master_key'] : '',
+        ],
         'ipstack' => [
             'class' => 'common\components\Ipstack',
             //'accessKey' => 'fac3c2117d877e078e3e8fa7839d8204'

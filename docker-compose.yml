@@ -53,6 +53,23 @@ services:
       - redis-data:/data
     networks:
       - studenthub-network
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.16
+    container_name: meilisearch
+    restart: always
+    volumes:
+      - meilisearch-data:/meili_data
+    environment:
+      - MEILI_MASTER_KEY=${MEILI_MASTER_KEY:-changeme_master_key_please_set_in_env}
+      - MEILI_ENV=development
+      - MEILI_NO_ANALYTICS=true
+      - MEILI_DB_PATH=/meili_data
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - studenthub-network
  
   #adminer:
   #  image: adminer
@@ -280,3 +297,4 @@ services:
 volumes:
   mysql-data:
   redis-data:
+  meilisearch-data:

@@ -313,6 +313,55 @@ class Fulltimer extends \yii\db\ActiveRecord
         } else { // candidate data updated
             Yii::$app->algolia->partialUpdate(Yii::$app->params['algolia_fulltimer_index'], $data);
         }
+        
+        // Also sync to Meilisearch if enabled
+        $this->updateMeilisearchIndex($insert);
+    }
+    
+    /**
+     * Update/Insert data on Meilisearch index
+     * @param bool $insert
+     */
+    public function updateMeilisearchIndex($insert = false) {
+        
+        // Check if Meilisearch is configured
+        if (!isset(Yii::$app->meilisearch) || empty(Yii::$app->params['meilisearch_fulltimer_index'])) {
+            return false;
+        }
+        
+        $data = $this->prepareMeilisearchData($insert);
+        
+        //if profile incomplete
+        if (!$data) {
+            return false;
+        }
+        
+        try {
+            $indexName = Yii::$app->params['meilisearch_fulltimer_index'];
+            
+            if ($insert) { // fulltimer registered
+                Yii::$app->meilisearch->add($indexName, $data);
+            } else { // fulltimer data updated
+                Yii::$app->meilisearch->partialUpdate($indexName, $data);
+            }
+        } catch (\Exception $e) {
+            Yii::error('Failed to update Meilisearch index for fulltimer ' . $this->fulltimer_uuid . ': ' . $e->getMessage());
+            // Don't throw - allow Algolia to continue working
+            return false;
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Prepare data for Meilisearch index (reuses Algolia data structure)
+     * @param bool $insert
+     * @return array|false
+     */
+    public function prepareMeilisearchData($insert = false) {
+        // Meilisearch uses the same data structure as Algolia
+        // Just reuse prepareAlgoliaData
+        return $this->prepareAlgoliaData($insert);
     }
 
     /**
@@ -520,8 +569,18 @@ class Fulltimer extends \yii\db\ActiveRecord
                     $data[] = $algoliaData;
             }
 
-            if ($data)
+            if ($data) {
                 Yii::$app->algolia->updates(Yii::$app->params['algolia_fulltimer_index'], $data);
+                
+                // Also sync to Meilisearch if enabled
+                if (isset(Yii::$app->meilisearch) && !empty(Yii::$app->params['meilisearch_fulltimer_index'])) {
+                    try {
+                        Yii::$app->meilisearch->updates(Yii::$app->params['meilisearch_fulltimer_index'], $data);
+                    } catch (\Exception $e) {
+                        Yii::error('Failed to sync batch to Meilisearch: ' . $e->getMessage());
+                    }
+                }
+            }
 
             $n += sizeof($data);
 
