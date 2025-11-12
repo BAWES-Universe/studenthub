@@ -305,20 +305,6 @@ return [
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
-                [ // YeasterController
-                    'class' => 'yii\rest\UrlRule',
-                    'controller' => 'v1/yeaster',
-                    'pluralize' => false,
-                    'patterns' => [
-                        'GET' => 'list',
-                        'GET <id>' => 'view',
-                        'GET download/<id>' => 'view',
-                        // OPTIONS VERBS
-                        'OPTIONS' => 'options',
-                        'OPTIONS <id>' => 'options',
-                        'OPTIONS download/<id>' => 'options',
-                    ]
-                ],
                 [ // TransferController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/transfer',
@@ -826,20 +812,6 @@ return [
                         'OPTIONS user-permission/<type>/<id>' => 'options',
                         'OPTIONS sub/<id>' => 'options',
                         'OPTIONS set-permission/<id>' => 'options'
-                    ]
-                ],
-                [ // BalanceController
-                    'class' => 'yii\rest\UrlRule',
-                    'controller' => 'v1/balance',
-                    'pluralize' => false,
-                    'patterns' => [
-                        'GET payable-list' => 'payable-list',
-                        'POST init-transfer' => 'init-transfer',
-                        'PATCH pay-by-wallet' => 'pay-by-wallet',
-                        // OPTIONS VERBS
-                        'OPTIONS pay-by-wallet' => 'options',
-                        'OPTIONS init-transfer' => 'options',
-                        'OPTIONS payable-list' => 'options',
                     ]
                 ],
                 [ // CandidateController

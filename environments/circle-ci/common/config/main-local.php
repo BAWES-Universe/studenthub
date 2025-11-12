@@ -8,23 +8,6 @@ return [
             'password' => 'passw0rd',
             'charset' => 'utf8',
         ],
-        'walletDb' => [
-            'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=127.0.0.1;dbname=wallet_test',//todo: replace with wallet db from sandbox
-            'username' => 'bawes',
-            'password' => 'passw0rd',
-            'charset' => 'utf8',
-        ],
-        'walletManager' => [
-            'class' => 'common\components\WalletManager',
-            'apiKey' => 'QSw2ByGUITXFNjJVNNjyzxdbvYP9rXbG',
-            'apiEndpoint' => 'https://webhook.dev.wallet.bawes.net/v1',
-            'companyWalletUserID' => 'user_fcac8a5f-52a2-11ed-a68e-d85ed3a264df'
-        ],
-        'yeaster' => [
-            'class' => 'common\components\Yeaster',
-            "apiEndpoint" => "http://localhost:3001"
-        ],
         'mailer' => [
             'class' => \yii\symfonymailer\Mailer::class,
             'viewPath' => '@common/mail',

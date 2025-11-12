@@ -8,23 +8,6 @@ return [
             'password' => '12345',
             'charset' => 'utf8mb4',
         ],
-        'walletDb' => [
-            'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=mysql;dbname=wallet', // Docker mysql service name for host
-            'username' => 'studenthubuser',
-            'password' => '12345',
-            'charset' => 'utf8',
-        ],
-        'walletManager' => [
-            'class' => 'common\components\WalletManager',
-            'apiKey' => 'QSw2ByGUITXFNjJVNNjyzxdbvYP9rXbG',
-            'apiEndpoint' => 'http://localhost/wallet/webhook/web/v1',//todo:
-            'companyWalletUserID' => 'user_fcac8a5f-52a2-11ed-a68e-d85ed3a264df'
-        ],
-        'yeaster' => [
-            'class' => 'common\components\Yeaster',
-            "apiEndpoint" => "http://localhost:3001"
-        ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
         ],

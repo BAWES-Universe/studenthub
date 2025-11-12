@@ -207,20 +207,6 @@ return [
                         'OPTIONS login/<id>' => 'options',
                     ]
                 ],
-                [ // YeasterController
-                    'class' => 'yii\rest\UrlRule',
-                    'controller' => 'v1/yeaster',
-                    'pluralize' => false,
-                    'patterns' => [
-                        'GET' => 'list',
-                        'GET <id>' => 'view',
-                        'GET download/<id>' => 'view',
-                        // OPTIONS VERBS
-                        'OPTIONS' => 'options',
-                        'OPTIONS <id>' => 'options',
-                        'OPTIONS download/<id>' => 'options',
-                    ]
-                ],
                 [ // CandidateController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/candidate',
@@ -592,20 +578,6 @@ return [
                         'OPTIONS issues' => 'options',
                     ]
                 ],
-                [ // BalanceController
-                    'class' => 'yii\rest\UrlRule',
-                    'controller' => 'v1/balance',
-                    'pluralize' => false,
-                    'patterns' => [
-                        'GET payable-list' => 'payable-list',
-                        'POST init-transfer' => 'init-transfer',
-                        'PATCH pay-by-wallet' => 'pay-by-wallet',
-                        // OPTIONS VERBS
-                        'OPTIONS pay-by-wallet' => 'options',
-                        'OPTIONS init-transfer' => 'options',
-                        'OPTIONS payable-list' => 'options',
-                    ]
-                ],
                 [ // StoryController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/story',
@@ -887,20 +859,6 @@ return [
                         'OPTIONS session/<id>' => 'options',
                         "OPTIONS appeal-update-status/<id>"=> 'options',
                         'OPTIONS date/<date>/<candidateId>' => 'options',
-                    ]
-                ],
-                [ // BalanceController
-                    'class' => 'yii\rest\UrlRule',
-                    'controller' => 'v1/balance',
-                    'pluralize' => false,
-                    'patterns' => [
-                        'GET payable-list' => 'payable-list',
-                        'POST init-transfer' => 'init-transfer',
-                        'PATCH pay-by-wallet' => 'pay-by-wallet',
-                        // OPTIONS VERBS
-                        'OPTIONS pay-by-wallet' => 'options',
-                        'OPTIONS init-transfer' => 'options',
-                        'OPTIONS payable-list' => 'options',
                     ]
                 ],
                 [ // CandidateEvaluationController

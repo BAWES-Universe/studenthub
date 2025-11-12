@@ -8,9 +8,6 @@ return yii\helpers\ArrayHelper::merge(
             'db' => [
                 'dsn' => 'mysql:host=127.0.0.1;dbname=payroll_test',
             ],
-            'walletDb' => [
-                'dsn' => 'mysql:host=127.0.0.1;dbname=wallet_test'
-            ],
             'cache' => [
                 'class' => 'yii\caching\FileCache',
             ],

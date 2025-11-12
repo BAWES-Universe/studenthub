@@ -4,9 +4,6 @@ namespace admin\models;
 
 use common\models\MailLog;
 use common\models\Staff;
-use common\models\BalanceAccount;
-use common\models\WalletUser;
-use common\models\WalletTransfer;
 use Yii;
 use yii\db\Exception;
 use yii\helpers\ArrayHelper;
@@ -210,39 +207,6 @@ class TransferCandidate extends \common\models\TransferCandidate
         }
 
         if(YII_ENV == 'prod') {
-            if($payByWallet) {
-
-                // get wallet user by email
-                $walletUser = WalletUser::findByEmail($transferCandidate->candidate->candidate_email);
-
-                $response = Yii::$app->walletManager->addEntry([
-                    'amount' => $amount,
-                    'data' => 'Salary #' . $transferCandidate->tc_id,
-                    'tagNames' => 'Salary',
-                    'user_uuid' => $walletUser->user_uuid,
-                    'initTransfer' => $initTransfer
-                ]);
-
-                if ($response['operation'] == 'error') {
-                    $transaction->rollBack();
-
-                    return $response;
-                }
-            }
-
-            $response = Yii::$app->walletManager->addEntry([
-                'amount' => 0 - $amount,
-                'data' => 'Studenthub candidate paid #' . $transferCandidate->tc_id,
-                'tagNames' => 'Studenthub candidate paid',
-                'user_uuid' => Yii::$app->walletManager->companyWalletUserID
-            ]);
-
-            if ($response['operation'] == 'error') {
-                $transaction->rollBack();
-
-                return $response;
-            }
-
             Transfer::triggerPayableCandidateEvent();
         }
 
@@ -290,27 +254,6 @@ class TransferCandidate extends \common\models\TransferCandidate
             if($transferCandidate->paid == TransferCandidate::PAID)
                 continue;
 
-            //todo: why adding entry in wallet? marking as paid to wallet?
-
-            if(YII_ENV == 'prod') {
-                $response = Yii::$app->walletManager->addEntry([
-                    'amount' => $transferCandidate->candidate_total,
-                    'data' => 'Studenthub candidate paid #' . $transferCandidate->tc_id,
-                    'tagNames' => 'Studenthub candidate paid',
-                    'user_uuid' => Yii::$app->walletManager->companyWalletUserID
-                ]);
-
-                if ($response['operation'] == 'error') {
-                    //$transaction->rollBack();
-
-                    //return $response;
-
-                    Yii::error('Failed to add entry to wallet: ' . print_r($response, true));
-                    
-                    continue;
-                }
-            }
-            
             $transferCandidate->paid = TransferCandidate::PAID;
             $transferCandidate->save();
         }
