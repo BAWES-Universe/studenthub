@@ -6,6 +6,7 @@ return [
     'meilisearch_master_key' => getenv('MEILI_MASTER_KEY') ?: 'test_master_key_12345',
     'meilisearch_candidate_index' => 'dev_candidate_public',
     'meilisearch_fulltimer_index' => 'dev_fulltimer_public',
+    'meilisearch_major_index' => 'dev_major_public', // Optional: uncomment to enable major indexing
     'meilisearch_host' => 'http://meilisearch:7700',
     'oneSignalCandidateAPPID' => 'fe766231-6156-4537-8037-84e3fe1be5da',
     'oneSignalCandidateAPIKey' => 'YTBkODdlMjctOGQ0Ny00NDgwLTkyMmYtOWQ1NTI5ODlmZjY1',

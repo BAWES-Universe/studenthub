@@ -3069,7 +3069,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     }
 
     /**
-     * Return array of job detail to update in algolia index
+     * Prepare candidate data for search index (Meilisearch)
+     * @param bool $insert Whether this is a new record
+     * @return array|false Candidate data array or false if should be excluded
      */
     public function prepareAlgoliaData($insert = false) {
 
@@ -3385,10 +3387,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     }
 
     /**
-     * Synch with algolia
-     * @return type
+     * Sync candidates to Meilisearch
+     * @param string $type Sync type: "all", "civilIdExpired", "civilIdExpiredToday"
+     * @return int Number of candidates synchronized
      */
-    public static function synchWithAlgolia($type = "all") {
+    public static function syncToMeilisearch($type = "all") {
 
         //delete all objects
         //Yii::$app->algolia->clearObjects(Yii::$app->params['algolia_candidate_index']);
@@ -3444,12 +3447,12 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             $data = [];
 
             foreach ($candidates as $candidate) {
-                $algoliaData = $candidate->prepareAlgoliaData();
+                $meilisearchData = $candidate->prepareMeilisearchData();
 
-                if ($algoliaData) {
-                    $data[] = $algoliaData;
+                if ($meilisearchData) {
+                    $data[] = $meilisearchData;
                     gc_collect_cycles();
-                    unset($algoliaData);
+                    unset($meilisearchData);
                 }
 
                 //echo (memory_get_usage()/ 1000) . "KB \n";

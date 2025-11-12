@@ -6,35 +6,58 @@ use common\models\Fulltimer;
 use Yii;
 use yii\helpers\Console;
 use common\models\Candidate;
+use common\models\Major;
 
 
 /**
- * All Cron actions related to Meilisearch 
+ * Meilisearch console commands
  */
-class AlgoliaController extends \yii\console\Controller {
+class MeilisearchController extends \yii\console\Controller {
 
     /**
-     * Sync selected entity to Meilisearch
+     * Sync all data to Meilisearch (candidates and fulltimers)
+     * Usage: ./yii meilisearch/sync
      */
-    public function actionIndex($entity, $type = "all") {
-        switch ($entity) {
-            case 'candidate':
-                $count = Candidate::synchWithAlgolia($type);
-                $this->stdout(PHP_EOL . $count . " Candidate synchronized to Meilisearch. \n", Console::FG_RED, Console::BOLD);
-                break;
-            case 'fulltimer':
-                $count = Fulltimer::synchWithAlgolia($type);
-                $this->stdout(PHP_EOL . $count . " Fulltimer synchronized to Meilisearch. \n", Console::FG_RED, Console::BOLD);
-                break;
-            default:
-                break;
+    public function actionSync() {
+        $this->stdout("Starting Meilisearch sync...\n", Console::FG_YELLOW);
+        
+        // Initialize indexes first
+        $this->stdout("\n=== Initializing Indexes ===\n", Console::FG_CYAN);
+        $this->actionInit();
+        
+        // Sync candidates
+        $this->stdout("\n=== Syncing Candidates ===\n", Console::FG_CYAN);
+        $candidateCount = Candidate::syncToMeilisearch('all');
+        $this->stdout("✓ {$candidateCount} candidates synchronized.\n", Console::FG_GREEN);
+        
+        // Sync fulltimers
+        $this->stdout("\n=== Syncing Fulltimers ===\n", Console::FG_CYAN);
+        $fulltimerCount = Fulltimer::syncToMeilisearch('all');
+        $this->stdout("✓ {$fulltimerCount} fulltimers synchronized.\n", Console::FG_GREEN);
+        
+        // Sync majors (if configured)
+        $majorCount = 0;
+        if (!empty(Yii::$app->params['meilisearch_major_index'])) {
+            $this->stdout("\n=== Syncing Majors ===\n", Console::FG_CYAN);
+            $majorCount = Major::syncToMeilisearch();
+            $this->stdout("✓ {$majorCount} majors synchronized.\n", Console::FG_GREEN);
         }
+        
+        $this->stdout("\n=== Sync Complete ===\n", Console::FG_GREEN);
+        $summary = "Total: {$candidateCount} candidates, {$fulltimerCount} fulltimers";
+        if ($majorCount > 0) {
+            $summary .= ", {$majorCount} majors";
+        }
+        $this->stdout("{$summary}\n", Console::FG_GREEN);
+        
+        return 0;
     }
     
     /**
      * Initialize Meilisearch indexes with settings
+     * Usage: ./yii meilisearch/init
      */
-    public function actionInitMeilisearch() {
+    public function actionInit() {
         if (!isset(Yii::$app->meilisearch)) {
             $this->stdout("Meilisearch is not configured.\n", Console::FG_RED);
             return 1;
@@ -49,10 +72,8 @@ class AlgoliaController extends \yii\console\Controller {
             
             try {
                 // Check if index exists, create if it doesn't
-                $indexExists = false;
                 try {
                     $index = $client->getIndex($candidateIndex);
-                    $indexExists = true;
                 } catch (\Exception $e) {
                     // Index doesn't exist, create it
                     $client->createIndex($candidateIndex, ['primaryKey' => 'candidate_id']);
@@ -106,9 +127,9 @@ class AlgoliaController extends \yii\console\Controller {
                     'candidate_birth_timestamp',
                 ]);
                 
-                $this->stdout("Candidate index initialized successfully.\n", Console::FG_GREEN);
+                $this->stdout("✓ Candidate index initialized successfully.\n", Console::FG_GREEN);
             } catch (\Exception $e) {
-                $this->stdout("Error initializing candidate index: " . $e->getMessage() . "\n", Console::FG_RED);
+                $this->stdout("✗ Error initializing candidate index: " . $e->getMessage() . "\n", Console::FG_RED);
             }
         }
         
@@ -119,10 +140,8 @@ class AlgoliaController extends \yii\console\Controller {
             
             try {
                 // Check if index exists, create if it doesn't
-                $indexExists = false;
                 try {
                     $index = $client->getIndex($fulltimerIndex);
-                    $indexExists = true;
                 } catch (\Exception $e) {
                     // Index doesn't exist, create it
                     $client->createIndex($fulltimerIndex, ['primaryKey' => 'fulltimer_uuid']);
@@ -165,9 +184,49 @@ class AlgoliaController extends \yii\console\Controller {
                     'fulltimer_birth_timestamp',
                 ]);
                 
-                $this->stdout("Fulltimer index initialized successfully.\n", Console::FG_GREEN);
+                $this->stdout("✓ Fulltimer index initialized successfully.\n", Console::FG_GREEN);
             } catch (\Exception $e) {
-                $this->stdout("Error initializing fulltimer index: " . $e->getMessage() . "\n", Console::FG_RED);
+                $this->stdout("✗ Error initializing fulltimer index: " . $e->getMessage() . "\n", Console::FG_RED);
+            }
+        }
+        
+        // Initialize major index (if configured)
+        if (!empty(Yii::$app->params['meilisearch_major_index'])) {
+            $majorIndex = Yii::$app->params['meilisearch_major_index'];
+            $this->stdout("Initializing major index: {$majorIndex}\n", Console::FG_YELLOW);
+            
+            try {
+                // Check if index exists, create if it doesn't
+                try {
+                    $index = $client->getIndex($majorIndex);
+                } catch (\Exception $e) {
+                    // Index doesn't exist, create it
+                    $client->createIndex($majorIndex, ['primaryKey' => 'major_uuid']);
+                    $index = $client->getIndex($majorIndex);
+                }
+                
+                // Configure searchable attributes
+                $index->updateSearchableAttributes([
+                    'major_name_en',
+                    'major_name_ar',
+                ]);
+                
+                // Configure filterable attributes
+                $index->updateFilterableAttributes([
+                    'data_source',
+                    'major_created_at',
+                    'major_updated_at',
+                ]);
+                
+                // Configure sortable attributes
+                $index->updateSortableAttributes([
+                    'major_created_at',
+                    'major_updated_at',
+                ]);
+                
+                $this->stdout("✓ Major index initialized successfully.\n", Console::FG_GREEN);
+            } catch (\Exception $e) {
+                $this->stdout("✗ Error initializing major index: " . $e->getMessage() . "\n", Console::FG_RED);
             }
         }
         

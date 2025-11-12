@@ -103,22 +103,46 @@ class Major extends \yii\db\ActiveRecord
     }*/
 
     /**
-     * Update/Insert data on algolia index
+     * Update/Insert data on Meilisearch index
      * @param bool $insert
      */
-    public function updateAlgoliaIndex($insert = false)
+    public function updateMeilisearchIndex($insert = false)
     {
-            $data = $this->prepareAlgoliaData($insert);
-            
-            if (!$data) {
-                return true;
-            }
+        if (!isset(Yii::$app->meilisearch) || empty(Yii::$app->params['meilisearch_major_index'])) {
+            return false;
+        }
+        
+        $data = $this->prepareMeilisearchData($insert);
+        
+        if (!$data) {
+            return true;
+        }
 
+        try {
+            $indexName = Yii::$app->params['meilisearch_major_index'];
+            
             if ($insert) { // new major posted
-                Yii::$app->algolia->add(Yii::$app->params['algolia_major_index'], $data);
+                Yii::$app->meilisearch->add($indexName, $data);
             } else { // major data updated
-                Yii::$app->algolia->partialUpdate(Yii::$app->params['algolia_major_index'], $data);
+                Yii::$app->meilisearch->partialUpdate($indexName, $data);
             }
+        } catch (\Exception $e) {
+            Yii::error('Failed to update Meilisearch index for major ' . $this->major_uuid . ': ' . $e->getMessage());
+            return false;
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Prepare data for Meilisearch index
+     * @param bool $insert
+     * @return array|null
+     */
+    public function prepareMeilisearchData($insert = false)
+    {
+        // Reuse the existing data preparation method
+        return $this->prepareAlgoliaData($insert);
     }
 
     /**
@@ -143,14 +167,14 @@ class Major extends \yii\db\ActiveRecord
     }
 
     /**
-     * Synch with algolia 
-     * @return type
+     * Sync majors to Meilisearch
+     * @return int Number of majors synchronized
      */
-    public static function synchWithAlgolia()
+    public static function syncToMeilisearch()
     {
-        //delete all objects
-        
-        Yii::$app->algolia->clearObjects(Yii::$app->params['algolia_major_index']);
+        if (!isset(Yii::$app->meilisearch) || empty(Yii::$app->params['meilisearch_major_index'])) {
+            return 0;
+        }
         
         //call api in batch 
         
@@ -168,15 +192,20 @@ class Major extends \yii\db\ActiveRecord
 
             foreach ($majors as $major)
             {
-                 $raw = $major->prepareAlgoliaData();
+                 $raw = $major->prepareMeilisearchData();
                 
                  if ($raw) {
                     $data[] = $raw;
                  }
             }
 
-            if($data)
-                Yii::$app->algolia->updates(Yii::$app->params['algolia_major_index'], $data);
+            if($data) {
+                try {
+                    Yii::$app->meilisearch->updates(Yii::$app->params['meilisearch_major_index'], $data);
+                } catch (\Exception $e) {
+                    Yii::error('Failed to sync batch to Meilisearch: ' . $e->getMessage());
+                }
+            }
             
             $n += sizeof($data);
             

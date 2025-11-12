@@ -338,7 +338,9 @@ class Fulltimer extends \yii\db\ActiveRecord
     }
 
     /**
-     * Return array of job detail to update in algolia index
+     * Prepare fulltimer data for search index (Meilisearch)
+     * @param bool $insert Whether this is a new record
+     * @return array Fulltimer data array
      */
     public function prepareAlgoliaData($insert = false) {
 
@@ -506,10 +508,11 @@ class Fulltimer extends \yii\db\ActiveRecord
     }
 
     /**
-     * Synch with algolia
-     * @return type
+     * Sync fulltimers to Meilisearch
+     * @param string $type Sync type (currently only "all" is supported)
+     * @return int Number of fulltimers synchronized
      */
-    public static function synchWithAlgolia($type = "all") {
+    public static function syncToMeilisearch($type = "all") {
 
         //delete all objects
 
@@ -536,10 +539,10 @@ class Fulltimer extends \yii\db\ActiveRecord
 
             foreach ($fulltimers as $fulltimer) {
 
-                $algoliaData = $fulltimer->prepareAlgoliaData();
+                $meilisearchData = $fulltimer->prepareMeilisearchData();
 
-                if ($algoliaData)
-                    $data[] = $algoliaData;
+                if ($meilisearchData)
+                    $data[] = $meilisearchData;
             }
 
             if ($data) {
