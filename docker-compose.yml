@@ -139,20 +139,6 @@ services:
     networks:
       - studenthub-network
 
-  # Load fixture data
-  load-fixture:
-    build: admin
-    command: bash -c "sleep 20 && ./yii fixture/load '*' --interactive=0"
-    volumes:
-      # Re-use local composer cache via host-volume
-      - ~/.composer-docker/cache:/root/.composer/cache:delegated
-      # Mount source-code for development
-      - ./:/app
-    depends_on:
-      - "db-migration"
-    networks:
-      - studenthub-network
-
   #cron:
   #  build: cron
   #  volumes:
@@ -175,8 +161,6 @@ services:
       - "traefik.http.routers.admin.rule=Host(`admin.studenthub.local`)"
       - "traefik.http.routers.admin.entrypoints=web"
       - "traefik.http.services.admin.loadbalancer.server.port=80"
-    depends_on:
-      - "load-fixture"
     networks:
       - studenthub-network
 
@@ -192,8 +176,6 @@ services:
       - "traefik.http.routers.candidate.rule=Host(`candidate.studenthub.local`)"
       - "traefik.http.routers.candidate.entrypoints=web"
       - "traefik.http.services.candidate.loadbalancer.server.port=80"
-    depends_on:
-      - "load-fixture"
     networks:
       - studenthub-network
 
@@ -209,8 +191,6 @@ services:
       - "traefik.http.routers.company.rule=Host(`company.studenthub.local`)"
       - "traefik.http.routers.company.entrypoints=web"
       - "traefik.http.services.company.loadbalancer.server.port=80"
-    depends_on:
-      - "load-fixture"
     networks:
       - studenthub-network
 
@@ -226,8 +206,6 @@ services:
       - "traefik.http.routers.staff.rule=Host(`staff.studenthub.local`)"
       - "traefik.http.routers.staff.entrypoints=web"
       - "traefik.http.services.staff.loadbalancer.server.port=80"
-    depends_on:
-      - "load-fixture"
     networks:
       - studenthub-network
 
@@ -243,8 +221,6 @@ services:
       - "traefik.http.routers.manager.rule=Host(`manager.studenthub.local`)"
       - "traefik.http.routers.manager.entrypoints=web"
       - "traefik.http.services.manager.loadbalancer.server.port=80"
-    depends_on:
-      - "load-fixture"
     networks:
       - studenthub-network
 
@@ -260,8 +236,6 @@ services:
       - "traefik.http.routers.inspector.rule=Host(`inspector.studenthub.local`)"
       - "traefik.http.routers.inspector.entrypoints=web"
       - "traefik.http.services.inspector.loadbalancer.server.port=80"
-    depends_on:
-      - "load-fixture"
     networks:
       - studenthub-network
 
@@ -277,8 +251,6 @@ services:
       - "traefik.http.routers.verification.rule=Host(`verification.studenthub.local`)"
       - "traefik.http.routers.verification.entrypoints=web"
       - "traefik.http.services.verification.loadbalancer.server.port=80"
-    depends_on:
-      - "load-fixture"
     networks:
       - studenthub-network
 

@@ -15,8 +15,12 @@ use common\models\Major;
 class MeilisearchController extends \yii\console\Controller {
 
     /**
-     * Sync all data to Meilisearch (candidates and fulltimers)
+     * Sync all data to Meilisearch (initializes indexes and syncs data)
      * Usage: ./yii meilisearch/sync
+     * 
+     * This command automatically:
+     * - Initializes indexes (creates if missing, updates settings if existing)
+     * - Syncs all data (candidates, fulltimers, majors)
      * 
      * Note: For large datasets, increase PHP memory limit:
      * php -d memory_limit=512M ./yii meilisearch/sync
@@ -26,49 +30,15 @@ class MeilisearchController extends \yii\console\Controller {
         ini_set('memory_limit', '512M');
         $this->stdout("Starting Meilisearch sync...\n", Console::FG_YELLOW);
         
-        // Initialize indexes first
-        $this->stdout("\n=== Initializing Indexes ===\n", Console::FG_CYAN);
-        $this->actionInit();
-        
-        // Sync candidates
-        $this->stdout("\n=== Syncing Candidates ===\n", Console::FG_CYAN);
-        $candidateCount = Candidate::syncToMeilisearch('all');
-        $this->stdout("✓ {$candidateCount} candidates synchronized.\n", Console::FG_GREEN);
-        
-        // Sync fulltimers
-        $this->stdout("\n=== Syncing Fulltimers ===\n", Console::FG_CYAN);
-        $fulltimerCount = Fulltimer::syncToMeilisearch('all');
-        $this->stdout("✓ {$fulltimerCount} fulltimers synchronized.\n", Console::FG_GREEN);
-        
-        // Sync majors (if configured)
-        $majorCount = 0;
-        if (!empty(Yii::$app->params['meilisearch_major_index'])) {
-            $this->stdout("\n=== Syncing Majors ===\n", Console::FG_CYAN);
-            $majorCount = Major::syncToMeilisearch();
-            $this->stdout("✓ {$majorCount} majors synchronized.\n", Console::FG_GREEN);
-        }
-        
-        $this->stdout("\n=== Sync Complete ===\n", Console::FG_GREEN);
-        $summary = "Total: {$candidateCount} candidates, {$fulltimerCount} fulltimers";
-        if ($majorCount > 0) {
-            $summary .= ", {$majorCount} majors";
-        }
-        $this->stdout("{$summary}\n", Console::FG_GREEN);
-        
-        return 0;
-    }
-    
-    /**
-     * Initialize Meilisearch indexes with settings
-     * Usage: ./yii meilisearch/init
-     */
-    public function actionInit() {
         if (!isset(Yii::$app->meilisearch)) {
             $this->stdout("Meilisearch is not configured.\n", Console::FG_RED);
             return 1;
         }
         
         $client = Yii::$app->meilisearch->getClient();
+        
+        // Initialize indexes first
+        $this->stdout("\n=== Initializing Indexes ===\n", Console::FG_CYAN);
         
         // Initialize candidate index
         if (!empty(Yii::$app->params['meilisearch_candidate_index'])) {
@@ -296,6 +266,32 @@ class MeilisearchController extends \yii\console\Controller {
         }
         
         $this->stdout("Meilisearch indexes initialization completed.\n", Console::FG_GREEN);
+        
+        // Sync candidates
+        $this->stdout("\n=== Syncing Candidates ===\n", Console::FG_CYAN);
+        $candidateCount = Candidate::syncToMeilisearch('all');
+        $this->stdout("✓ {$candidateCount} candidates synchronized.\n", Console::FG_GREEN);
+        
+        // Sync fulltimers
+        $this->stdout("\n=== Syncing Fulltimers ===\n", Console::FG_CYAN);
+        $fulltimerCount = Fulltimer::syncToMeilisearch('all');
+        $this->stdout("✓ {$fulltimerCount} fulltimers synchronized.\n", Console::FG_GREEN);
+        
+        // Sync majors (if configured)
+        $majorCount = 0;
+        if (!empty(Yii::$app->params['meilisearch_major_index'])) {
+            $this->stdout("\n=== Syncing Majors ===\n", Console::FG_CYAN);
+            $majorCount = Major::syncToMeilisearch();
+            $this->stdout("✓ {$majorCount} majors synchronized.\n", Console::FG_GREEN);
+        }
+        
+        $this->stdout("\n=== Sync Complete ===\n", Console::FG_GREEN);
+        $summary = "Total: {$candidateCount} candidates, {$fulltimerCount} fulltimers";
+        if ($majorCount > 0) {
+            $summary .= ", {$majorCount} majors";
+        }
+        $this->stdout("{$summary}\n", Console::FG_GREEN);
+        
         return 0;
     }
 }

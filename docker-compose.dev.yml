@@ -1,0 +1,50 @@
+version: '3.2'
+
+# Development compose file with fixtures
+# Extends docker-compose.yml for fresh dev installs with demo data
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+services:
+  # Load fixture data (demo/test data)
+  load-fixture:
+    build: admin
+    command: bash -c "sleep 20 && ./yii fixture/load '*' --interactive=0"
+    volumes:
+      # Re-use local composer cache via host-volume
+      - ~/.composer-docker/cache:/root/.composer/cache:delegated
+      # Mount source-code for development
+      - ./:/app
+    depends_on:
+      - "db-migration"
+    networks:
+      - studenthub-network
+
+  # Services that depend on fixtures
+  admin:
+    depends_on:
+      - "load-fixture"
+
+  candidate:
+    depends_on:
+      - "load-fixture"
+
+  company:
+    depends_on:
+      - "load-fixture"
+
+  staff:
+    depends_on:
+      - "load-fixture"
+
+  manager:
+    depends_on:
+      - "load-fixture"
+
+  inspector:
+    depends_on:
+      - "load-fixture"
+
+  verification:
+    depends_on:
+      - "load-fixture"
+
