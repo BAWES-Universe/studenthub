@@ -79,9 +79,11 @@ return [
                     'pluralize' => false,
                     'patterns' => [
                         'GET key' => 'key',
+                        'GET total-count' => 'total-count',
                         'POST search' => 'search',
                         // OPTIONS VERBS
                         'OPTIONS key' => 'options',
+                        'OPTIONS total-count' => 'options',
                         'OPTIONS search' => 'options'
                     ]
                 ],

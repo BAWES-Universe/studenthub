@@ -260,14 +260,62 @@ class Meilisearch extends \yii\base\Component {
         
         $searchResult = $indexInstance->search($query, $meiliParams);
         
+        // Get estimated total hits (capped at 1000 by Meilisearch default)
+        $estimatedTotalHits = $searchResult->getEstimatedTotalHits();
+        
+        // If estimated total is exactly 1000, it might be capped
+        // Try to get exact total for unfiltered searches
+        $exactTotal = null;
+        if ($estimatedTotalHits == 1000 && empty($params['filters']) && empty($query)) {
+            // For unfiltered, empty query searches, get exact count from index stats
+            try {
+                $exactTotal = $this->getTotalCount($index);
+            } catch (\Exception $e) {
+                // If stats fail, fall back to estimated
+                Yii::warning('Failed to get exact total from index stats: ' . $e->getMessage());
+            }
+        }
+        
         // Convert SearchResult object to array for compatibility
         // Meilisearch PHP client returns a SearchResult object, not an array
-        return [
+        $result = [
             'hits' => $searchResult->getHits(),
-            'estimatedTotalHits' => $searchResult->getEstimatedTotalHits(),
+            'estimatedTotalHits' => $estimatedTotalHits,
             'processingTimeMs' => $searchResult->getProcessingTimeMs(),
             'query' => $searchResult->getQuery(),
         ];
+        
+        // Add exact total if available
+        if ($exactTotal !== null) {
+            $result['exactTotalHits'] = $exactTotal;
+        }
+        
+        return $result;
+    }
+    
+    /**
+     * Get exact total document count for an index
+     * Useful when estimatedTotalHits is capped at 1000
+     * Uses Meilisearch HTTP API directly to get index stats
+     * 
+     * @param string $index Index name
+     * @return int Total number of documents in index
+     */
+    public function getTotalCount($index)
+    {
+        $client = $this->getClient();
+        $indexInstance = $client->index($index);
+        
+        try {
+            // Use the index stats() method to get total document count
+            $stats = $indexInstance->stats();
+            
+            // stats() returns an array with numberOfDocuments
+            return isset($stats['numberOfDocuments']) ? (int)$stats['numberOfDocuments'] : 0;
+        } catch (\Exception $e) {
+            Yii::error('Failed to get total count for index ' . $index . ': ' . $e->getMessage());
+            return 0;
+        }
     }
 
     /**

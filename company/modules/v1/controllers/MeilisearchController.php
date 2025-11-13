@@ -11,6 +11,31 @@ use Yii;
 class MeilisearchController extends BaseController
 {
     /**
+     * Get total document count for an index
+     * Useful when estimatedTotalHits is capped at 1000
+     * GET /v1/meilisearch/total-count?indexName=dev_candidate_public
+     */
+    public function actionTotalCount()
+    {
+        $indexName = Yii::$app->request->get('indexName');
+        
+        if (empty($indexName)) {
+            throw new \yii\web\BadRequestHttpException('Missing indexName parameter');
+        }
+        
+        try {
+            $total = Yii::$app->meilisearch->getTotalCount($indexName);
+            return [
+                'total' => $total,
+                'indexName' => $indexName
+            ];
+        } catch (\Exception $e) {
+            Yii::error('Failed to get total count: ' . $e->getMessage());
+            throw new \yii\web\ServerErrorHttpException('Failed to get total count: ' . $e->getMessage());
+        }
+    }
+    
+    /**
      * Return temporary Meilisearch search key with restrictions
      */
     public function actionKey()
@@ -168,7 +193,17 @@ class MeilisearchController extends BaseController
             }
             
             // Build response
-            $total = isset($result['estimatedTotalHits']) ? $result['estimatedTotalHits'] : count($transformedHits);
+            // Use exact total if available (for unfiltered searches), otherwise use estimated
+            $total = isset($result['exactTotalHits']) ? $result['exactTotalHits'] : 
+                     (isset($result['estimatedTotalHits']) ? $result['estimatedTotalHits'] : count($transformedHits));
+            
+            // If estimated is exactly 1000 and we have filters/query, it might be capped
+            // For filtered searches, we can't get exact total efficiently, so use estimated
+            $isEstimated = !isset($result['exactTotalHits']) && 
+                          isset($result['estimatedTotalHits']) && 
+                          $result['estimatedTotalHits'] == 1000 &&
+                          (!empty($body['filters']) || !empty($query));
+            
             $totalPages = ceil($total / $hitsPerPage);
             $processingTimeMs = isset($result['processingTimeMs']) ? $result['processingTimeMs'] : 0;
             
@@ -179,6 +214,7 @@ class MeilisearchController extends BaseController
                     'page' => $page,
                     'hitsPerPage' => $hitsPerPage,
                     'totalPages' => $totalPages,
+                    'isEstimated' => $isEstimated,  // Indicates if total might be capped
                 ],
                 'facets' => $facets,
                 'processingTimeMs' => $processingTimeMs,
