@@ -85,44 +85,57 @@ class MeilisearchController extends \yii\console\Controller {
                     $index = $client->getIndex($candidateIndex);
                 }
                 
-                // Configure searchable attributes
+                // Configure searchable attributes (priority order for relevance)
                 $index->updateSearchableAttributes([
-                    'candidate_name',
+                    'candidate_name',              // Highest priority - exact name matches
                     'candidate_name_ar',
+                    'candidate_civil_id',          // Search by civil ID
+                    'candidate_email',             // Search by email
+                    'candidate_phone',             // Search by phone
                     'candidate_objective',
-                    'candidate_email',
-                    'candidate_phone',
-                    'university.university_name',
-                    'country.country_name_en',
-                    'country.country_name_ar',
-                    'currentLocations.en',
-                    'currentLocations.ar',
-                    'candidateSkills.skill',
-                    'candidateEducations.major',
-                    'candidateExperiences.company_name',
-                    'candidateExperiences.position',
+                    'candidateSkills.skill',       // Array of skills
+                    'skills_text',                 // Flattened skills text
+                    'candidateEducations.major.major_name_en',
+                    'candidateEducations.major.major_name_ar',
+                    'education_majors_text',       // Flattened majors text
+                    'candidateExperiences.experience',
+                    'candidateExperiences.employer',
+                    'experience_text',             // Flattened experience text
+                    'university.university_name_en',
+                    'university.university_name_ar',
+                    'currentLocations.en',         // Array
+                    'currentLocations.ar',         // Array
                 ]);
                 
-                // Configure filterable attributes (for facets)
+                // Configure filterable attributes (for facets with real-time counts)
                 $index->updateFilterableAttributes([
-                    'candidate_gender',
-                    'candidate_committed',
-                    'have_video',
-                    'have_resume',
-                    'candidate_driving_license',
-                    'candidate_language_pref',
-                    'candidate_job_search_status',
-                    'approved',
-                    'candidate_mom_kuwaiti',
-                    'currency_code',
-                    'isProfileCompleted',
-                    'assigned',
-                    'university.university_id',
-                    'country.country_id',
-                    'bank.bank_id',
-                    'candidate_birth_timestamp',
-                    'candidate_created_at_timestamp',
-                    'candidate_updated_at_timestamp',
+                    'candidate_gender',                    // Male, Female, Other
+                    'candidate_driving_license',           // 1, 2
+                    'candidate_language_pref',             // en, ar
+                    'candidate_job_search_status',         // 0, 1, 2
+                    'candidate_committed',                 // Yes, No
+                    'candidate_mom_kuwaiti',               // 1, 2
+                    'approved',                            // 0, 1
+                    'assigned',                           // 0, 1
+                    'have_video',                         // Yes, No
+                    'have_resume',                        // Yes, No
+                    'isProfileCompleted',                 // boolean
+                    'currency_code',                      // string
+                    'university.university_id',            // integer (with university_name for display)
+                    'country.country_id',                 // integer (with country_name for display)
+                    'bank.bank_id',                       // integer (with bank_name for display)
+                    'candidate_birth_timestamp',          // integer (for age filtering)
+                    'age',                                // computed age
+                    'candidate_created_at_timestamp',     // integer
+                    'candidate_updated_at_timestamp',     // integer
+                    'candidateEducations.graduation_year', // integer
+                    'candidateEducations.degree.degree_name_en', // string
+                    'candidateEducations.major.major_name_en',   // string (field of study)
+                    'candidateExperiences.experience',    // string
+                    'store.store_id',                     // integer (for assigned location)
+                    'store.store_name',                   // string (for display in facets)
+                    'candidateIdCard_status',             // Expired, Not Expired
+                    '_geo',                               // for proximity search
                 ]);
                 
                 // Configure sortable attributes
@@ -130,7 +143,54 @@ class MeilisearchController extends \yii\console\Controller {
                     'candidate_created_at_timestamp',
                     'candidate_updated_at_timestamp',
                     'candidate_birth_timestamp',
+                    'age',
+                    '_geo',                               // for distance sorting
                 ]);
+                
+                // Configure ranking rules (priority order)
+                $index->updateRankingRules([
+                    'words',                              // Exact word matches first
+                    'typo',                               // Typo tolerance
+                    'proximity',                          // Word proximity in text
+                    'attribute',                          // Attribute priority (name > objective > skills)
+                    'sort',                               // Custom sorting
+                    'exactness',                          // Exact matches
+                ]);
+                
+                // Configure typo tolerance
+                $index->updateTypoTolerance([
+                    'enabled' => true,
+                    'minWordSizeForTypos' => [
+                        'oneTypo' => 4,
+                        'twoTypos' => 8,
+                    ],
+                ]);
+                
+                // Configure synonyms (common variations)
+                $synonyms = [
+                    // Skill variations
+                    'communication' => ['communication', 'communications', 'communicate'],
+                    'customer service' => ['customer service', 'customer support', 'client service'],
+                    'sales' => ['sales', 'selling', 'retail'],
+                    // University name variations
+                    'kuwait university' => ['kuwait university', 'ku university', 'ku'],
+                    'arab open university' => ['arab open university', 'aou', 'arab open'],
+                    // Location variations
+                    'kuwait' => ['kuwait', 'kw'],
+                ];
+                $index->updateSynonyms($synonyms);
+                
+                // Configure stop words (Arabic and English)
+                $stopWords = [
+                    // English stop words
+                    'a', 'an', 'and', 'are', 'as', 'at', 'be', 'by', 'for', 'from',
+                    'has', 'he', 'in', 'is', 'it', 'its', 'of', 'on', 'that', 'the',
+                    'to', 'was', 'will', 'with',
+                    // Arabic stop words
+                    'في', 'من', 'إلى', 'على', 'هذا', 'هذه', 'ذلك', 'تلك', 'التي', 'الذي',
+                    'كان', 'كانت', 'يكون', 'تكون', 'كانوا', 'يكونون',
+                ];
+                $index->updateStopWords($stopWords);
                 
                 $this->stdout("✓ Candidate index initialized successfully.\n", Console::FG_GREEN);
             } catch (\Exception $e) {

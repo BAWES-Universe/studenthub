@@ -3112,6 +3112,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_preferred_time' => $this->candidate_preferred_time,
             'candidate_email' => $this->candidate_email,
             'candidate_phone' => $this->candidate_phone,
+            'candidate_civil_id' => $this->candidate_civil_id, // Added for search by civil ID
             'candidate_birth_date' => $this->candidate_birth_date,
             'candidate_birth_timestamp' => $this->candidate_birth_date?
                 strtotime($this->candidate_birth_date): null,
@@ -3125,6 +3126,13 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'isProfileCompleted' => !($this->is_incomplete_profile == 1),
                 //$this->isInCompleteProfileForAlgolia()? false: true,  // using in candidate card
         ];
+        
+        // Compute age from birth timestamp
+        if ($data['candidate_birth_timestamp']) {
+            $data['age'] = floor((time() - $data['candidate_birth_timestamp']) / (365.25 * 24 * 60 * 60));
+        } else {
+            $data['age'] = null;
+        }
 
         if($this->university) {
 
@@ -3159,6 +3167,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         if($this->store && $this->store->company) {
 
             $data['store'] = [
+                'store_id' => $this->store_id, // Added for filtering by assigned location
                 'store_name' => $this->store->store_name,
                 'store_total_candidate' => $this->store->store_total_candidates,
                 'company' => [
@@ -3189,24 +3198,32 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ];
         }
 
-        //geo location
-
+        //geo location - Meilisearch uses _geo format
         if ($this->candidate_latitude && $this->candidate_longitude) {
-            $data["_geoloc"] = [
+            $data["_geo"] = [
                 "lat" => (float) $this->candidate_latitude,
                 "lng" => (float) $this->candidate_longitude,
             ];
+            $data['has_location'] = true;
+            $data['location_accuracy'] = 'exact';
         } elseif ($this->area && $this->area->area_latitude && $this->area->area_longitude) {
-            $data["_geoloc"] = [
+            $data["_geo"] = [
                 "lat" => (float) $this->area->area_latitude,
                 "lng" => (float) $this->area->area_longitude
             ];
+            $data['has_location'] = true;
+            $data['location_accuracy'] = 'area';
         } else {
-            $data["_geoloc"] = [
+            $data["_geo"] = [
                 "lat" => 0,
                 "lng" => 0
             ];
+            $data['has_location'] = false;
+            $data['location_accuracy'] = 'none';
         }
+        
+        // Keep _geoloc for backward compatibility if needed
+        $data["_geoloc"] = $data["_geo"];
 
         if ($this->area && $this->area->country) {
 
@@ -3289,6 +3306,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         //candidate_educations
 
         $data['candidateEducations'] = [];
+        $educationMajorsText = []; // Flattened text for better searchability
 
         $candidateEducations = $this->getCandidateEducations()
             ->joinWith(['university', 'degree', 'major'])
@@ -3328,16 +3346,26 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                     "major_name_en" => $education->major->major_name_en,
                     "major_name_ar" => $education->major->major_name_ar,
                 ];
+                if ($education->major->major_name_en) {
+                    $educationMajorsText[] = $education->major->major_name_en;
+                }
+                if ($education->major->major_name_ar) {
+                    $educationMajorsText[] = $education->major->major_name_ar;
+                }
             }
 
             $data['candidateEducations'][] = $arrEducation;
         }
 
         unset($candidateEducations);
+        
+        // Add flattened education majors text for searchability
+        $data['education_majors_text'] = implode(' ', $educationMajorsText);
 
         //candidate_experience
 
         $data['candidateExperiences'] = [];
+        $experienceText = []; // Flattened text for better searchability
 
         foreach ($this->getCandidateExperiences()->all() as $experience) {
             $data['candidateExperiences'][] = [
@@ -3346,17 +3374,31 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 'start_year' => $experience->start_year,
                 'end_year' => $experience->end_year,
             ];
+            if ($experience->experience) {
+                $experienceText[] = $experience->experience;
+            }
+            if ($experience->employer) {
+                $experienceText[] = $experience->employer;
+            }
         }
+        
+        // Add flattened experience text for searchability
+        $data['experience_text'] = implode(' ', $experienceText);
 
         //candidate_skill
 
         $data['candidateSkills'] = [];
+        $skillsText = []; // Flattened text for better searchability
 
         foreach ($this->getCandidateSkills()->select('skill')->all() as $candidateSkill) {
             $data['candidateSkills'][] = [
                 'skill' => $candidateSkill->skill
             ];
+            $skillsText[] = $candidateSkill->skill;
         }
+        
+        // Add flattened skills text for searchability
+        $data['skills_text'] = implode(' ', $skillsText);
 
         //candidate_tag
 
@@ -3381,6 +3423,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             } else {
                 $data['candidateIdCard']['status'] = "Not Expired";
             }
+            // Add status at top level for easier filtering
+            $data['candidateIdCard_status'] = $data['candidateIdCard']['status'];
+        } else {
+            $data['candidateIdCard_status'] = null;
         }
 
         return $data;

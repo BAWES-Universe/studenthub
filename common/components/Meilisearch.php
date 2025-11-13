@@ -364,6 +364,37 @@ class Meilisearch extends \yii\base\Component {
         // Filters - Meilisearch uses a different filter syntax
         $filters = [];
         
+        // New filter format: { "field": ["value1", "value2"], ... }
+        if (isset($params['filters']) && is_array($params['filters'])) {
+            foreach ($params['filters'] as $field => $values) {
+                if (!is_array($values) || empty($values)) {
+                    continue;
+                }
+                
+                // Handle nested fields (e.g., "store.store_id")
+                $fieldParts = explode('.', $field);
+                $meiliField = $field;
+                
+                // Build OR filter for multiple values
+                $orFilters = [];
+                foreach ($values as $value) {
+                    // Handle different value types
+                    if (is_numeric($value)) {
+                        $orFilters[] = $meiliField . ' = ' . $value;
+                    } else {
+                        $orFilters[] = $meiliField . ' = "' . addslashes($value) . '"';
+                    }
+                }
+                
+                if (count($orFilters) > 1) {
+                    $filters[] = '(' . implode(' OR ', $orFilters) . ')';
+                } else {
+                    $filters[] = $orFilters[0];
+                }
+            }
+        }
+        
+        // Legacy Algolia format support (for backward compatibility)
         // Facet filters (AND logic)
         if (isset($params['facetFilters']) && is_array($params['facetFilters'])) {
             foreach ($params['facetFilters'] as $filter) {
@@ -417,13 +448,61 @@ class Meilisearch extends \yii\base\Component {
             }
         }
         
+        // Attributes to retrieve
+        if (isset($params['attributesToRetrieve'])) {
+            $meiliParams['attributesToRetrieve'] = $params['attributesToRetrieve'];
+        }
+        
+        // Combine all filters
         if (!empty($filters)) {
             $meiliParams['filter'] = implode(' AND ', $filters);
         }
         
-        // Attributes to retrieve
-        if (isset($params['attributesToRetrieve'])) {
-            $meiliParams['attributesToRetrieve'] = $params['attributesToRetrieve'];
+        // Geo search - proximity filtering (add to existing filters)
+        if (isset($params['geo']) && is_array($params['geo'])) {
+            $geo = $params['geo'];
+            if (isset($geo['lat']) && isset($geo['lng']) && isset($geo['radius'])) {
+                $radius = $this->convertRadiusToMeters($geo['radius'], isset($geo['unit']) ? $geo['unit'] : 'm');
+                $geoFilter = $this->buildGeoFilter($geo['lat'], $geo['lng'], $radius);
+                if ($geoFilter) {
+                    // Combine with existing filters
+                    if (isset($meiliParams['filter'])) {
+                        $meiliParams['filter'] = $meiliParams['filter'] . ' AND ' . $geoFilter;
+                    } else {
+                        $meiliParams['filter'] = $geoFilter;
+                    }
+                }
+            }
+        }
+        
+        // Geo sorting - distance-based sorting
+        if (isset($params['sort']) && is_array($params['sort'])) {
+            $meiliSorts = [];
+            foreach ($params['sort'] as $sort) {
+                // Check if it's a geo sort: _geoPoint(lat, lng):asc
+                if (preg_match('/_geoPoint\(([\d.]+),\s*([\d.]+)\):(asc|desc)/i', $sort, $matches)) {
+                    $lat = (float)$matches[1];
+                    $lng = (float)$matches[2];
+                    $direction = strtolower($matches[3]);
+                    $meiliSorts[] = $this->buildGeoSort($lat, $lng, $direction);
+                } else {
+                    // Regular sort
+                    $meiliSorts[] = $sort;
+                }
+            }
+            if (!empty($meiliSorts)) {
+                $meiliParams['sort'] = $meiliSorts;
+            }
+        } elseif (isset($params['sort']) && is_string($params['sort'])) {
+            // Single sort string
+            if (preg_match('/_geoPoint\(([\d.]+),\s*([\d.]+)\):(asc|desc)/i', $params['sort'], $matches)) {
+                $lat = (float)$matches[1];
+                $lng = (float)$matches[2];
+                $direction = strtolower($matches[3]);
+                $meiliParams['sort'] = [$this->buildGeoSort($lat, $lng, $direction)];
+            } else {
+                $meiliParams['sort'] = [$params['sort']];
+            }
         }
         
         // Sorting
@@ -433,6 +512,102 @@ class Meilisearch extends \yii\base\Component {
         }
         
         return $meiliParams;
+    }
+    
+    /**
+     * Build Meilisearch geo radius filter
+     * @param float $lat Latitude
+     * @param float $lng Longitude
+     * @param int $radiusInMeters Radius in meters
+     * @return string Meilisearch filter string
+     */
+    public function buildGeoFilter($lat, $lng, $radiusInMeters)
+    {
+        if (!$lat || !$lng || !$radiusInMeters) {
+            return null;
+        }
+        // Meilisearch geo filter format: _geoRadius(lat, lng, radius_in_meters)
+        return "_geoRadius({$lat}, {$lng}, {$radiusInMeters})";
+    }
+    
+    /**
+     * Build Meilisearch geo sort
+     * @param float $lat Latitude
+     * @param float $lng Longitude
+     * @param string $direction 'asc' or 'desc'
+     * @return string Meilisearch sort string
+     */
+    public function buildGeoSort($lat, $lng, $direction = 'asc')
+    {
+        $direction = strtolower($direction) === 'desc' ? 'desc' : 'asc';
+        // Meilisearch geo sort format: _geoPoint(lat, lng):asc
+        return "_geoPoint({$lat}, {$lng}):{$direction}";
+    }
+    
+    /**
+     * Convert radius to meters
+     * @param int|float $radius
+     * @param string $unit 'm', 'km', 'miles'
+     * @return int Radius in meters
+     */
+    private function convertRadiusToMeters($radius, $unit = 'm')
+    {
+        $unit = strtolower($unit);
+        switch ($unit) {
+            case 'km':
+                return (int)($radius * 1000);
+            case 'miles':
+                return (int)($radius * 1609.34);
+            case 'm':
+            default:
+                return (int)$radius;
+        }
+    }
+    
+    /**
+     * Search with geo proximity
+     * @param string $index
+     * @param string $query
+     * @param array $params
+     * @param array|null $geoPoint {lat: float, lng: float}
+     * @param int|null $radiusInMeters
+     * @return array
+     */
+    public function searchWithGeo($index, $query, $params = [], $geoPoint = null, $radiusInMeters = null)
+    {
+        if ($geoPoint && isset($geoPoint['lat']) && isset($geoPoint['lng']) && $radiusInMeters) {
+            $params['geo'] = [
+                'lat' => $geoPoint['lat'],
+                'lng' => $geoPoint['lng'],
+                'radius' => $radiusInMeters,
+                'unit' => 'm'
+            ];
+        }
+        return $this->search($index, $query, $params);
+    }
+    
+    /**
+     * Calculate distance between two points (Haversine formula)
+     * @param float $lat1
+     * @param float $lng1
+     * @param float $lat2
+     * @param float $lng2
+     * @return float Distance in meters
+     */
+    public function calculateDistance($lat1, $lng1, $lat2, $lng2)
+    {
+        $earthRadius = 6371000; // Earth radius in meters
+        
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLng = deg2rad($lng2 - $lng1);
+        
+        $a = sin($dLat / 2) * sin($dLat / 2) +
+             cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+             sin($dLng / 2) * sin($dLng / 2);
+        
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+        
+        return $earthRadius * $c;
     }
     
     /**
