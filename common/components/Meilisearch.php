@@ -285,6 +285,15 @@ class Meilisearch extends \yii\base\Component {
             'query' => $searchResult->getQuery(),
         ];
         
+        // Extract facets if available (Meilisearch returns facet distribution)
+        // Facets contain real-time counts for each filter option
+        if (method_exists($searchResult, 'getFacetDistribution')) {
+            $facets = $searchResult->getFacetDistribution();
+            if (!empty($facets)) {
+                $result['facets'] = $facets;
+            }
+        }
+        
         // Add exact total if available
         if ($exactTotal !== null) {
             $result['exactTotalHits'] = $exactTotal;
@@ -389,6 +398,46 @@ class Meilisearch extends \yii\base\Component {
         }
         
         return $this->_client;
+    }
+    
+    /**
+     * Get list of filterable attributes (for facet validation)
+     * These are the attributes configured as filterable in Meilisearch indexes
+     * @return array List of filterable attribute names
+     */
+    private function getFilterableFacets()
+    {
+        // Return all filterable attributes configured in Meilisearch indexes
+        // This matches what's configured in console/controllers/MeilisearchController.php
+        return [
+            'candidate_gender',
+            'candidate_driving_license',
+            'candidate_language_pref',
+            'candidate_job_search_status',
+            'candidate_committed',
+            'candidate_mom_kuwaiti',
+            'approved',
+            'assigned',
+            'have_video',
+            'have_resume',
+            'isProfileCompleted',
+            'currency_code',
+            'university.university_id',
+            'country.country_id',
+            'bank.bank_id',
+            'candidate_birth_timestamp',
+            'age',
+            'candidate_created_at_timestamp',
+            'candidate_updated_at_timestamp',
+            'candidateEducations.graduation_year',
+            'candidateEducations.degree.degree_name_en',
+            'candidateEducations.major.major_name_en',
+            'candidateExperiences.experience',
+            'store.store_id',
+            'store.store_name',
+            'candidateIdCard_status',
+            '_geo',
+        ];
     }
     
     /**
@@ -550,6 +599,17 @@ class Meilisearch extends \yii\base\Component {
                 $meiliParams['sort'] = [$this->buildGeoSort($lat, $lng, $direction)];
             } else {
                 $meiliParams['sort'] = [$params['sort']];
+            }
+        }
+        
+        // Facets - request facet distribution for real-time counts
+        if (isset($params['facets']) && is_array($params['facets'])) {
+            // Filter facets to only include filterable attributes (to avoid Meilisearch errors)
+            // Only send facets that are configured as filterable in the index
+            $filterableFacets = $this->getFilterableFacets();
+            $validFacets = array_intersect($params['facets'], $filterableFacets);
+            if (!empty($validFacets)) {
+                $meiliParams['facets'] = $validFacets;
             }
         }
         
