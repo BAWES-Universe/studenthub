@@ -54,3 +54,6 @@ api-docs/openapi/*.yaml
 
 # Environment variables (secrets)
 .env
+
+# Docker initialization flags (local state)
+.init-complete.flag

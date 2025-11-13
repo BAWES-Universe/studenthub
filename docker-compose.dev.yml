@@ -1,5 +1,3 @@
-version: '3.2'
-
 # Development compose file with fixtures
 # Extends docker-compose.yml for fresh dev installs with demo data
 # Usage: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
@@ -15,7 +13,9 @@ services:
       # Mount source-code for development
       - ./:/app
     depends_on:
-      - "db-migration"
+      - "init-environment"  # Wait for environment initialization
+      - "mysql"
+      - "redis"
     networks:
       - studenthub-network
 

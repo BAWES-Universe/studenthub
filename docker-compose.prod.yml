@@ -1,5 +1,3 @@
-version: '3.2'
-
 # Production compose file
 # Extends docker-compose.yml with production-specific configurations
 # Usage: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up
