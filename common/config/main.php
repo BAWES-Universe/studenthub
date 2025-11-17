@@ -23,8 +23,8 @@ return [
             'secret' => 'BNJnHby3cdwNb+u7JlZVH1NFTBvP5el9/7aihTyy'
         ],
         'googleMap' => [
-            'class' => 'common\components\GoogleMap', 
-            'accessKey' => 'AIzaSyBSM8o4WSIIRn-sNhn-PvO2s0ovZuLDAaw'
+        'class' => 'common\components\GoogleMap',
+        'accessKey' => getenv('GOOGLE_MAPS_API_KEY'),
         ],
         'reCaptcha' => [
             'class' => 'common\components\ReCaptcha',
