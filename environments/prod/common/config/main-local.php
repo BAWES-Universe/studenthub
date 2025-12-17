@@ -74,11 +74,11 @@ return [
             'class' => \yii\symfonymailer\Mailer::class,
             'viewPath' => '@common/mail',
             'transport' => [
-                'scheme' => 'smtp',
-                'host' => 'email-smtp.eu-west-1.amazonaws.com',
-                'username' => 'AKIAWMITDJRKSH3JXFI4',//AKIAWMITDJRKVNB2AFUL
-                'password' => 'd5QvU/BEagVVlKAfVjr6Nxpf2xCJyRZpmnG69YGU',// 'BFXl6illZPE3NP5EQrVNbCO+gMBCopuIi/uy5nwCsUZ6',
-                'port' => 587,
+                'scheme' => 'smtps',
+                'host' => 'smtp.resend.com',
+                'username' => 'resend',
+                'password' => getenv('RESEND_SMTP_PASSWORD') ?: '', // <-- env var
+                'port' => 465,
                 //   'dsn' => 'smtp://AKIAWMITDJRKVNB2AFUL:BFXl6illZPE3NP5EQrVNbCO+gMBCopuIi/uy5nwCsUZ6@email-smtp.eu-west-1.amazonaws.com:587',
             ],
         ],/*
