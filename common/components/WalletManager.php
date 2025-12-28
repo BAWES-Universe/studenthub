@@ -19,10 +19,26 @@ class WalletManager extends \yii\base\Component
      * @throws \yii\base\InvalidConfigException
      * @throws \yii\httpclient\Exception
      */
-    public function addEntry($data) {
+    public function addEntry($data)
+    {
+        // WALLET DISABLED (LEGACY FEATURE):
+        // The wallet integration is no longer used.
+        // We keep this method as a no-op so existing calls don't break,
+        // but we do NOT call the external wallet service anymore.
+
+        \Yii::info(
+            'WalletManager::addEntry called but wallet is disabled. Payload: ' . print_r($data, true),
+            __METHOD__
+        );
+
+        // Always signal success so calling code (paymentReceived, markPaid, markAllPaid)
+        // can proceed without being blocked.
+        return ['operation' => 'success'];
+
+        /*
+        // Legacy implementation kept for reference:
 
         $client = new Client();
-
         try {
             $response = $client->createRequest()
                 ->setMethod('POST')
@@ -37,14 +53,11 @@ class WalletManager extends \yii\base\Component
                 ->send();
 
             if ($response->isOk) {
-                return [
-                    "operation" => "success",
-                ];
+                return ["operation" => "success"];
             } else {
                 return [
                     "operation" => "error",
-                    "message" => isset($response->data['message'])?
-                        $response->data['message']: $response->content,
+                    "message" => isset($response->data['message']) ? $response->data['message'] : $response->content,
                 ];
             }
         } catch (\Exception $e) {
@@ -54,6 +67,7 @@ class WalletManager extends \yii\base\Component
                 "operation" => "error",
                 "message" => $e->getMessage(),
             ];
-        } 
+        }
+        */
     }
 }
