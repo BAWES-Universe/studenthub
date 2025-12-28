@@ -11,9 +11,18 @@ services:
       - PMA_USER=studenthubuser
       - PMA_PASSWORD=studenthub
     ports:
-      - "8081:80"
+      - "8081:80"  # Keep for direct access if needed
     networks:
       - studenthub-network
+    labels:
+      # Enable Traefik for phpMyAdmin
+      - "traefik.enable=true"
+      
+      # phpMyAdmin routing
+      - "traefik.http.routers.phpmyadmin.rule=Host(`phpmyadmin.studenthub.local`)"
+      - "traefik.http.routers.phpmyadmin.entrypoints=web"
+      - "traefik.http.routers.phpmyadmin.service=phpmyadmin-service"
+      - "traefik.http.services.phpmyadmin-service.loadbalancer.server.port=80"
     # Note: When chained with dev/prod, mysql service already exists
     # If using standalone, uncomment mysql service below
     # depends_on:
