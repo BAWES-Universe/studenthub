@@ -6,48 +6,65 @@
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    Traefik (Port 80)                    │
-│              http://localhost:8080 (dashboard)          │
+│                    Traefik Service                      │
+│         http://traefik.studenthub.local (dashboard)     │
+│                    Port 80 (HTTP)                       │
 └──────────────────────┬──────────────────────────────────┘
-                       │
-        ┌──────────────┼──────────────┐
-        │              │              │
-   ┌────▼────┐    ┌────▼────┐   ┌────▼────┐
-   │  Admin │    │Candidate│   │ Company │
-   │ :21080 │    │ :22080  │   │ :23080  │
-   └────────┘    └─────────┘   └─────────┘
-        │              │              │
-        └──────────────┼──────────────┘
-                       │
-        ┌──────────────┼──────────────┐
-        │              │              │
-   ┌────▼────┐    ┌────▼────┐   ┌────▼────┐
-   │Inspector│    │  Staff  │   │Verification│
-   │ :24080  │    │ :25080  │   │  :26080   │
-   └─────────┘    └─────────┘   └──────────┘
-        │              │              │
-        └──────────────┼──────────────┘
                        │
               ┌────────▼────────┐
               │  App Container  │
               │  (Nginx + PHP)  │
-              └────────┬────────┘
+              │                 │
+              │  Internal Ports: │
+              │  - :21080 (Admin)│
+              │  - :22080 (Candidate)│
+              │  - :23080 (Company)│
+              │  - :24080 (Inspector)│
+              │  - :25080 (Staff)│
+              │  - :26080 (Verification)│
+              └────────┬─────────┘
                        │
-        ┌───────────────┼───────────────┐
-        │               │               │
-   ┌────▼────┐    ┌────▼────┐    ┌────▼────┐
-   │  MySQL  │    │  Redis  │    │  Volumes│
-   │ :3307   │    │ :6379   │    │  (data) │
-   └─────────┘    └─────────┘    └─────────┘
+        ┌──────────────┼──────────────┐
+        │              │              │
+   ┌────▼────┐    ┌────▼────┐   ┌────▼────┐
+   │  MySQL  │    │  Redis  │   │ Volumes │
+   │ Service │    │ Service │   │ (data)  │
+   │ :3307   │    │ :6379   │   │         │
+   └─────────┘    └─────────┘   └─────────┘
+        │              │              │
+        └──────────────┼──────────────┘
+                       │
+              ┌────────▼────────┐
+              │ studenthub-network │
+              │    (bridge)        │
+              └────────────────────┘
 ```
 
+**Service Architecture:**
+- **Traefik Service** - Reverse proxy (separate container)
+  - Routes domain names to app container ports
+  - Dashboard accessible via domain name
+  
+- **App Container** - Nginx + PHP-FPM (separate container)
+  - Serves all 6 applications on different internal ports
+  - Connects to MySQL and Redis services
+  
+- **MySQL Service** - Database (separate container)
+  - Exposed on port 3307 (mapped from 3306)
+  - Connected via Docker network
+  
+- **Redis Service** - Cache/Sessions (separate container)
+  - Exposed on port 6379
+  - Connected via Docker network
+
 **Access URLs:**
-- `admin.studenthub.local` → Admin app
-- `candidate.studenthub.local` → Candidate app
-- `company.studenthub.local` → Company app
-- `inspector.studenthub.local` → Inspector app
-- `staff.studenthub.local` → Staff app
-- `verification.studenthub.local` → Verification app
+- `traefik.studenthub.local` → Traefik dashboard
+- `admin.studenthub.local` → Admin app (via Traefik → App :21080)
+- `candidate.studenthub.local` → Candidate app (via Traefik → App :22080)
+- `company.studenthub.local` → Company app (via Traefik → App :23080)
+- `inspector.studenthub.local` → Inspector app (via Traefik → App :24080)
+- `staff.studenthub.local` → Staff app (via Traefik → App :25080)
+- `verification.studenthub.local` → Verification app (via Traefik → App :26080)
 
 ### Production (Railway)
 
