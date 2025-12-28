@@ -10,8 +10,11 @@ services:
       - PMA_HOST=mysql
       - PMA_USER=studenthubuser
       - PMA_PASSWORD=studenthub
+      - UPLOAD_LIMIT=200M
     ports:
       - "8081:80"  # Keep for direct access if needed
+    volumes:
+      - ./phpmyadmin/php.ini:/usr/local/etc/php/conf.d/uploads.ini:ro
     networks:
       - studenthub-network
     labels:
@@ -22,7 +25,13 @@ services:
       - "traefik.http.routers.phpmyadmin.rule=Host(`phpmyadmin.studenthub.local`)"
       - "traefik.http.routers.phpmyadmin.entrypoints=web"
       - "traefik.http.routers.phpmyadmin.service=phpmyadmin-service"
+      
+      # Service configuration with increased timeouts for large uploads
       - "traefik.http.services.phpmyadmin-service.loadbalancer.server.port=80"
+      
+      # Increase request body size limit for large uploads (200MB)
+      - "traefik.http.middlewares.phpmyadmin-upload.buffering.maxRequestBodyBytes=209715200"
+      - "traefik.http.routers.phpmyadmin.middlewares=phpmyadmin-upload"
     # Note: When chained with dev/prod, mysql service already exists
     # If using standalone, uncomment mysql service below
     # depends_on:

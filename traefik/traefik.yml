@@ -5,6 +5,10 @@ api:
 entryPoints:
   web:
     address: ":80"
+    transport:
+      respondingTimeouts:
+        readTimeout: 600s
+        writeTimeout: 600s
 
 providers:
   docker:
