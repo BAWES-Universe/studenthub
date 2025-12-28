@@ -44,6 +44,9 @@ COPY ./nginx/development.conf /etc/nginx/sites-available/app.conf
 RUN ln -s /etc/nginx/sites-available/app.conf /etc/nginx/sites-enabled/ && \
     rm -f /etc/nginx/sites-enabled/default
 
+# Update nginx config on startup (since we use volume mounts)
+RUN echo 'cp /var/www/html/nginx/development.conf /etc/nginx/sites-available/app.conf 2>/dev/null || true' >> /tmp/update-nginx.sh
+
 # Create symlink for convenience
 RUN ln -s /var/www/html ~/www
 
