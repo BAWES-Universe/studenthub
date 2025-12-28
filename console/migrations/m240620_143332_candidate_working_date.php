@@ -67,25 +67,35 @@ class m240620_143332_candidate_working_date extends Migration
             'fk-candidate_working_date-company_id', 'candidate_working_date', 'company_id', 'company', 'company_id'
         );
 
-        $days = CandidateWorkingHour::find()
-            ->groupBy("candidate_id, store_id, date")
-            ->all();
+        // Fixed for MySQL 9 ONLY_FULL_GROUP_BY compatibility: use raw query to get distinct combinations
+        $uniqueDays = Yii::$app->db->createCommand('
+            SELECT DISTINCT candidate_id, store_id, date 
+            FROM candidate_working_hour
+        ')->queryAll();
 
-        foreach ($days as $day) {
+        foreach ($uniqueDays as $dayData) {
+            $candidate_id = $dayData['candidate_id'];
+            $store_id = $dayData['store_id'];
+            $working_date = $dayData['date'];
+
+            // Get store to access company_id
+            $store = Yii::$app->db->createCommand('
+                SELECT company_id FROM store WHERE store_id = :store_id
+            ', [':store_id' => $store_id])->queryOne();
 
             $total_time = CandidateWorkingHour::find()
                 ->andWhere([
-                    "candidate_id" => $day->candidate_id,
-                    "store_id" => $day->store_id,
-                    "date" => $day->date,
+                    "candidate_id" => $candidate_id,
+                    "store_id" => $store_id,
+                    "date" => $working_date,
                 ])
                 ->sum("total_time");
 
             $start_time = CandidateWorkingHour::find()
                 ->andWhere([
-                    "candidate_id" => $day->candidate_id,
-                    "store_id" => $day->store_id,
-                    "date" => $day->date,
+                    "candidate_id" => $candidate_id,
+                    "store_id" => $store_id,
+                    "date" => $working_date,
                 ])
                 ->orderBy("created_at")
                 ->one()
@@ -93,19 +103,19 @@ class m240620_143332_candidate_working_date extends Migration
 
             $end_time  = CandidateWorkingHour::find()
                 ->andWhere([
-                    "candidate_id" => $day->candidate_id,
-                    "store_id" => $day->store_id,
-                    "date" => $day->date,
+                    "candidate_id" => $candidate_id,
+                    "store_id" => $store_id,
+                    "date" => $working_date,
                 ])
                 ->orderBy("created_at DESC")
                 ->one()
                 ->end_time;
 
             $date = new CandidateWorkingDate;
-            $date->store_id = $day->store_id;
-            $date->company_id = $day->store->company_id;
-            $date->candidate_id = $day->candidate_id;
-            $date->date = $day->date;
+            $date->store_id = $store_id;
+            $date->company_id = $store['company_id'];
+            $date->candidate_id = $candidate_id;
+            $date->date = $working_date;
             $date->start_time = $start_time;
             $date->end_time = $end_time;
             $date->total_time = $total_time;

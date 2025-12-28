@@ -116,9 +116,21 @@ class m210108_092910_rename_company_contact_to_contact extends Migration
         }
 
         // adding contact detail for those who have contact details
-
-        $queryCompanies = 'SELECT * FROM `contact` left join `company` on `contact`.`company_id` = `company`.`company_id`';
-        $queryCompanies .= ' where company.deleted=0 group by `contact`.`company_id`';
+        // Fixed for MySQL 9 ONLY_FULL_GROUP_BY compatibility: use subquery to get first contact per company
+        $queryCompanies = 'SELECT 
+                            c.contact_uuid,
+                            c.company_id,
+                            co.company_email,
+                            co.company_auth_key,
+                            co.company_password_hash
+                          FROM `contact` c
+                          INNER JOIN (
+                              SELECT company_id, MIN(contact_uuid) as min_uuid
+                              FROM `contact`
+                              GROUP BY company_id
+                          ) first_contact ON c.contact_uuid = first_contact.min_uuid
+                          LEFT JOIN `company` co ON c.`company_id` = co.`company_id`
+                          WHERE co.deleted=0';
 
         $queryAll = Yii::$app->db->createCommand($queryCompanies)->queryAll();
 

@@ -40,7 +40,8 @@ class m211215_105556_request_to_stories extends Migration
         foreach ($requests as $request) {
 
                 $request['request_number_of_employees'];
-                $noteQuery = "SELECT * FROM `note` where (note_type='Suggested' OR note_type='Internal Note') and request_uuid='".$request['request_uuid']."' group by updated_by";
+                // Fixed for MySQL 9 ONLY_FULL_GROUP_BY compatibility: select only updated_by which is what we group by
+                $noteQuery = "SELECT updated_by FROM `note` where (note_type='Suggested' OR note_type='Internal Note') and request_uuid='".$request['request_uuid']."' group by updated_by";
 
                 $notes = Yii::$app->db->createCommand ($noteQuery)->queryAll ();
                 $story_uuid = 'story_' . Yii::$app->db->createCommand('SELECT uuid()')->queryScalar();
