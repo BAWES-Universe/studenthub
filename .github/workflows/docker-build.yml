@@ -1,0 +1,160 @@
+name: Build and Push Docker Images
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+      - develop-cleanup
+    paths:
+      - 'Dockerfile*'
+      - 'docker-compose*.yaml'
+      - 'docker-compose*.yml'
+      - '.github/workflows/docker-build.yml'
+      - 'nginx/**'
+      - 'environments/**'
+  pull_request:
+    branches:
+      - master
+      - develop
+      - develop-cleanup
+    paths:
+      - 'Dockerfile*'
+      - 'docker-compose*.yaml'
+      - 'docker-compose*.yml'
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      dockerfile:
+        description: 'Dockerfile to build'
+        required: true
+        type: choice
+        options:
+          - Dockerfile-nginx-prod
+          - Dockerfile-nginx-railway
+          - Dockerfile-nginx-dev-railway
+      tag:
+        description: 'Image tag (leave empty for auto)'
+        required: false
+        type: string
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ${{ github.repository }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - dockerfile: Dockerfile-nginx-prod
+            tag: prod
+            build_on:
+              - master
+              - develop
+              - develop-cleanup
+              - release
+          - dockerfile: Dockerfile-nginx-railway
+            tag: railway-prod
+            build_on:
+              - master
+              - release
+          - dockerfile: Dockerfile-nginx-dev-railway
+            tag: railway-dev
+            build_on:
+              - develop
+              - develop-cleanup
+    
+    # Only build images relevant to the branch/event
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'release' ||
+      github.event_name == 'push' ||
+      github.event_name == 'pull_request'
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          platforms: linux/amd64
+      
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Determine image tag
+        id: image-tag
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "${{ github.event.inputs.tag }}" ]; then
+            echo "tag=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" == "release" ]; then
+            echo "tag=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref }}" == "refs/heads/master" ]; then
+            echo "tag=latest" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref }}" == "refs/heads/develop" ]; then
+            echo "tag=dev" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref }}" == "refs/heads/develop-cleanup" ]; then
+            echo "tag=dev-cleanup" >> $GITHUB_OUTPUT
+          else
+            echo "tag=${{ github.sha }}" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/backend-${{ matrix.tag }}
+          tags: |
+            type=raw,value=${{ steps.image-tag.outputs.tag }}
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}&&{{is_default_branch}}
+      
+      - name: Check if should build for this branch
+        id: should-build
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ] || [ "${{ github.event_name }}" == "release" ]; then
+            echo "build=true" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" == "push" ]; then
+            BRANCH="${{ github.ref_name }}"
+            BUILD_ON="${{ join(matrix.build_on, ' ') }}"
+            if echo "$BUILD_ON" | grep -q "$BRANCH"; then
+              echo "build=true" >> $GITHUB_OUTPUT
+            else
+              echo "build=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            # PRs - build but don't push
+            echo "build=true" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Build and push Docker image
+        if: steps.should-build.outputs.build == 'true'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64
+          build-args: |
+            BUILDKIT_INLINE_CACHE=1
+      
+      - name: Image digest
+        run: echo "Image pushed with digest ${{ steps.meta.outputs.digest }}"
+

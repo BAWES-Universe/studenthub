@@ -1,0 +1,19 @@
+api:
+  dashboard: true
+  insecure: true  # Only for local dev - allows HTTP access to dashboard
+
+entryPoints:
+  web:
+    address: ":80"
+
+providers:
+  docker:
+    exposedByDefault: false
+    network: studenthub-network
+    endpoint: "unix:///var/run/docker.sock"
+
+log:
+  level: INFO
+
+accessLog: {}
+

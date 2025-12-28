@@ -4,21 +4,53 @@ StudentHub is a platform that enables corporate recruitment and management of tr
 
 ## Quick Start
 
-1. Clone the repository
-2. Run `docker-compose up` to start the development environment
-3. Access the various APIs:
-   - Admin: http://localhost:21080
-   - Candidate: http://localhost:22080
-   - Company: http://localhost:23080
-   - Inspector: http://localhost:24080
-   - Staff: http://localhost:25080
-   - Verification: http://localhost:26080
+### Local Development
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd studenthub
+   ```
+
+2. **Configure hosts file** (add to `/etc/hosts` or `C:\Windows\System32\drivers\etc\hosts`):
+   ```
+   127.0.0.1 admin.studenthub.local
+   127.0.0.1 candidate.studenthub.local
+   127.0.0.1 company.studenthub.local
+   127.0.0.1 inspector.studenthub.local
+   127.0.0.1 staff.studenthub.local
+   127.0.0.1 verification.studenthub.local
+   ```
+
+3. **Start services**
+   ```bash
+   docker-compose up -d
+   ```
+
+4. **Access the applications** (via Traefik):
+   - Admin: http://admin.studenthub.local
+   - Candidate: http://candidate.studenthub.local
+   - Company: http://company.studenthub.local
+   - Inspector: http://inspector.studenthub.local
+   - Staff: http://staff.studenthub.local
+   - Verification: http://verification.studenthub.local
+   - Traefik Dashboard: http://localhost:8080
+
+   **Note:** Direct port access still works (e.g., http://localhost:21080 for Admin)
+
+For detailed setup instructions, see [Quick Start Guide](docs/cleanup-docs/quick-start.md)
    
 
 ## Documentation
 
-Detailed documentation is available in the `docs/` directory:
+### Setup & Architecture
+- [Quick Start Guide](docs/cleanup-docs/quick-start.md) - Get started quickly
+- [Traefik Setup](docs/cleanup-docs/traefik-setup.md) - Local development routing
+- [Architecture Overview](docs/cleanup-docs/architecture-overview.md) - System architecture
+- [GitHub Actions CI/CD](docs/cleanup-docs/github-actions-docker.md) - Automated builds
+- [Cleanup Summary](docs/cleanup-docs/cleanup-summary.md) - Recent changes
 
+### Application Documentation
 - [Setup Guide](docs/setup.md) - Installation and configuration
 - [User Roles](docs/user-roles.md) - User types and permissions
 - [API Endpoints](docs/api-endpoints.md) - Available API endpoints
@@ -43,25 +75,60 @@ Detailed documentation is available in the `docs/` directory:
 
 `aws s3 cp ./db.sql s3://studenthub-uploads-dev-server/exports/db.sql`
 
-# Docker 
+## Docker Commands
 
-`docker-compose -f docker-compose-dev.yml down`
-`docker-compose -f docker-compose-dev.yml -p studenthub-dev-server up -d`
-`docker-compose -f docker-compose-dev.yml -p studenthub-dev-server down`
+### Development (Default)
+```bash
+# Start development environment
+docker-compose up -d
 
-`docker-compose -f docker-compose-local.yml -p studenthub-local-server up -d`
+# Stop services
+docker-compose down
 
-`docker-compose -f docker-compose-prod.yml -p studenthub-prod-server up -d`
+# View logs
+docker-compose logs -f
 
-## CI/ CD 
+# Rebuild and restart
+docker-compose up -d --build
+```
 
-### Build image 
+### Production
+```bash
+# Start production environment (self-hosted)
+docker-compose -f docker-compose-prod.yaml up -d
+```
 
-`docker-compose -f docker-compose-dev.yml -p studenthub-dev-server build`
+### With phpMyAdmin
+```bash
+# Add phpMyAdmin to development environment
+docker-compose -f docker-compose.phpmyadmin.yaml up -d
+# Access at http://localhost:8081
+```
 
-### Run container 
+## CI/CD
 
-`docker-compose -f docker-compose-dev.yml -p studenthub-dev-server up --force-recreate`
+### GitHub Actions
+
+Docker images are automatically built and pushed to GitHub Container Registry (GHCR) on:
+- Push to `main` or `develop` branches
+- Pull requests (build only, no push)
+- Releases (tagged images)
+- Manual dispatch
+
+**View builds:** Go to Actions tab in GitHub  
+**View images:** Go to Packages in GitHub repository
+
+See [GitHub Actions Documentation](docs/cleanup-docs/github-actions-docker.md) for details.
+
+### Manual Build (Local)
+
+```bash
+# Build development image
+docker-compose build
+
+# Build production image
+docker build -f Dockerfile-nginx-prod -t studenthub/backend-prod .
+```
 
 ## To rebuild this image you must use `docker-compose build` or `docker-compose up --build`.
 

@@ -1,0 +1,42 @@
+version: '3.8'
+
+networks:
+  studenthub-network:
+    driver: bridge
+
+services:
+  app:
+    build: 
+      context: .
+      dockerfile: ./Dockerfile-nginx-prod
+    container_name: studenthub-backend-prod
+    ports:
+      - "8080:80"
+      - "80:80"
+      - "21080:21080"
+      - "22080:22080"
+      - "23080:23080"
+      - "24080:24080"
+      - "25080:25080"
+      - "26080:26080"
+      - "3001:3001"
+      - "3306:3306"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - redis
+    networks:
+      - studenthub-network
+
+  redis:
+    image: redis:6.2.3
+    ports:
+      - "6379:6379"
+    networks:
+      - studenthub-network
+    volumes:
+      - redis-data:/data
+
+volumes:
+  redis-data:
+

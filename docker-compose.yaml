@@ -1,0 +1,114 @@
+version: '3.8'
+
+networks:
+  studenthub-network:
+    driver: bridge
+
+services:
+  traefik:
+    image: traefik:v3.0
+    container_name: traefik
+    command:
+      - "--api.dashboard=true"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=studenthub-network"
+      - "--entrypoints.web.address=:80"
+      - "--log.level=INFO"
+    ports:
+      - "80:80"
+      - "8080:8080"  # Traefik dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik/traefik.yml:/traefik.yml:ro
+    networks:
+      - studenthub-network
+    restart: unless-stopped
+
+  mysql:
+    image: mysql:9
+    restart: always
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d:ro
+    environment:
+      - MYSQL_ROOT_PASSWORD=studenthub
+      - MYSQL_DATABASE=studenthub
+      - MYSQL_USER=studenthubuser
+      - MYSQL_PASSWORD=studenthub
+      - MYSQL_SQL_MODE="STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"
+    ports:
+      - "3307:3306"
+    networks:
+      - studenthub-network
+
+  app:
+    build: 
+      context: .
+      dockerfile: ./Dockerfile-nginx-dev
+    container_name: studenthub-backend-dev
+    # Keep port mappings for direct access if needed, but Traefik will handle routing
+    ports:
+      - "21080:21080"
+      - "22080:22080"
+      - "23080:23080"
+      - "24080:24080"
+      - "25080:25080"
+      - "26080:26080"
+      - "3001:3001"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - redis
+      - mysql
+      - traefik
+    networks:
+      - studenthub-network
+    labels:
+      # Enable Traefik for this service
+      - "traefik.enable=true"
+      
+      # Admin app routing
+      - "traefik.http.routers.admin.rule=Host(`admin.studenthub.local`)"
+      - "traefik.http.routers.admin.entrypoints=web"
+      - "traefik.http.services.admin.loadbalancer.server.port=21080"
+      
+      # Candidate app routing
+      - "traefik.http.routers.candidate.rule=Host(`candidate.studenthub.local`)"
+      - "traefik.http.routers.candidate.entrypoints=web"
+      - "traefik.http.services.candidate.loadbalancer.server.port=22080"
+      
+      # Company app routing
+      - "traefik.http.routers.company.rule=Host(`company.studenthub.local`)"
+      - "traefik.http.routers.company.entrypoints=web"
+      - "traefik.http.services.company.loadbalancer.server.port=23080"
+      
+      # Inspector app routing
+      - "traefik.http.routers.inspector.rule=Host(`inspector.studenthub.local`)"
+      - "traefik.http.routers.inspector.entrypoints=web"
+      - "traefik.http.services.inspector.loadbalancer.server.port=24080"
+      
+      # Staff app routing
+      - "traefik.http.routers.staff.rule=Host(`staff.studenthub.local`)"
+      - "traefik.http.routers.staff.entrypoints=web"
+      - "traefik.http.services.staff.loadbalancer.server.port=25080"
+      
+      # Verification app routing
+      - "traefik.http.routers.verification.rule=Host(`verification.studenthub.local`)"
+      - "traefik.http.routers.verification.entrypoints=web"
+      - "traefik.http.services.verification.loadbalancer.server.port=26080"
+
+  redis:
+    image: redis:6.2.3
+    ports:
+      - "6379:6379"
+    networks:
+      - studenthub-network
+    volumes:
+      - redis-data:/data
+
+volumes:
+  redis-data:
+  mysql-data:
+

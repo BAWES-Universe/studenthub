@@ -1,0 +1,44 @@
+version: '3.8'
+
+networks:
+  studenthub-network:
+    driver: bridge
+
+services:
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    environment:
+      - PMA_HOST=mysql
+      - PMA_USER=studenthubuser
+      - PMA_PASSWORD=studenthub
+    ports:
+      - "8081:80"
+    networks:
+      - studenthub-network
+    # Note: When chained with dev/prod, mysql service already exists
+    # If using standalone, uncomment mysql service below
+    # depends_on:
+    #   - mysql
+
+  # Uncomment if using phpMyAdmin standalone (without dev/prod)
+  # mysql:
+  #   image: mysql:9
+  #   restart: always
+  #   volumes:
+  #     - mysql-data:/var/lib/mysql
+  #     - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d:ro
+  #   environment:
+  #     - MYSQL_ROOT_PASSWORD=studenthub
+  #     - MYSQL_DATABASE=studenthub
+  #     - MYSQL_USER=studenthubuser
+  #     - MYSQL_PASSWORD=studenthub
+  #     - MYSQL_SQL_MODE="STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"
+  #   ports:
+  #     - "3307:3306"
+  #   networks:
+  #     - studenthub-network
+
+# volumes:
+#   mysql-data:
+
