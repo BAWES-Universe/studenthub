@@ -18,13 +18,21 @@ services:
       - "--log.level=INFO"
     ports:
       - "80:80"
-      - "8080:8080"  # Traefik dashboard
+      - "8080:8080"  # Traefik dashboard (direct access, also available via traefik.studenthub.local)
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./traefik/traefik.yml:/traefik.yml:ro
     networks:
       - studenthub-network
     restart: unless-stopped
+    labels:
+      # Enable Traefik for itself (dashboard)
+      - "traefik.enable=true"
+      
+      # Traefik dashboard routing
+      - "traefik.http.routers.traefik.rule=Host(`traefik.studenthub.local`)"
+      - "traefik.http.routers.traefik.entrypoints=web"
+      - "traefik.http.services.traefik.loadbalancer.server.port=8080"
 
   mysql:
     image: mysql:9

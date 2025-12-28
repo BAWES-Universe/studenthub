@@ -39,6 +39,7 @@ C:\Windows\System32\drivers\etc\hosts
 
 Add these lines:
 ```
+127.0.0.1 traefik.studenthub.local
 127.0.0.1 admin.studenthub.local
 127.0.0.1 candidate.studenthub.local
 127.0.0.1 company.studenthub.local
@@ -57,13 +58,15 @@ docker-compose up -d
 
 Once containers are running, access services via:
 
+- **Traefik Dashboard:** http://traefik.studenthub.local
 - **Admin:** http://admin.studenthub.local
 - **Candidate:** http://candidate.studenthub.local
 - **Company:** http://company.studenthub.local
 - **Inspector:** http://inspector.studenthub.local
 - **Staff:** http://staff.studenthub.local
 - **Verification:** http://verification.studenthub.local
-- **Traefik Dashboard:** http://localhost:8080
+
+**Note:** Traefik dashboard is also available at http://localhost:8080 for direct access
 
 ### 4. Direct Port Access (Still Available)
 

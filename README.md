@@ -14,6 +14,7 @@ StudentHub is a platform that enables corporate recruitment and management of tr
 
 2. **Configure hosts file** (add to `/etc/hosts` or `C:\Windows\System32\drivers\etc\hosts`):
    ```
+   127.0.0.1 traefik.studenthub.local
    127.0.0.1 admin.studenthub.local
    127.0.0.1 candidate.studenthub.local
    127.0.0.1 company.studenthub.local
@@ -28,15 +29,15 @@ StudentHub is a platform that enables corporate recruitment and management of tr
    ```
 
 4. **Access the applications** (via Traefik):
+   - Traefik Dashboard: http://traefik.studenthub.local
    - Admin: http://admin.studenthub.local
    - Candidate: http://candidate.studenthub.local
    - Company: http://company.studenthub.local
    - Inspector: http://inspector.studenthub.local
    - Staff: http://staff.studenthub.local
    - Verification: http://verification.studenthub.local
-   - Traefik Dashboard: http://localhost:8080
 
-   **Note:** Direct port access still works (e.g., http://localhost:21080 for Admin)
+   **Note:** Traefik dashboard is also available at http://localhost:8080. Direct port access still works (e.g., http://localhost:21080 for Admin)
 
 For detailed setup instructions, see [Quick Start Guide](docs/cleanup-docs/quick-start.md)
    

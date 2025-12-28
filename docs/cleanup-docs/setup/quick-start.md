@@ -27,6 +27,7 @@ Edit `C:\Windows\System32\drivers\etc\hosts`
 
 Add:
 ```
+127.0.0.1 traefik.studenthub.local
 127.0.0.1 admin.studenthub.local
 127.0.0.1 candidate.studenthub.local
 127.0.0.1 company.studenthub.local
@@ -43,13 +44,15 @@ docker-compose up -d
 
 ### Step 4: Access Applications
 
+- **Traefik Dashboard:** http://traefik.studenthub.local
 - **Admin:** http://admin.studenthub.local
 - **Candidate:** http://candidate.studenthub.local
 - **Company:** http://company.studenthub.local
 - **Inspector:** http://inspector.studenthub.local
 - **Staff:** http://staff.studenthub.local
 - **Verification:** http://verification.studenthub.local
-- **Traefik Dashboard:** http://localhost:8080
+
+**Note:** Traefik dashboard is also available at http://localhost:8080
 
 ### Step 5: Initialize Application
 
