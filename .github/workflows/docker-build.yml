@@ -45,6 +45,7 @@ env:
 
 jobs:
   build:
+    name: Build ${{ matrix.tag }} (${{ matrix.dockerfile }})
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -56,6 +57,7 @@ jobs:
         include:
           - dockerfile: Dockerfile-nginx-prod
             tag: prod
+            description: Production image for self-hosted deployments
             build_on:
               - master
               - develop
@@ -63,11 +65,13 @@ jobs:
               - release
           - dockerfile: Dockerfile-nginx-railway
             tag: railway-prod
+            description: Production image for Railway deployments
             build_on:
               - master
               - release
           - dockerfile: Dockerfile-nginx-dev-railway
             tag: railway-dev
+            description: Development image for Railway deployments
             build_on:
               - develop
               - develop-cleanup
@@ -83,55 +87,86 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       
+      - name: Check if should build for this branch
+        id: should-build
+        run: |
+          echo "Checking if ${{ matrix.dockerfile }} should build for branch ${{ github.ref_name }}"
+          echo "Build on branches: ${{ join(matrix.build_on, ', ') }}"
+          
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ] || [ "${{ github.event_name }}" == "release" ]; then
+            echo "✅ Building: ${{ github.event_name }} event"
+            echo "build=true" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" == "push" ]; then
+            BRANCH="${{ github.ref_name }}"
+            BUILD_ON="${{ join(matrix.build_on, ' ') }}"
+            if echo "$BUILD_ON" | grep -q "$BRANCH"; then
+              echo "✅ Building: Branch $BRANCH is in build list"
+              echo "build=true" >> $GITHUB_OUTPUT
+            else
+              echo "⏭️  Skipping: Branch $BRANCH not in build list ($BUILD_ON)"
+              echo "build=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            # PRs - build but don't push
+            echo "✅ Building: PR event (test build)"
+            echo "build=true" >> $GITHUB_OUTPUT
+          fi
+      
       - name: Set up Docker Buildx
+        if: steps.should-build.outputs.build == 'true'
         uses: docker/setup-buildx-action@v3
         with:
           platforms: linux/amd64
       
       - name: Log in to GitHub Container Registry
+        if: steps.should-build.outputs.build == 'true'
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Check if should build for this branch
-        id: should-build
+      - name: Skip build (not needed for this branch)
+        if: steps.should-build.outputs.build == 'false'
         run: |
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ] || [ "${{ github.event_name }}" == "release" ]; then
-            echo "build=true" >> $GITHUB_OUTPUT
-          elif [ "${{ github.event_name }}" == "push" ]; then
-            BRANCH="${{ github.ref_name }}"
-            BUILD_ON="${{ join(matrix.build_on, ' ') }}"
-            if echo "$BUILD_ON" | grep -q "$BRANCH"; then
-              echo "build=true" >> $GITHUB_OUTPUT
-            else
-              echo "build=false" >> $GITHUB_OUTPUT
-            fi
-          else
-            # PRs - build but don't push
-            echo "build=true" >> $GITHUB_OUTPUT
-          fi
+          echo "⏭️  Skipping build of ${{ matrix.dockerfile }}"
+          echo "This image is only built for: ${{ join(matrix.build_on, ', ') }}"
+          echo "Current branch: ${{ github.ref_name }}"
+          exit 0
       
       - name: Determine image tag
         if: steps.should-build.outputs.build == 'true'
         id: image-tag
         run: |
+          echo "Determining tag for ${{ matrix.dockerfile }}..."
           if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "${{ github.event.inputs.tag }}" ]; then
-            echo "tag=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
+            TAG="${{ github.event.inputs.tag }}"
+            echo "Using manual tag: $TAG"
+            echo "tag=$TAG" >> $GITHUB_OUTPUT
           elif [ "${{ github.event_name }}" == "release" ]; then
-            echo "tag=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+            TAG="${{ github.event.release.tag_name }}"
+            echo "Using release tag: $TAG"
+            echo "tag=$TAG" >> $GITHUB_OUTPUT
           elif [ "${{ github.ref }}" == "refs/heads/master" ]; then
-            echo "tag=latest" >> $GITHUB_OUTPUT
+            TAG="latest"
+            echo "Using master branch tag: $TAG"
+            echo "tag=$TAG" >> $GITHUB_OUTPUT
           elif [ "${{ github.ref }}" == "refs/heads/develop" ]; then
-            echo "tag=dev" >> $GITHUB_OUTPUT
+            TAG="dev"
+            echo "Using develop branch tag: $TAG"
+            echo "tag=$TAG" >> $GITHUB_OUTPUT
           elif [ "${{ github.ref }}" == "refs/heads/develop-cleanup" ]; then
-            echo "tag=dev-cleanup" >> $GITHUB_OUTPUT
+            TAG="dev-cleanup"
+            echo "Using develop-cleanup branch tag: $TAG"
+            echo "tag=$TAG" >> $GITHUB_OUTPUT
           else
-            echo "tag=${{ github.sha }}" >> $GITHUB_OUTPUT
+            TAG="${{ github.sha }}"
+            echo "Using commit SHA tag: $TAG"
+            echo "tag=$TAG" >> $GITHUB_OUTPUT
           fi
+          echo "Final tag: $TAG"
       
-      - name: Extract metadata
+      - name: Extract metadata for ${{ matrix.tag }}
         if: steps.should-build.outputs.build == 'true'
         id: meta
         uses: docker/metadata-action@v5
@@ -142,7 +177,7 @@ jobs:
             type=sha,prefix={{branch}}-
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' }}
       
-      - name: Build and push Docker image
+      - name: Build and push ${{ matrix.description }}
         if: steps.should-build.outputs.build == 'true'
         uses: docker/build-push-action@v5
         with:
@@ -157,6 +192,11 @@ jobs:
           build-args: |
             BUILDKIT_INLINE_CACHE=1
       
-      - name: Image digest
-        run: echo "Image pushed with digest ${{ steps.meta.outputs.digest }}"
+      - name: Build summary
+        if: steps.should-build.outputs.build == 'true'
+        run: |
+          echo "✅ Successfully built ${{ matrix.description }}"
+          echo "Image: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/backend-${{ matrix.tag }}"
+          echo "Tag: ${{ steps.image-tag.outputs.tag }}"
+          echo "Digest: ${{ steps.meta.outputs.digest }}"
 
