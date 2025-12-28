@@ -101,10 +101,10 @@ return [
             'baseUrl' => getenv('VERIFICATION_BASE_URL') ?: 'https://v.studenthub.co/',
         ],
         'log' => [
-            'targets' => [
-                [
+            'targets' => array_filter([
+                getenv('SENTRY_DSN') ? [
                     'class' => 'notamedia\sentry\SentryTarget',
-                    'dsn' => getenv('SENTRY_DSN') ?: '',
+                    'dsn' => getenv('SENTRY_DSN'),
                     'levels' => ['error', 'warning'],
                     'except' => [
                         'yii\web\BadRequestHttpException',
@@ -118,8 +118,8 @@ return [
                         'environment' => getenv('SENTRY_ENVIRONMENT') ?: 'production',
                     ],
                     'context' => true,
-                ],
-            ],
+                ] : null,
+            ]),
         ],
     ],
 ];

@@ -79,10 +79,10 @@ return [
             'bucket' => getenv('AWS_MAIN_BUCKET_NAME') ?: 'studenthub-uploads-dev-server',
         ],
         'log' => [
-            'targets' => [
-                [
+            'targets' => array_filter([
+                getenv('SENTRY_DSN') ? [
                     'class' => 'notamedia\sentry\SentryTarget',
-                    'dsn' => getenv('SENTRY_DSN') ?: '',
+                    'dsn' => getenv('SENTRY_DSN'),
                     'levels' => ['error', 'warning'],
                     'except' => [
                         'yii\web\BadRequestHttpException',
@@ -96,14 +96,14 @@ return [
                         'environment' => getenv('SENTRY_ENVIRONMENT') ?: 'dev',
                     ],
                     'context' => true,
-                ],
+                ] : null,
                 [
                     'class' => 'common\components\SlackLogger',
                     'logVars' => [],
                     'levels' => ['info', 'warning'],
                     'categories' => ['admin\*', 'candidate\*', 'company\*', 'staff\*', 'remail\*', 'common\*', 'console\*'],
                 ],
-            ],
+            ]),
         ],
     ],
 ];
