@@ -5,6 +5,9 @@
 
 # env
 .env
+.env.production
+.env.development
+environments/*/.env
 
 # phpstorm project files
 .idea

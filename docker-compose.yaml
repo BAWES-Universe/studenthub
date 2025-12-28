@@ -15,8 +15,8 @@ services:
       - "--entrypoints.web.address=:80"
       - "--log.level=INFO"
     ports:
-      - "80:80"
-      - "8080:8080"  # Traefik dashboard (direct access, also available via traefik.studenthub.local)
+      - "${TRAEFIK_HTTP_PORT:-80}:80"
+      - "${TRAEFIK_DASHBOARD_PORT:-8080}:8080"  # Traefik dashboard (direct access, also available via traefik.studenthub.local)
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./traefik/traefik.yml:/traefik.yml:ro
@@ -39,13 +39,13 @@ services:
       - mysql-data:/var/lib/mysql
       - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d:ro
     environment:
-      - MYSQL_ROOT_PASSWORD=studenthub
-      - MYSQL_DATABASE=studenthub
-      - MYSQL_USER=studenthubuser
-      - MYSQL_PASSWORD=studenthub
-      - MYSQL_SQL_MODE="STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-studenthub}
+      - MYSQL_DATABASE=${DB_NAME:-studenthub}
+      - MYSQL_USER=${DB_USER:-studenthubuser}
+      - MYSQL_PASSWORD=${DB_PASSWORD:-studenthub}
+      - MYSQL_SQL_MODE=${MYSQL_SQL_MODE:-STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION}
     ports:
-      - "3307:3306"
+      - "${MYSQL_PORT:-3307}:3306"
     networks:
       - studenthub-network
 
@@ -54,15 +54,29 @@ services:
       context: .
       dockerfile: ./Dockerfile-nginx-dev
     container_name: studenthub-backend-dev
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=${DB_HOST:-mysql}
+      - DB_NAME=${DB_NAME:-studenthub}
+      - DB_USER=${DB_USER:-studenthubuser}
+      - DB_PASSWORD=${DB_PASSWORD:-studenthub}
+      - WALLET_DB_HOST=${WALLET_DB_HOST:-mysql}
+      - WALLET_DB_NAME=${WALLET_DB_NAME:-wallet}
+      - WALLET_DB_USER=${WALLET_DB_USER:-studenthubuser}
+      - WALLET_DB_PASSWORD=${WALLET_DB_PASSWORD:-studenthub}
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - REDIS_PORT=${REDIS_PORT:-6379}
+      - REDIS_DATABASE=${REDIS_DATABASE:-0}
     # Keep port mappings for direct access if needed, but Traefik will handle routing
     ports:
-      - "21080:21080"
-      - "22080:22080"
-      - "23080:23080"
-      - "24080:24080"
-      - "25080:25080"
-      - "26080:26080"
-      - "3001:3001"
+      - "${ADMIN_PORT:-21080}:21080"
+      - "${CANDIDATE_PORT:-22080}:22080"
+      - "${COMPANY_PORT:-23080}:23080"
+      - "${INSPECTOR_PORT:-24080}:24080"
+      - "${STAFF_PORT:-25080}:25080"
+      - "${VERIFICATION_PORT:-26080}:26080"
+      - "${YEASTER_PORT:-3001}:3001"
     volumes:
       - .:/var/www/html
     depends_on:
@@ -108,7 +122,7 @@ services:
   redis:
     image: redis:6.2.3
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT:-6379}:6379"
     networks:
       - studenthub-network
     volumes:

@@ -15,7 +15,17 @@ git clone <repository-url>
 cd studenthub
 ```
 
-### Step 2: Configure Hosts File
+### Step 2: Setup Environment Variables
+
+Copy the environment template to create your `.env` file:
+
+```bash
+cp .env.template .env
+```
+
+The `.env.template` file contains default values that work with the Docker Compose development setup. You can edit `.env` later if you need to customize any values.
+
+### Step 3: Configure Hosts File
 
 **Linux/macOS:**
 ```bash
@@ -36,13 +46,13 @@ Add:
 127.0.0.1 verification.studenthub.local
 ```
 
-### Step 3: Start Services
+### Step 4: Start Services
 
 ```bash
 docker-compose up -d
 ```
 
-### Step 4: Access Applications
+### Step 5: Access Applications
 
 - **Traefik Dashboard:** http://traefik.studenthub.local
 - **Admin:** http://admin.studenthub.local
@@ -54,7 +64,7 @@ docker-compose up -d
 
 **Note:** Traefik dashboard is also available at http://localhost:8080
 
-### Step 5: Initialize Application
+### Step 6: Initialize Application
 
 ```bash
 # Enter app container

@@ -3,100 +3,86 @@ return [
     'components' => [
         'db' => [
             'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=mysql;dbname=studenthub', // Docker mysql service name for host
-            'username' => 'studenthubuser',
-            'password' => '12345',
-            'charset' => 'utf8mb4',
+            'dsn' => 'mysql:host=' . getenv('DB_HOST') . ';dbname=' . getenv('DB_NAME'),
+            'username' => getenv('DB_USER'),
+            'password' => getenv('DB_PASSWORD'),
+            'charset' => getenv('DB_CHARSET') ?: 'utf8mb4',
         ],
         'walletDb' => [
             'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=mysql;dbname=wallet', // Docker mysql service name for host
-            'username' => 'studenthubuser',
-            'password' => '12345',
-            'charset' => 'utf8',
+            'dsn' => 'mysql:host=' . getenv('WALLET_DB_HOST') . ';dbname=' . getenv('WALLET_DB_NAME'),
+            'username' => getenv('WALLET_DB_USER'),
+            'password' => getenv('WALLET_DB_PASSWORD'),
+            'charset' => getenv('WALLET_DB_CHARSET') ?: 'utf8',
         ],
         'walletManager' => [
             'class' => 'common\components\WalletManager',
-            'apiKey' => 'QSw2ByGUITXFNjJVNNjyzxdbvYP9rXbG',
-            'apiEndpoint' => 'http://localhost/wallet/webhook/web/v1',//todo:
-            'companyWalletUserID' => 'user_fcac8a5f-52a2-11ed-a68e-d85ed3a264df'
+            'apiKey' => getenv('WALLET_API_KEY') ?: '',
+            'apiEndpoint' => getenv('WALLET_API_ENDPOINT') ?: 'http://localhost/wallet/webhook/web/v1',
+            'companyWalletUserID' => getenv('WALLET_COMPANY_USER_ID') ?: '',
         ],
         'yeaster' => [
             'class' => 'common\components\Yeaster',
-            "apiEndpoint" => "http://localhost:3001"
+            'apiEndpoint' => getenv('YEASTER_API_ENDPOINT') ?: 'http://localhost:3001',
         ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
         ],
         'xero' => [
             'class' => 'common\components\Xero',
-            //sandbox web app
-            'clientId' => '392C9A9B3D5F408689B18A26E8FF41F5',
-            "clientSecret" => "9PlW56cve8wkjPgxvvt3kG2ng3vWhLzH7yMMxADLkYa0q40Z",
-            //custom connection
-            //'clientId' => 'CF8C4521B478EB2654D4317AEF2D9',
-            //"clientSecret" => "hUv5IzcGOkZv0J6D185FJw73tNUDrHR8vswI2sERUKXC7Jgm",
-            "xeroTenantId" => "c9895946-8dcc-4670-87be-ec1cca21c6d4"
+            'clientId' => getenv('XERO_CLIENT_ID') ?: '',
+            'clientSecret' => getenv('XERO_CLIENT_SECRET') ?: '',
+            'xeroTenantId' => getenv('XERO_TENANT_ID') ?: '',
         ],
         'mailer' => [
             'class' => \yii\symfonymailer\Mailer::class,
             'viewPath' => '@common/mail',
-            // send all mails to a file by default. You have to set
-            // 'useFileTransport' to false and configure a transport
-            // for the mailer to send real emails.
-            'useFileTransport' => true,
+            'useFileTransport' => filter_var(getenv('MAILER_USE_FILE_TRANSPORT') ?: 'true', FILTER_VALIDATE_BOOLEAN),
         ],
         'urlManagerStaff' => [
             'class' => 'yii\web\UrlManager',
             'enablePrettyUrl' => true,
             'showScriptName' => false,
-            'baseUrl' => 'https://staff.api.dev.studenthub.co/v1',
+            'baseUrl' => getenv('STAFF_API_BASE_URL') ?: 'https://staff.api.dev.studenthub.co/v1',
         ],
         'urlManagerCandidate' => [
             'class' => 'yii\web\UrlManager',
             'enablePrettyUrl' => true,
             'showScriptName' => false,
-            'baseUrl' => 'https://student.api.dev.studenthub.co/v1',
+            'baseUrl' => getenv('CANDIDATE_API_BASE_URL') ?: 'https://student.api.dev.studenthub.co/v1',
         ],
         'urlManagerVerification' => [
             'class' => 'yii\web\UrlManager',
             'enablePrettyUrl' => true,
             'showScriptName' => false,
-            'baseUrl' => 'https://v.dev.studenthub.co/'
+            'baseUrl' => getenv('VERIFICATION_BASE_URL') ?: 'https://v.dev.studenthub.co/',
         ],
         'eventManager' => [
             'class' => 'common\components\EventManager',
-            "sqsRagion" => "eu-west-2",
-            "sqsKey" => "AKIAWMITDJRKXNWDOBNJ",
-            "sqsSecret" => "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",
-            "sqsQueue" => "438663597141/StudenthubDev"
+            'sqsRagion' => getenv('AWS_SQS_REGION') ?: 'eu-west-2',
+            'sqsKey' => getenv('AWS_SQS_KEY') ?: '',
+            'sqsSecret' => getenv('AWS_SQS_SECRET') ?: '',
+            'sqsQueue' => getenv('AWS_SQS_QUEUE') ?: '438663597141/StudenthubDev',
         ],
         'mediaConvert' => [
             'class' => 'common\components\MediaConvert',
             'authMethod' => \common\components\S3ResourceManager::AUTH_VIA_IAM_ROLE,
-            'region' => 'eu-west-2', // based in London
-            'endpoint' => 'https://ey3xqwxpb.mediaconvert.eu-west-2.amazonaws.com',
-            'role' => 'arn:aws:iam::438663597141:role/MediaConvertPermissions',
-            'jobQueue' =>  "arn:aws:mediaconvert:eu-west-2:438663597141:queues/Default"
+            'region' => getenv('AWS_MEDIACONVERT_REGION') ?: 'eu-west-2',
+            'endpoint' => getenv('AWS_MEDIACONVERT_ENDPOINT') ?: 'https://ey3xqwxpb.mediaconvert.eu-west-2.amazonaws.com',
+            'role' => getenv('AWS_MEDIACONVERT_ROLE_ARN') ?: 'arn:aws:iam::438663597141:role/MediaConvertPermissions',
+            'jobQueue' => getenv('AWS_MEDIACONVERT_QUEUE_ARN') ?: 'arn:aws:mediaconvert:eu-west-2:438663597141:queues/Default',
         ],
         'resourceManager' => [
             'class' => 'common\components\S3ResourceManager',
             'authMethod' => \common\components\S3ResourceManager::AUTH_VIA_IAM_ROLE,
-            'region' => 'eu-west-2', // Bucket based in London
-            'bucket' => 'studenthub-uploads-dev-server',
-            /**
-             * For Dev and Production servers, access is via server embedded IAM roles so no key/secret required
-             *
-             * You can access the bucket with:
-             * https://studenthub-uploads-dev-server.s3.amazonaws.com/
-             * https://studenthub-uploads-dev-server.s3.amazonaws.com/folderName/fileName.jpg
-             */
+            'region' => getenv('AWS_MAIN_BUCKET_REGION') ?: 'eu-west-2',
+            'bucket' => getenv('AWS_MAIN_BUCKET_NAME') ?: 'studenthub-uploads-dev-server',
         ],
         'log' => [
             'targets' => [
                 [
                     'class' => 'notamedia\sentry\SentryTarget',
-                    'dsn' => 'https://6cbd2100e1ff41e7875352655ffbf50d:e18336b09d864b29aa12aca3fbc6706c@sentry.io/168200',
+                    'dsn' => getenv('SENTRY_DSN') ?: '',
                     'levels' => ['error', 'warning'],
                     'except' => [
                         'yii\web\BadRequestHttpException',
@@ -107,10 +93,9 @@ return [
                         'yii\web\HttpException:404',
                     ],
                     'clientOptions' => [
-                        //which environment are we running this on?
-                        'environment' => 'dev',
+                        'environment' => getenv('SENTRY_ENVIRONMENT') ?: 'dev',
                     ],
-                    'context' => true // Write the context information. The default is true.
+                    'context' => true,
                 ],
                 [
                     'class' => 'common\components\SlackLogger',

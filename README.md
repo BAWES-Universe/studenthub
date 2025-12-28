@@ -12,7 +12,13 @@ StudentHub is a platform that enables corporate recruitment and management of tr
    cd studenthub
    ```
 
-2. **Configure hosts file** (add to `/etc/hosts` or `C:\Windows\System32\drivers\etc\hosts`):
+2. **Setup environment variables**
+   ```bash
+   cp .env.template .env
+   ```
+   The template contains default values for Docker Compose development setup.
+
+3. **Configure hosts file** (add to `/etc/hosts` or `C:\Windows\System32\drivers\etc\hosts`):
    ```
    127.0.0.1 traefik.studenthub.local
    127.0.0.1 admin.studenthub.local
@@ -23,12 +29,12 @@ StudentHub is a platform that enables corporate recruitment and management of tr
    127.0.0.1 verification.studenthub.local
    ```
 
-3. **Start services**
+4. **Start services**
    ```bash
    docker-compose up -d
    ```
 
-4. **Access the applications** (via Traefik):
+5. **Access the applications** (via Traefik):
    - Traefik Dashboard: http://traefik.studenthub.local
    - Admin: http://admin.studenthub.local
    - Candidate: http://candidate.studenthub.local
