@@ -95,33 +95,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Determine image tag
-        id: image-tag
-        run: |
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "${{ github.event.inputs.tag }}" ]; then
-            echo "tag=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
-          elif [ "${{ github.event_name }}" == "release" ]; then
-            echo "tag=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
-          elif [ "${{ github.ref }}" == "refs/heads/master" ]; then
-            echo "tag=latest" >> $GITHUB_OUTPUT
-          elif [ "${{ github.ref }}" == "refs/heads/develop" ]; then
-            echo "tag=dev" >> $GITHUB_OUTPUT
-          elif [ "${{ github.ref }}" == "refs/heads/develop-cleanup" ]; then
-            echo "tag=dev-cleanup" >> $GITHUB_OUTPUT
-          else
-            echo "tag=${{ github.sha }}" >> $GITHUB_OUTPUT
-          fi
-      
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/backend-${{ matrix.tag }}
-          tags: |
-            type=raw,value=${{ steps.image-tag.outputs.tag }}
-            type=sha,prefix={{branch}}-
-            type=raw,value=latest,enable={{is_default_branch}}&&{{is_default_branch}}
-      
       - name: Check if should build for this branch
         id: should-build
         run: |
@@ -139,6 +112,35 @@ jobs:
             # PRs - build but don't push
             echo "build=true" >> $GITHUB_OUTPUT
           fi
+      
+      - name: Determine image tag
+        if: steps.should-build.outputs.build == 'true'
+        id: image-tag
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "${{ github.event.inputs.tag }}" ]; then
+            echo "tag=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" == "release" ]; then
+            echo "tag=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref }}" == "refs/heads/master" ]; then
+            echo "tag=latest" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref }}" == "refs/heads/develop" ]; then
+            echo "tag=dev" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref }}" == "refs/heads/develop-cleanup" ]; then
+            echo "tag=dev-cleanup" >> $GITHUB_OUTPUT
+          else
+            echo "tag=${{ github.sha }}" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Extract metadata
+        if: steps.should-build.outputs.build == 'true'
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/backend-${{ matrix.tag }}
+          tags: |
+            type=raw,value=${{ steps.image-tag.outputs.tag }}
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' }}
       
       - name: Build and push Docker image
         if: steps.should-build.outputs.build == 'true'
