@@ -1,106 +1,58 @@
 FROM php:8.2-fpm
 
-# Install required PHP extensions
+# Install system dependencies and PHP extensions
 RUN apt-get update && apt-get install -y \
-     libpng-dev \
-     libjpeg-dev \
-     libfreetype6-dev \
-     libzip-dev \
-     unzip \
-     git \
-     ffmpeg \
-     nginx \
-     cron \
-     vim \
-     default-mysql-client \
-    # wkhtmltopdf \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libzip-dev \
+    unzip \
+    git \
+    ffmpeg \
+    nginx \
+    cron \
+    vim \
+    default-mysql-client \
     chromium \
-     #imagemagick \
-     #curl \
-     #gh \
-     #composer \
-     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-     && docker-php-ext-install gd pdo pdo_mysql zip opcache exif 
-
-# Install Imagick PHP extension
-#RUN apt-get install -y libmagickwand-dev \
-#    && pecl install imagick \
-#    && docker-php-ext-enable imagick
-
-#RUN sed -i 's/<policy domain="coder" rights="none" pattern="PDF" \/>/<policy domain="coder" rights="read|write" pattern="PDF" \/>/' /etc/ImageMagick-6/policy.xml
-
-# Install PHP dependencies
-#RUN pecl install ffmpeg \
-#    && docker-php-ext-enable ffmpeg
-
-#COPY ./nginx/basic.conf /etc/nginx/nginx.conf
-
-#COPY ./nginx/basic.conf /etc/nginx/sites-available/basic.conf
-
-#RUN ln -s /etc/nginx/sites-available/basic.conf /etc/nginx/sites-enabled/
-    
-# Copy Nginx site configuration files
-#COPY ./nginx/development.conf /etc/nginx/conf.d/development.conf
-#COPY ./nginx/basic.conf /etc/nginx/conf.d/basic.conf
-# Ensure the configuration files have the correct permissions
-#RUN chmod 644 /etc/nginx/conf.d/*.conf
-
-# Create sites-available and sites-enabled directories if they don't exist
-#RUN mkdir -p /etc/nginx/sites-available /etc/nginx/sites-enabled
-
-# Create symbolic links to enable the sites
-#RUN ln -sf /etc/nginx/conf.d/development.conf /etc/nginx/sites-enabled/
-#RUN ln -sf /etc/nginx/conf.d/basic.conf /etc/nginx/sites-enabled/
-
-RUN ln -s /var/www/html ~/www
-
-# Set working directory in the container
-WORKDIR /var/www/html
-
-# Copy application files to the container
-COPY . /var/www/html
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install gd pdo pdo_mysql zip opcache exif \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+RUN curl -sS https://getcomposer.org/installer | php -- \
+    --install-dir=/usr/local/bin --filename=composer
 
-# Set permissions for the web server
-#RUN chown -R www-data:www-data /var/www/html \
+# Set working directory
+WORKDIR /var/www/html
+
+# Copy application files
+COPY . /var/www/html
+
+# Install PHP dependencies (in build layer for caching)
+RUN composer install --optimize-autoloader --no-interaction
+
+# Set permissions
 RUN chmod -R 775 /var/www/html
 
-RUN cd /var/www/html
-
-RUN composer install
-
-#COPY ./wait-for-it.sh /usr/local/bin/wait-for-it
-#RUN chmod +x /usr/local/bin/wait-for-it
-
+# Setup cron
 COPY ./cron/cronlist /etc/cron.d/cronlist
-RUN chmod 0644 /etc/cron.d/cronlist
-RUN crontab /etc/cron.d/cronlist
+RUN chmod 0644 /etc/cron.d/cronlist && crontab /etc/cron.d/cronlist
 
-# Start cron service
-RUN service cron start
-
-#todo: not getting fired
-#RUN ./init --env=Dev-Server-Nginx --overwrite=All 
-  
-# copy php configuration
+# Copy nginx configuration
 COPY ./nginx/php.conf /etc/nginx/php.conf
+COPY ./nginx/railway-dev.conf /etc/nginx/sites-available/app.conf
+RUN ln -s /etc/nginx/sites-available/app.conf /etc/nginx/sites-enabled/ && \
+    rm -f /etc/nginx/sites-enabled/default
 
-# load environment specific configuration
-COPY ./nginx/railway-dev.conf /etc/nginx/sites-available/railway-dev.conf
-RUN ln -s /etc/nginx/sites-available/railway-dev.conf /etc/nginx/sites-enabled/
+# Create symlink for convenience
+RUN ln -s /var/www/html ~/www
 
-# run default nginx config
-RUN rm /etc/nginx/sites-enabled/default
-
-# Expose port 80
+# Expose port
 EXPOSE 80
 
-# Start Nginx and PHP-FPM
-#CMD ["sh", "-c", "service nginx start && ./yii migrate && php-fpm"]
-CMD ["sh", "-c", "./init --env=Dev-Server-Railway --overwrite=All \
-    && ./yii migrate --interactive=0 && service nginx restart \
-    && ./deployment.sh && service cron start && php-fpm && tail -f /dev/null"]
-#composer install
-#&& service cron start -f && crontab ./cron/cronlist
+# Start services (migrations run via Railway post-deploy hook)
+CMD ["sh", "-c", \
+     "./init --env=Development --overwrite=All && \
+      service cron start && \
+      nginx -t && service nginx start && \
+      php-fpm && tail -f /dev/null"]
