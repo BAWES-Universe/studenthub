@@ -6,14 +6,11 @@ return yii\helpers\ArrayHelper::merge(
     [
         'components' => [
             'db' => [
-                'dsn' => 'mysql:host=localhost;dbname=payroll_test',
-            ],
-            'walletDb' => [
                 'class' => 'yii\db\Connection',
-                'dsn' => 'mysql:host=localhost;dbname=wallet_test',
-                'username' => 'root',
-                'password' => '',
-                'charset' => 'utf8',
+                'dsn' => 'mysql:host=' . (getenv('DB_HOST') ?: 'mysql') . ';dbname=' . (getenv('TEST_DB_NAME') ?: 'studenthub_test'),
+                'username' => getenv('DB_USER') ?: 'studenthubuser',
+                'password' => getenv('DB_PASSWORD') ?: 'studenthub',
+                'charset' => getenv('DB_CHARSET') ?: 'utf8mb4',
             ],
             'cache' => [
                 'class' => 'yii\caching\FileCache',
