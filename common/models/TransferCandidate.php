@@ -1021,18 +1021,48 @@ class TransferCandidate extends \yii\db\ActiveRecord
         }
 
         if ($contractQuery->count() > 1) {
+            $candidateName = $candidate['candidate_name'] ?? 'Unknown';
+            $candidateId = $candidate['candidate_id'] ?? 'Unknown';
+            $storeName = isset($candidate['store']) && isset($candidate['store']['store_name']) 
+                ? $candidate['store']['store_name'] 
+                : 'Unknown';
+            
+            $message = sprintf(
+                "Cannot create transfer for candidate '%s' (ID: %s) at store '%s'. Multiple active contracts found. Please specify a contract_uuid or ensure only one active contract exists for this candidate and store.",
+                $candidateName,
+                $candidateId,
+                $storeName
+            );
+            
             return [
                 "operation" => "error",
-                "message" => "Multiple active contracts found for candidate.",
-                "candidate_id" => $candidate['candidate_id'],
-                "store_id" => $candidate['store_id']
+                "message" => $message,
+                "candidate_id" => $candidateId,
+                "candidate_name" => $candidateName,
+                "store_id" => $candidate['store_id'] ?? null
             ];
         }
 
         if ($contractQuery->count() == 0) {
+            $candidateName = $candidate['candidate_name'] ?? 'Unknown';
+            $candidateId = $candidate['candidate_id'] ?? 'Unknown';
+            $storeName = isset($candidate['store']) && isset($candidate['store']['store_name']) 
+                ? $candidate['store']['store_name'] 
+                : 'Unknown';
+            
+            $message = sprintf(
+                "Cannot create transfer for candidate '%s' (ID: %s) at store '%s'. No active contract found. Please ensure the candidate has an active contract that is not expired and not deleted.",
+                $candidateName,
+                $candidateId,
+                $storeName
+            );
+            
             return [
                 "operation" => "error",
-                "message" => "No active contracts found for candidate."
+                "message" => $message,
+                "candidate_id" => $candidateId,
+                "candidate_name" => $candidateName,
+                "store_id" => $candidate['store_id'] ?? null
             ];
         }
 
@@ -1040,9 +1070,25 @@ class TransferCandidate extends \yii\db\ActiveRecord
 
         if (!$contract)
         {
+            $candidateName = $candidate['candidate_name'] ?? 'Unknown';
+            $candidateId = $candidate['candidate_id'] ?? 'Unknown';
+            $storeName = isset($candidate['store']) && isset($candidate['store']['store_name']) 
+                ? $candidate['store']['store_name'] 
+                : 'Unknown';
+            
+            $message = sprintf(
+                "Cannot create transfer for candidate '%s' (ID: %s) at store '%s'. Contract retrieval failed. Please ensure the candidate has an active contract that is not expired and not deleted.",
+                $candidateName,
+                $candidateId,
+                $storeName
+            );
+            
             return [
                 "operation" => "error",
-                "message" => "No active contracts found for candidate."
+                "message" => $message,
+                "candidate_id" => $candidateId,
+                "candidate_name" => $candidateName,
+                "store_id" => $candidate['store_id'] ?? null
             ];
         }
 
