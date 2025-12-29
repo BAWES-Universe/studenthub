@@ -21,20 +21,6 @@ return [
             'schemaCacheDuration' => 3600,
             'schemaCache' => 'cache',
         ],
-        'walletDb' => [
-            'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=' . getenv('WALLET_DB_HOST') . ';dbname=' . getenv('WALLET_DB_NAME'),
-            'username' => getenv('WALLET_DB_USER'),
-            'password' => getenv('WALLET_DB_PASSWORD'),
-            'charset' => getenv('WALLET_DB_CHARSET') ?: 'utf8',
-            'enableSchemaCache' => true,
-            'schemaCacheDuration' => 3600,
-            'schemaCache' => 'cache',
-        ],
-        'walletManager' => [
-            'class' => 'common\components\WalletManager',
-            'apiKey' => getenv('WALLET_API_KEY') ?: '',
-        ],
         'redis' => [
             'class' => 'yii\redis\Connection',
             'hostname' => getenv('REDIS_HOST') ?: 'localhost',

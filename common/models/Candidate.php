@@ -837,10 +837,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 'candidate_id' => $this->candidate_id
             ]);
 
-            $userTableSchema = Yii::$app->walletDb->schema->getTableSchema('user');
-
-            if($userTableSchema)
-                $this->updateWalletBankDetail();
+            // Wallet system removed - no longer updating wallet bank details
         }
 
         if(!$insert && array_key_exists('candidate_password_hash', $changedAttributes)) {

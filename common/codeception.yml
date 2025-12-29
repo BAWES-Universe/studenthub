@@ -16,4 +16,4 @@ modules:
         - Yii2
     config:
         Yii2:
-            configFile: 'config/unit-test-local.php'
+            configFile: '/var/www/html/common/config/unit-test-local.php'

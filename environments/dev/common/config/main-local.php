@@ -8,19 +8,6 @@ return [
             'password' => getenv('DB_PASSWORD'),
             'charset' => getenv('DB_CHARSET') ?: 'utf8mb4',
         ],
-        'walletDb' => [
-            'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=' . getenv('WALLET_DB_HOST') . ';dbname=' . getenv('WALLET_DB_NAME'),
-            'username' => getenv('WALLET_DB_USER'),
-            'password' => getenv('WALLET_DB_PASSWORD'),
-            'charset' => getenv('WALLET_DB_CHARSET') ?: 'utf8',
-        ],
-        'walletManager' => [
-            'class' => 'common\components\WalletManager',
-            'apiKey' => getenv('WALLET_API_KEY') ?: '',
-            'apiEndpoint' => getenv('WALLET_API_ENDPOINT') ?: 'http://localhost/wallet/webhook/web/v1',
-            'companyWalletUserID' => getenv('WALLET_COMPANY_USER_ID') ?: '',
-        ],
         'yeaster' => [
             'class' => 'common\components\Yeaster',
             'apiEndpoint' => getenv('YEASTER_API_ENDPOINT') ?: 'http://localhost:3001',

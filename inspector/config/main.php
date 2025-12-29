@@ -90,20 +90,6 @@ return [
                         'OPTIONS update-password' => 'options',
                     ]
                 ],
-                [ // BalanceController
-                    'class' => 'yii\rest\UrlRule',
-                    'controller' => 'v1/balance',
-                    'pluralize' => false,
-                    'patterns' => [
-                        'GET payable-list' => 'payable-list',
-                        'POST init-transfer' => 'init-transfer',
-                        'PATCH pay-by-wallet' => 'pay-by-wallet',
-                        // OPTIONS VERBS
-                        'OPTIONS pay-by-wallet' => 'options',
-                        'OPTIONS init-transfer' => 'options',
-                        'OPTIONS payable-list' => 'options',
-                    ]
-                ],
             ],
         ],
     ],

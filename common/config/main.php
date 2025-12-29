@@ -67,19 +67,6 @@ return [
         'config' => [
             'class' => 'common\components\Config',
         ],
-        'balanceManager' => [
-            'class' => 'yii2tech\balance\ManagerDb',
-            'db' => 'walletDb',
-            'accountTable' => '{{%balance_account}}',
-            'transactionTable' => '{{%balance_transaction}}',
-            'autoCreateAccount' => 'true',
-            'accountLinkAttribute' => 'account_uuid',
-            'accountBalanceAttribute' => 'balance',
-            'amountAttribute' => 'amount',
-            'dataAttribute' => 'data',
-            'dateAttribute' => 'created_at',
-            'dateAttributeValue' => new yii\db\Expression('NOW()'),
-        ],
         'httpclient' => [
             'class' => 'yii\httpclient\Client',
         ],

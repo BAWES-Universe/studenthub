@@ -11,7 +11,9 @@ MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD:-studenthub}"
 echo "Creating test database..."
 
 # Use root user for database creation
-mysql -h"$DB_HOST" -uroot -p"$MYSQL_ROOT_PASSWORD" <<EOF
+# Set password via environment variable to avoid SSL issues
+export MYSQL_PWD="$MYSQL_ROOT_PASSWORD"
+mysql -h"$DB_HOST" -uroot --skip-ssl <<EOF
 -- Create main test database
 CREATE DATABASE IF NOT EXISTS \`studenthub_test\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
