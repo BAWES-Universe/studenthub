@@ -55,10 +55,14 @@ return [
             'viewPath' => '@common/mail',
             'transport' => [
                 'scheme' => 'smtp',
-                'host' => 'email-smtp.eu-west-1.amazonaws.com',
-                'username' => 'AKIAWMITDJRKUESNXW5I',
-                'password' => 'BNLEls4MLvkjiAltRpWLTic7IMwKhggzqRVpHU5C9TFh',
-                'port' => 587,
+                'host' => 'smtp.resend.com',
+                'username' => 'resend',
+                'password' => 're_77ZKCSWu_EG8wGdB4XBXZ38s9TB4FYM1e',
+                'port' => 465,
+                // 'host' => 'email-smtp.eu-west-1.amazonaws.com',
+                // 'username' => 'AKIAWMITDJRKUESNXW5I',
+                // 'password' => 'BNLEls4MLvkjiAltRpWLTic7IMwKhggzqRVpHU5C9TFh',
+                // 'port' => 587,
 
                 /*
                'host' => 'smtp.elasticemail.com',
