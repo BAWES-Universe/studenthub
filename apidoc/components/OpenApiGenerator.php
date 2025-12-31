@@ -62,6 +62,7 @@ class OpenApiGenerator extends Component
             ],
             'servers' => $this->getServers(),
             'tags' => $this->getTags(),
+            'x-tagGroups' => $this->getTagGroups(),
             'paths' => [],
             'components' => [
                 'securitySchemes' => [
@@ -75,28 +76,130 @@ class OpenApiGenerator extends Component
         ];
 
         // Generate paths from all modules
-        foreach ($this->modules as $moduleKey => $moduleConfig) {
-            $paths = $this->generatePathsForModule($moduleKey, $moduleConfig);
-            $spec['paths'] = array_merge($spec['paths'], $paths);
-        }
+               foreach ($this->modules as $moduleKey => $moduleConfig) {
+                   $paths = $this->generatePathsForModule($moduleKey, $moduleConfig);
+                   $spec['paths'] = array_merge($spec['paths'], $paths);
+               }
+               
+               // Sort all paths globally for consistent ordering
+               uksort($spec['paths'], function($a, $b) {
+                   $getPrefix = function($path) {
+                       $parts = explode('/', trim($path, '/'));
+                       return isset($parts[1]) ? $parts[1] : '';
+                   };
+                   $prefixA = $getPrefix($a);
+                   $prefixB = $getPrefix($b);
+                   $cmp = strcmp($prefixA, $prefixB);
+                   return $cmp !== 0 ? $cmp : strcmp($a, $b);
+               });
 
         return $spec;
     }
 
     /**
-     * Get tags definition for all modules
+     * Get tags definition for all controllers (without module prefix)
      * @return array
      */
     protected function getTags()
     {
-        $tags = [];
+        $tagMap = [];
+        
+        // Collect all unique controller names across all modules
         foreach ($this->modules as $moduleKey => $moduleConfig) {
+            $configPath = Yii::getAlias($moduleConfig['configPath']);
+            if (!file_exists($configPath)) {
+                continue;
+            }
+            
+            try {
+                $config = require $configPath;
+                $urlRules = $config['components']['urlManager']['rules'] ?? [];
+                
+                foreach ($urlRules as $rule) {
+                    if (!isset($rule['class']) || $rule['class'] !== 'yii\rest\UrlRule') {
+                        continue;
+                    }
+                    
+                    $controller = $rule['controller'] ?? '';
+                    $controllerName = $this->getControllerName($controller);
+                    
+                    // Store controller name only (no module prefix)
+                    if (!isset($tagMap[$controllerName])) {
+                        $tagMap[$controllerName] = true;
+                    }
+                }
+            } catch (\Exception $e) {
+                continue;
+            }
+        }
+        
+        // Create tags with just controller names
+        $tags = [];
+        foreach (array_keys($tagMap) as $controllerName) {
             $tags[] = [
-                'name' => $moduleConfig['name'],
-                'description' => "{$moduleConfig['name']} API - All endpoints for the {$moduleConfig['name']} application. Endpoints are organized by controller within this module.",
+                'name' => $controllerName,
+                'description' => "{$controllerName} controller endpoints",
             ];
         }
+        
+        // Sort alphabetically
+        usort($tags, function($a, $b) {
+            return strcmp($a['name'], $b['name']);
+        });
+        
         return $tags;
+    }
+
+    /**
+     * Get tag groups for Scalar subgroups
+     * Groups controller tags under module names
+     * @return array
+     */
+    protected function getTagGroups()
+    {
+        $tagGroups = [];
+        
+        foreach ($this->modules as $moduleKey => $moduleConfig) {
+            $moduleTags = [];
+            
+            // Collect all controller tags for this module
+            $configPath = Yii::getAlias($moduleConfig['configPath']);
+            if (!file_exists($configPath)) {
+                continue;
+            }
+            
+            try {
+                $config = require $configPath;
+                $urlRules = $config['components']['urlManager']['rules'] ?? [];
+                
+                foreach ($urlRules as $rule) {
+                    if (!isset($rule['class']) || $rule['class'] !== 'yii\rest\UrlRule') {
+                        continue;
+                    }
+                    
+                    $controller = $rule['controller'] ?? '';
+                    $controllerName = $this->getControllerName($controller);
+                    
+                    // Use just controller name (no module prefix)
+                    if (!in_array($controllerName, $moduleTags)) {
+                        $moduleTags[] = $controllerName;
+                    }
+                }
+            } catch (\Exception $e) {
+                continue;
+            }
+            
+            if (!empty($moduleTags)) {
+                // Sort tags alphabetically within module
+                sort($moduleTags);
+                $tagGroups[] = [
+                    'name' => $moduleConfig['name'],
+                    'tags' => $moduleTags,
+                ];
+            }
+        }
+        
+        return $tagGroups;
     }
 
     /**
@@ -203,9 +306,9 @@ class OpenApiGenerator extends Component
                 }
 
                 $controllerName = $this->getControllerName($controller);
-                // Use only module name as tag - Scalar will organize by path/controller within each module
+                // Use only controller name as tag - will be grouped by module via x-tagGroups
                 $paths[$pathKey][strtolower($method)] = [
-                    'tags' => [$moduleConfig['name']],
+                    'tags' => [$controllerName],
                     'summary' => $this->getActionSummary($action),
                     'description' => $this->getActionDescription($controller, $action, $moduleConfig['name']),
                     'security' => [
@@ -251,6 +354,26 @@ class OpenApiGenerator extends Component
                 }
             }
         }
+
+        // Sort paths by controller prefix for logical grouping
+        // This ensures endpoints from the same controller appear together
+        uksort($paths, function($a, $b) {
+            // Extract controller prefix (e.g., /v1/account -> account, /v1/auth/login -> auth)
+            $getPrefix = function($path) {
+                $parts = explode('/', trim($path, '/'));
+                return isset($parts[1]) ? $parts[1] : '';
+            };
+            $prefixA = $getPrefix($a);
+            $prefixB = $getPrefix($b);
+            
+            // Compare by controller prefix first
+            $cmp = strcmp($prefixA, $prefixB);
+            if ($cmp !== 0) {
+                return $cmp;
+            }
+            // If same prefix, sort by full path
+            return strcmp($a, $b);
+        });
 
         return $paths;
     }

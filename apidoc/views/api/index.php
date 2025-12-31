@@ -120,7 +120,7 @@
     <script 
         id="api-reference" 
         type="application/json"
-        data-configuration='{"theme":"purple","layout":"modern","defaultHttpClient":{"targetKey":"javascript","clientKey":"fetch"},"authentication":{"http":{"scheme":"bearer","bearerFormat":"JWT"}},"hideDownloadButton":false,"searchHotKey":"k","sidebar":{"open":true},"withDefaultFonts":true}'
+        data-configuration='{"theme":"purple","layout":"modern","defaultHttpClient":{"targetKey":"javascript","clientKey":"fetch"},"authentication":{"http":{"scheme":"bearer","bearerFormat":"JWT"}},"hideDownloadButton":false,"searchHotKey":"k","sidebar":{"open":true,"grouped":true},"withDefaultFonts":true}'
         data-url="/openapi.json">
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference@latest/dist/browser/standalone.js"></script>
