@@ -8,90 +8,100 @@
         body {
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
+        
         .token-input-container {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
-            background: #fff;
-            padding: 12px 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            z-index: 1000;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px 20px;
+            z-index: 10000;
             display: flex;
             align-items: center;
             gap: 12px;
-            border-bottom: 1px solid #e5e7eb;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
+        
         .token-input-container label {
-            font-weight: 600;
-            color: #374151;
-            font-size: 14px;
+            font-weight: 500;
+            color: #e0e0e0;
+            font-size: 13px;
             white-space: nowrap;
         }
+        
         .token-input-container input {
             flex: 1;
             padding: 8px 12px;
-            border: 1px solid #d1d5db;
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 6px;
-            font-size: 14px;
+            font-size: 13px;
             max-width: 500px;
-            transition: border-color 0.2s;
+            background: rgba(255, 255, 255, 0.05);
+            color: #e0e0e0;
+            font-family: 'SF Mono', Monaco, monospace;
         }
+        
         .token-input-container input:focus {
             outline: none;
-            border-color: #16A34A;
-            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+            border-color: #6366f1;
+            background: rgba(255, 255, 255, 0.08);
         }
+        
         .token-input-container button {
             padding: 8px 16px;
             border: none;
             border-radius: 6px;
             cursor: pointer;
             font-weight: 500;
-            font-size: 14px;
-            transition: all 0.2s;
+            font-size: 12px;
         }
+        
         .btn-set {
-            background: #16A34A;
+            background: #6366f1;
             color: white;
         }
+        
         .btn-set:hover {
-            background: #15803D;
+            background: #4f46e5;
         }
+        
         .btn-clear {
-            background: #ef4444;
-            color: white;
+            background: transparent;
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
         }
+        
         .btn-clear:hover {
-            background: #dc2626;
+            background: rgba(239, 68, 68, 0.1);
         }
+        
         body {
-            padding-top: 60px;
+            padding-top: 50px;
         }
     </style>
 </head>
 <body>
     <div class="token-input-container">
         <label>Bearer Token:</label>
-        <input type="text" id="bearer-token" placeholder="Enter your Bearer token" 
+        <input type="text" id="bearer-token" placeholder="Enter JWT token" 
                value="">
-        <button class="btn-set" onclick="setToken()">Set Token</button>
-        <button class="btn-clear" onclick="clearToken()">Clear Token</button>
+        <button class="btn-set" onclick="setToken()">Set</button>
+        <button class="btn-clear" onclick="clearToken()">Clear</button>
     </div>
     
     <script>
-        // Load token from localStorage first
         const savedToken = localStorage.getItem('swagger_token') || '';
-        document.getElementById('bearer-token').value = savedToken;
+        if (document.getElementById('bearer-token')) {
+            document.getElementById('bearer-token').value = savedToken;
+        }
         
-        // Intercept fetch to add Bearer token - do this before Scalar loads
         const originalFetch = window.fetch;
         window.fetch = function(...args) {
             const token = localStorage.getItem('swagger_token');
             if (token && args[0] && typeof args[0] === 'string') {
-                // Add token to headers if it's an API request (not the OpenAPI spec)
                 if (!args[0].includes('/openapi.json')) {
                     if (!args[1]) args[1] = {};
                     if (!args[1].headers) args[1].headers = {};
@@ -106,21 +116,18 @@
         window.setToken = function() {
             const token = document.getElementById('bearer-token').value;
             localStorage.setItem('swagger_token', token);
-            // Reload to apply token to Scalar
-            location.reload();
         };
         
         window.clearToken = function() {
             localStorage.removeItem('swagger_token');
             document.getElementById('bearer-token').value = '';
-            location.reload();
         };
     </script>
     
     <script 
         id="api-reference" 
         type="application/json"
-        data-configuration='{"theme":"purple","layout":"modern","defaultHttpClient":{"targetKey":"javascript","clientKey":"fetch"},"authentication":{"http":{"scheme":"bearer","bearerFormat":"JWT"}},"hideDownloadButton":false,"searchHotKey":"k","sidebar":{"open":true,"grouped":true},"withDefaultFonts":true,"darkMode":true,"customCss":".scalar-card { border-radius: 8px; } .scalar-api-client { border-radius: 8px; }"}'
+        data-configuration='{"theme":"purple","layout":"modern","defaultHttpClient":{"targetKey":"javascript","clientKey":"fetch"},"authentication":{"http":{"scheme":"bearer","bearerFormat":"JWT"}},"hideDownloadButton":false,"searchHotKey":"k","sidebar":{"open":true,"grouped":true},"darkMode":true,"withDefaultFonts":true}'
         data-url="/openapi.json">
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference@latest/dist/browser/standalone.js"></script>

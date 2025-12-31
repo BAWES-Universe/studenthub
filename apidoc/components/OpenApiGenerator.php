@@ -86,23 +86,15 @@ class OpenApiGenerator extends Component
             ],
         ];
 
-        // Generate paths from all modules
+        // Generate paths from all modules - keep them organized by module
+        // Don't mix paths globally - each module's paths stay together
         foreach ($this->modules as $moduleKey => $moduleConfig) {
             $paths = $this->generatePathsForModule($moduleKey, $moduleConfig);
             $spec['paths'] = array_merge($spec['paths'], $paths);
         }
         
-        // Sort all paths globally for consistent ordering
-        uksort($spec['paths'], function($a, $b) {
-            $getPrefix = function($path) {
-                $parts = explode('/', trim($path, '/'));
-                return isset($parts[1]) ? $parts[1] : '';
-            };
-            $prefixA = $getPrefix($a);
-            $prefixB = $getPrefix($b);
-            $cmp = strcmp($prefixA, $prefixB);
-            return $cmp !== 0 ? $cmp : strcmp($a, $b);
-        });
+        // Paths are already sorted within each module in generatePathsForModule()
+        // No global sorting needed - keeps modules separated
 
         return $spec;
     }
@@ -211,14 +203,15 @@ DESC;
     }
 
     /**
-     * Get tags definition for all controllers with unique module prefix
+     * Get tags definition - simplified to just controller names
+     * Tags are scoped by module via x-tagGroups, so no conflicts
      * @return array
      */
     protected function getTags()
     {
         $tagMap = [];
         
-        // Collect all unique module-controller combinations
+        // Collect all unique controller names (scoped by module in x-tagGroups)
         foreach ($this->modules as $moduleKey => $moduleConfig) {
             $configPath = Yii::getAlias($moduleConfig['configPath']);
             if (!file_exists($configPath)) {
@@ -235,14 +228,14 @@ DESC;
                     }
                     
                     $controller = $rule['controller'] ?? '';
-                    $controllerName = $this->getControllerName($controller);
-                    // Use unique tag with module prefix to avoid conflicts
-                    $tag = $moduleConfig['name'] . ' - ' . $controllerName;
+                    $controllerName = $this->getControllerName($controller, $moduleConfig['name']);
+                    // Use just controller name - scoped by module in x-tagGroups
+                    $tag = $controllerName;
                     
                     if (!isset($tagMap[$tag])) {
                         $tagMap[$tag] = [
                             'name' => $tag,
-                            'description' => "{$controllerName} endpoints in the {$moduleConfig['name']} module",
+                            'description' => "{$controllerName} endpoints",
                         ];
                     }
                 }
@@ -251,7 +244,7 @@ DESC;
             }
         }
         
-        // Sort tags
+        // Sort tags alphabetically
         $tags = array_values($tagMap);
         usort($tags, function($a, $b) {
             return strcmp($a['name'], $b['name']);
@@ -262,7 +255,7 @@ DESC;
 
     /**
      * Get tag groups for Scalar subgroups
-     * Groups controller tags under module names
+     * Groups controller tags under module names with logical ordering
      * @return array
      */
     protected function getTagGroups()
@@ -288,9 +281,9 @@ DESC;
                     }
                     
                     $controller = $rule['controller'] ?? '';
-                    $controllerName = $this->getControllerName($controller);
-                    // Use unique tag with module prefix
-                    $tag = $moduleConfig['name'] . ' - ' . $controllerName;
+                    $controllerName = $this->getControllerName($controller, $moduleConfig['name']);
+                    // Use just controller name - scoped by module
+                    $tag = $controllerName;
                     
                     if (!in_array($tag, $moduleTags)) {
                         $moduleTags[] = $tag;
@@ -301,16 +294,107 @@ DESC;
             }
             
             if (!empty($moduleTags)) {
-                // Sort tags alphabetically within module
-                sort($moduleTags);
+                // Sort tags logically: Auth first, then Account, then by logical groups
+                $sortedTags = $this->sortTagsLogically($moduleTags);
                 $tagGroups[] = [
                     'name' => $moduleConfig['name'],
-                    'tags' => $moduleTags,
+                    'tags' => $sortedTags,
                 ];
             }
         }
         
         return $tagGroups;
+    }
+
+    /**
+     * Sort tags logically within a module
+     * Priority: Auth → Account → Registration → Core features → Utilities
+     * @param array $tags
+     * @return array
+     */
+    protected function sortTagsLogically($tags)
+    {
+        // Define priority order - exact matches first
+        $exactPriority = [
+            'auth' => 1,
+            'account' => 2,
+            'signup' => 3,
+            'register' => 3,
+            'registration' => 3,
+        ];
+        
+        // Define prefix-based priorities for controllers that start with these
+        $prefixPriority = [
+            'account' => 2,
+            'candidate' => 10,
+            'request' => 20,
+            'transfer' => 30,
+            'company' => 40,
+            'staff' => 50,
+            'chat' => 60,
+            'note' => 70,
+            'job' => 80,
+            'store' => 90,
+            'bank' => 100,
+            'brand' => 100,
+            'campaign' => 100,
+            'contract' => 100,
+            'discount' => 100,
+            'invitation' => 100,
+            'tag' => 100,
+            'university' => 100,
+            'country' => 100,
+            'currency' => 100,
+            'degree' => 100,
+            'major' => 100,
+            'mall' => 100,
+            'webhook' => 100,
+            'xero' => 100,
+            'yeaster' => 100,
+            'algolia' => 200,
+            'aws' => 200,
+            'ping' => 200,
+            'config' => 200,
+            'cron-log' => 200,
+            'statistic' => 200,
+            'setting' => 200,
+        ];
+        
+        // Categorize tags
+        $categorized = [];
+        
+        foreach ($tags as $tag) {
+            $tagLower = strtolower($tag);
+            $priority = 999; // Default low priority
+            
+            // Check exact match first
+            if (isset($exactPriority[$tagLower])) {
+                $priority = $exactPriority[$tagLower];
+            } else {
+                // Check prefix matches
+                foreach ($prefixPriority as $prefix => $prio) {
+                    if ($tagLower === $prefix || strpos($tagLower, $prefix . '-') === 0 || strpos($tagLower, $prefix) === 0) {
+                        $priority = $prio;
+                        break;
+                    }
+                }
+            }
+            
+            $categorized[] = ['tag' => $tag, 'priority' => $priority];
+        }
+        
+        // Sort by priority, then alphabetically
+        usort($categorized, function($a, $b) {
+            if ($a['priority'] !== $b['priority']) {
+                return $a['priority'] - $b['priority'];
+            }
+            return strcmp($a['tag'], $b['tag']);
+        });
+        
+        // Return just the tags
+        return array_map(function($item) {
+            return $item['tag'];
+        }, $categorized);
     }
 
     /**
@@ -416,9 +500,9 @@ DESC;
                     $paths[$pathKey] = [];
                 }
 
-                $controllerName = $this->getControllerName($controller);
-                // Use unique tag with module prefix
-                $tag = $moduleConfig['name'] . ' - ' . $controllerName;
+                $controllerName = $this->getControllerName($controller, $moduleConfig['name']);
+                // Use just controller name - scoped by module in x-tagGroups
+                $tag = $controllerName;
                 
                 // Build path data
                 $pathData = $this->buildPathData($tag, $controller, $action, $moduleConfig['name'], $method, $path);
@@ -444,17 +528,51 @@ DESC;
             }
         }
 
-        // Sort paths by controller prefix for logical grouping
-        uksort($paths, function($a, $b) {
-            $getPrefix = function($path) {
+        // Sort paths logically within this module
+        // Priority: Auth endpoints first, then by controller, then by HTTP method
+        uksort($paths, function($a, $b) use ($paths) {
+            // Get controller prefix
+            $getController = function($path) {
                 $parts = explode('/', trim($path, '/'));
                 return isset($parts[1]) ? $parts[1] : '';
             };
-            $prefixA = $getPrefix($a);
-            $prefixB = $getPrefix($b);
             
-            $cmp = strcmp($prefixA, $prefixB);
-            return $cmp !== 0 ? $cmp : strcmp($a, $b);
+            $controllerA = $getController($a);
+            $controllerB = $getController($b);
+            
+            // Auth endpoints first
+            $isAuthA = $controllerA === 'auth';
+            $isAuthB = $controllerB === 'auth';
+            if ($isAuthA && !$isAuthB) return -1;
+            if (!$isAuthA && $isAuthB) return 1;
+            
+            // Account endpoints second
+            $isAccountA = $controllerA === 'account';
+            $isAccountB = $controllerB === 'account';
+            if ($isAccountA && !$isAccountB && !$isAuthB) return -1;
+            if (!$isAccountA && $isAccountB && !$isAuthA) return 1;
+            
+            // Then by controller name
+            $cmp = strcmp($controllerA, $controllerB);
+            if ($cmp !== 0) {
+                return $cmp;
+            }
+            
+            // Within same controller, sort by HTTP method priority
+            $methodPriority = ['get' => 1, 'post' => 2, 'patch' => 3, 'put' => 4, 'delete' => 5];
+            $methodsA = array_keys($paths[$a] ?? []);
+            $methodsB = array_keys($paths[$b] ?? []);
+            $methodA = $methodsA[0] ?? '';
+            $methodB = $methodsB[0] ?? '';
+            $priorityA = $methodPriority[$methodA] ?? 99;
+            $priorityB = $methodPriority[$methodB] ?? 99;
+            
+            if ($priorityA !== $priorityB) {
+                return $priorityA - $priorityB;
+            }
+            
+            // Finally by path
+            return strcmp($a, $b);
         });
 
         return $paths;
@@ -762,13 +880,37 @@ DESC;
     /**
      * Get controller name for tag
      * @param string $controller
+     * @param string $moduleName Optional module name to remove from controller name
      * @return string
      */
-    protected function getControllerName($controller)
+    protected function getControllerName($controller, $moduleName = '')
     {
         $parts = explode('/', $controller);
         $name = end($parts);
-        return ucfirst(str_replace('Controller', '', $name));
+        $name = ucfirst(str_replace('Controller', '', $name));
+        
+        // Remove module name prefix from controller name to avoid redundancy
+        // e.g., "Candidate-education" in Candidate module -> "Education"
+        if ($moduleName) {
+            $moduleLower = strtolower($moduleName);
+            $nameLower = strtolower($name);
+            
+            // Check if controller name starts with module name
+            if (strpos($nameLower, $moduleLower) === 0) {
+                // Remove module name and following dash/hyphen
+                $name = substr($name, strlen($moduleName));
+                $name = ltrim($name, '-');
+                // Capitalize first letter
+                if (!empty($name)) {
+                    $name = ucfirst($name);
+                } else {
+                    // If name becomes empty, use module name
+                    $name = $moduleName;
+                }
+            }
+        }
+        
+        return $name;
     }
 
     /**
