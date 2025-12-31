@@ -1009,8 +1009,24 @@ class TransferCandidate extends \yii\db\ActiveRecord
                 'store_id' => $candidate['store_id'],
                 "deleted" => 0,
             ])
-            ->filterActive();//not expired
+            // IMPORTANT: use transfer period for contract selection (editing past transfers)
+            // Overlap rule:
+            //   contract.start_date <= transfer.end_date
+            //   AND (contract.end_date IS NULL OR contract.end_date >= transfer.start_date)
+            // Fallback to "active today" if transfer period isn't available.
+            ->andWhere(
+                (!empty($model->start_date) && !empty($model->end_date))
+                    ? new Expression(
+                        "contract.start_date <= :transferEnd AND (contract.end_date IS NULL OR contract.end_date >= :transferStart)",
+                        [
+                            ':transferStart' => $model->start_date,
+                            ':transferEnd' => $model->end_date,
+                        ]
+                    )
+                    : new Expression('contract.end_date is null OR contract.end_date >= CURDATE()')
+            )
             //->filterOrg($store['company_id'])
+            ->orderBy(['contract.start_date' => SORT_DESC]);
 
         if (isset($value['contract_uuid'])) {
             $contractQuery->andWhere(['contract.contract_uuid' => $value['contract_uuid']]);
@@ -1044,25 +1060,101 @@ class TransferCandidate extends \yii\db\ActiveRecord
         }
 
         if ($contractQuery->count() == 0) {
-            $candidateName = $candidate['candidate_name'] ?? 'Unknown';
-            $candidateId = $candidate['candidate_id'] ?? 'Unknown';
-            $storeName = isset($candidate['store']) && isset($candidate['store']['store_name']) 
-                ? $candidate['store']['store_name'] 
-                : 'Unknown';
-            
-            $message = sprintf(
-                "Cannot create transfer for candidate '%s' (ID: %s) at store '%s'. No active contract found. Please ensure the candidate has an active contract that is not expired and not deleted.",
-                $candidateName,
-                $candidateId,
-                $storeName
-            );
-            
+
+            // Manual-pay fallback:
+            // Some candidates can have only deleted overlapping contracts (deleted=1),
+            // but finance still needs to pay based on attendance + provided manual rates.
+
+            $hours = (float)($value['hours'] ?? 0);
+            $minutes = (float)($value['minutes'] ?? 0);
+            $seconds = (float)($value['seconds'] ?? 0);
+            $bonus = (float)($value['bonus'] ?? 0);
+
+            $payable = ($hours > 0) || ($minutes > 0) || ($seconds > 0) || ($bonus > 0);
+
+            // If payable is zero, keep existing behavior: success with 0 totals.
+            if (!$payable) {
+                return [
+                    "operation" => "success",
+                    "total" => 0,
+                    "company_total" => 0,
+                    "transfer_cost" => 0
+                ];
+            }
+
+            // Only allow fallback if candidate_hourly_rate is provided in payload.
+            if (!array_key_exists('candidate_hourly_rate', $value) || $value['candidate_hourly_rate'] === null || $value['candidate_hourly_rate'] === '') {
+                $candidateName = $candidate['candidate_name'] ?? 'Unknown';
+                $candidateId = $candidate['candidate_id'] ?? 'Unknown';
+                $storeName = isset($candidate['store']) && isset($candidate['store']['store_name'])
+                    ? $candidate['store']['store_name']
+                    : 'Unknown';
+
+                $message = sprintf(
+                    "Cannot create transfer for candidate '%s' (ID: %s) at store '%s'. No non-deleted contract overlaps transfer period and candidate_hourly_rate is missing from payload.",
+                    $candidateName,
+                    $candidateId,
+                    $storeName
+                );
+
+                return [
+                    "operation" => "error",
+                    "message" => $message,
+                    "candidate_id" => $candidateId,
+                    "candidate_name" => $candidateName,
+                    "store_id" => $candidate['store_id'] ?? null
+                ];
+            }
+
+            $hoursFloat = $hours + ($minutes / 60) + ($seconds / 3600);
+            $rateCandidate = (float)$value['candidate_hourly_rate'];
+            $rateCompany = isset($value['company_hourly_rate']) && $value['company_hourly_rate'] !== null && $value['company_hourly_rate'] !== ''
+                ? (float)$value['company_hourly_rate']
+                : $rateCandidate;
+
+            $baseCandidate = $hoursFloat * $rateCandidate;
+            $baseCompany = $hoursFloat * $rateCompany;
+
+            $totalCandidate = $baseCandidate + $bonus;
+            $totalCompany = $baseCompany + $bonus;
+
+            // Populate required fields for saving transfer candidate without contract.
+            $TCModel->contract_uuid = null;
+            $TCModel->candidate_hourly_rate = $rateCandidate;
+            $TCModel->company_hourly_rate = $rateCompany;
+            $TCModel->hours = $hours;
+            $TCModel->minutes = (int)$minutes;
+            $TCModel->seconds = (int)$seconds;
+            $TCModel->bonus = $bonus;
+            $TCModel->transfer_cost = 0;
+
+            if (!$TCModel->currency_code) {
+                $TCModel->currency_code = $model->currency_code ?? ($value['currency_code'] ?? null);
+            }
+
+            $TCModel->candidate_total = round($totalCandidate, 3);
+            $TCModel->company_total = round($totalCompany, 3);
+
+            if (!$TCModel->save()) {
+                if (isset($TCModel->errors)) {
+                    return [
+                        "operation" => "error",
+                        "message" => $TCModel->errors
+                    ];
+                }
+
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced an issue saving your request, please contact us for assistance."
+                ];
+            }
+
             return [
-                "operation" => "error",
-                "message" => $message,
-                "candidate_id" => $candidateId,
-                "candidate_name" => $candidateName,
-                "store_id" => $candidate['store_id'] ?? null
+                "operation" => "success",
+                "total" => $TCModel->candidate_total,
+                "company_total" => $TCModel->company_total,
+                "transfer_cost" => $TCModel->transfer_cost,
+                "warning" => "Manual-rate override used: no non-deleted contract overlaps transfer period."
             ];
         }
 
