@@ -93,7 +93,7 @@ class OpenApiGenerator extends Component
         foreach ($this->modules as $moduleKey => $moduleConfig) {
             $tags[] = [
                 'name' => $moduleConfig['name'],
-                'description' => "{$moduleConfig['name']} API endpoints - All endpoints for the {$moduleConfig['name']} application",
+                'description' => "{$moduleConfig['name']} API - All endpoints for the {$moduleConfig['name']} application. Endpoints are organized by controller within this module.",
             ];
         }
         return $tags;
@@ -203,11 +203,9 @@ class OpenApiGenerator extends Component
                 }
 
                 $controllerName = $this->getControllerName($controller);
+                // Use only module name as tag - Scalar will organize by path/controller within each module
                 $paths[$pathKey][strtolower($method)] = [
-                    'tags' => [
-                        $moduleConfig['name'],  // Primary tag: Module name (Admin, Candidate, etc.)
-                        $controllerName         // Secondary tag: Controller name
-                    ],
+                    'tags' => [$moduleConfig['name']],
                     'summary' => $this->getActionSummary($action),
                     'description' => $this->getActionDescription($controller, $action, $moduleConfig['name']),
                     'security' => [
@@ -266,31 +264,40 @@ class OpenApiGenerator extends Component
      */
     protected function convertPatternToPath($basePath, $pattern, $action)
     {
-        // Remove HTTP method from pattern
-        $path = preg_replace('/^(GET|POST|PUT|PATCH|DELETE|HEAD)\s+/', '', $pattern);
+        // Remove HTTP method from pattern (e.g., "GET config" -> "config", "GET" -> "")
+        // Make space optional to handle both "GET" and "GET config" patterns
+        $path = preg_replace('/^(GET|POST|PUT|PATCH|DELETE|HEAD)\s*/', '', $pattern);
+        $path = trim($path);
         
-        if (empty($path) || $path === $action) {
+        // If pattern is just the method (e.g., "GET"), path is empty, use base path
+        if (empty($path)) {
+            return $basePath;
+        }
+        
+        // Handle special Yii2 patterns - convert to OpenAPI format
+        $path = str_replace('<id>', '{id}', $path);
+        $path = str_replace('<request_uuid>', '{request_uuid}', $path);
+        $path = str_replace('<candidate_uid>', '{candidate_uid}', $path);
+        $path = str_replace('<ticket_uuid>', '{ticket_uuid}', $path);
+        $path = str_replace('<place_id>', '{place_id}', $path);
+        $path = str_replace('<wid>', '{wid}', $path);
+        $path = str_replace('<date>', '{date}', $path);
+        $path = str_replace('<candidateId>', '{candidateId}', $path);
+        $path = str_replace('<token>', '{token}', $path);
+        
+        // If path equals action and it's a standard REST action, use base path
+        // Otherwise, the path is a custom endpoint (e.g., "config", "click/<id>")
+        $standardActions = ['list', 'view', 'create', 'update', 'delete', 'test'];
+        if (in_array($action, $standardActions) && $path === $action) {
             return $basePath;
         }
 
-        // Handle special patterns
-        if (strpos($path, '<id>') !== false) {
-            $path = str_replace('<id>', '{id}', $path);
-        }
-        if (strpos($path, '<request_uuid>') !== false) {
-            $path = str_replace('<request_uuid>', '{request_uuid}', $path);
-        }
-
-        // Handle nested paths
+        // Handle absolute paths (starting with /) - shouldn't happen with REST rules, but handle it
         if (strpos($path, '/') === 0) {
             return $path;
         }
 
-        // Combine with base path
-        if ($path === $action) {
-            return $basePath;
-        }
-
+        // Combine with base path (e.g., /v1/cron-log + config -> /v1/cron-log/config)
         return rtrim($basePath, '/') . '/' . $path;
     }
 
