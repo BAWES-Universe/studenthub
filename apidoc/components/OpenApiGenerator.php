@@ -61,6 +61,7 @@ class OpenApiGenerator extends Component
                 'description' => 'StudentHub API Documentation - All endpoints from Admin, Candidate, Company, Inspector, Staff, and Verification modules',
             ],
             'servers' => $this->getServers(),
+            'tags' => $this->getTags(),
             'paths' => [],
             'components' => [
                 'securitySchemes' => [
@@ -80,6 +81,22 @@ class OpenApiGenerator extends Component
         }
 
         return $spec;
+    }
+
+    /**
+     * Get tags definition for all modules
+     * @return array
+     */
+    protected function getTags()
+    {
+        $tags = [];
+        foreach ($this->modules as $moduleKey => $moduleConfig) {
+            $tags[] = [
+                'name' => $moduleConfig['name'],
+                'description' => "{$moduleConfig['name']} API endpoints - All endpoints for the {$moduleConfig['name']} application",
+            ];
+        }
+        return $tags;
     }
 
     /**
@@ -187,9 +204,12 @@ class OpenApiGenerator extends Component
 
                 $controllerName = $this->getControllerName($controller);
                 $paths[$pathKey][strtolower($method)] = [
-                    'tags' => [$controllerName],
+                    'tags' => [
+                        $moduleConfig['name'],  // Primary tag: Module name (Admin, Candidate, etc.)
+                        $controllerName         // Secondary tag: Controller name
+                    ],
                     'summary' => $this->getActionSummary($action),
-                    'description' => $this->getActionDescription($controller, $action),
+                    'description' => $this->getActionDescription($controller, $action, $moduleConfig['name']),
                     'security' => [
                         ['bearerAuth' => []]
                     ],
@@ -336,11 +356,16 @@ class OpenApiGenerator extends Component
      * Get action description
      * @param string $controller
      * @param string $action
+     * @param string $moduleName
      * @return string
      */
-    protected function getActionDescription($controller, $action)
+    protected function getActionDescription($controller, $action, $moduleName = '')
     {
-        return "{$action} action for {$controller}";
+        $desc = "{$action} action for {$controller}";
+        if ($moduleName) {
+            $desc .= " in {$moduleName} module";
+        }
+        return $desc;
     }
 }
 
