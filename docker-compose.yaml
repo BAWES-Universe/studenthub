@@ -120,6 +120,12 @@ services:
       - "traefik.http.routers.verification.entrypoints=web"
       - "traefik.http.routers.verification.service=verification-service"
       - "traefik.http.services.verification-service.loadbalancer.server.port=80"
+      
+      # API Documentation routing
+      - "traefik.http.routers.apidoc.rule=Host(`apidoc.studenthub.local`)"
+      - "traefik.http.routers.apidoc.entrypoints=web"
+      - "traefik.http.routers.apidoc.service=apidoc-service"
+      - "traefik.http.services.apidoc-service.loadbalancer.server.port=80"
 
   redis:
     image: redis:6.2.3

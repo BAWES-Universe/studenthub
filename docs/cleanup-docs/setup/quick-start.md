@@ -44,6 +44,7 @@ Add:
 127.0.0.1 inspector.studenthub.local
 127.0.0.1 staff.studenthub.local
 127.0.0.1 verification.studenthub.local
+127.0.0.1 apidoc.studenthub.local
 127.0.0.1 phpmyadmin.studenthub.local
 ```
 
@@ -62,6 +63,7 @@ docker-compose up -d
 - **Inspector:** http://inspector.studenthub.local
 - **Staff:** http://staff.studenthub.local
 - **Verification:** http://verification.studenthub.local
+- **API Documentation:** http://apidoc.studenthub.local
 - **phpMyAdmin:** http://phpmyadmin.studenthub.local (optional - requires `docker-compose -f docker-compose.yaml -f docker-compose.phpmyadmin.yaml up -d`)
 
 **Note:** Traefik dashboard is also available at http://localhost:8080
