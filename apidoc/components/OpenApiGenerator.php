@@ -8,6 +8,7 @@ use yii\rest\UrlRule;
 
 /**
  * Generates OpenAPI 3.0 specification from all Yii2 modules
+ * Professional-grade API documentation generator
  */
 class OpenApiGenerator extends Component
 {
@@ -58,7 +59,10 @@ class OpenApiGenerator extends Component
             'info' => [
                 'title' => 'StudentHub API',
                 'version' => '1.0.0',
-                'description' => 'StudentHub API Documentation - All endpoints from Admin, Candidate, Company, Inspector, Staff, and Verification modules',
+                'description' => $this->getApiDescription(),
+                'contact' => [
+                    'name' => 'StudentHub API Support',
+                ],
             ],
             'servers' => $this->getServers(),
             'tags' => $this->getTags(),
@@ -70,41 +74,151 @@ class OpenApiGenerator extends Component
                         'type' => 'http',
                         'scheme' => 'bearer',
                         'bearerFormat' => 'JWT',
+                        'description' => 'JWT Bearer token authentication. Obtain a token by authenticating with Basic Auth or login endpoints.',
+                    ],
+                    'basicAuth' => [
+                        'type' => 'http',
+                        'scheme' => 'basic',
+                        'description' => 'HTTP Basic Authentication using email and password. Used for initial authentication to obtain a Bearer token.',
                     ],
                 ],
+                'schemas' => $this->getCommonSchemas(),
             ],
         ];
 
         // Generate paths from all modules
-               foreach ($this->modules as $moduleKey => $moduleConfig) {
-                   $paths = $this->generatePathsForModule($moduleKey, $moduleConfig);
-                   $spec['paths'] = array_merge($spec['paths'], $paths);
-               }
-               
-               // Sort all paths globally for consistent ordering
-               uksort($spec['paths'], function($a, $b) {
-                   $getPrefix = function($path) {
-                       $parts = explode('/', trim($path, '/'));
-                       return isset($parts[1]) ? $parts[1] : '';
-                   };
-                   $prefixA = $getPrefix($a);
-                   $prefixB = $getPrefix($b);
-                   $cmp = strcmp($prefixA, $prefixB);
-                   return $cmp !== 0 ? $cmp : strcmp($a, $b);
-               });
+        foreach ($this->modules as $moduleKey => $moduleConfig) {
+            $paths = $this->generatePathsForModule($moduleKey, $moduleConfig);
+            $spec['paths'] = array_merge($spec['paths'], $paths);
+        }
+        
+        // Sort all paths globally for consistent ordering
+        uksort($spec['paths'], function($a, $b) {
+            $getPrefix = function($path) {
+                $parts = explode('/', trim($path, '/'));
+                return isset($parts[1]) ? $parts[1] : '';
+            };
+            $prefixA = $getPrefix($a);
+            $prefixB = $getPrefix($b);
+            $cmp = strcmp($prefixA, $prefixB);
+            return $cmp !== 0 ? $cmp : strcmp($a, $b);
+        });
 
         return $spec;
     }
 
     /**
-     * Get tags definition for all controllers (without module prefix)
+     * Get API description
+     * @return string
+     */
+    protected function getApiDescription()
+    {
+        return <<<DESC
+# StudentHub API Documentation
+
+Welcome to the StudentHub API. This API provides comprehensive access to all StudentHub platform features across multiple modules.
+
+## Authentication
+
+Most endpoints require authentication using a Bearer token. To obtain a token:
+
+1. Use HTTP Basic Authentication with your email and password on login endpoints
+2. Receive a JWT Bearer token in the response
+3. Include the token in the `Authorization` header for subsequent requests: `Authorization: Bearer <token>`
+
+## Modules
+
+- **Admin**: Administrative operations and system management
+- **Candidate**: Candidate profile and application management
+- **Company**: Company account and job posting management
+- **Inspector**: Inspection and verification workflows
+- **Staff**: Staff operations and candidate management
+- **Verification**: Email and document verification
+
+## Rate Limiting
+
+API requests are subject to rate limiting. Check response headers for rate limit information.
+
+## Support
+
+For API support, please contact the StudentHub development team.
+DESC;
+    }
+
+    /**
+     * Get common schemas for reuse
+     * @return array
+     */
+    protected function getCommonSchemas()
+    {
+        return [
+            'Error' => [
+                'type' => 'object',
+                'properties' => [
+                    'operation' => [
+                        'type' => 'string',
+                        'example' => 'error',
+                    ],
+                    'message' => [
+                        'type' => 'string',
+                        'description' => 'Human-readable error message',
+                    ],
+                    'code' => [
+                        'type' => 'integer',
+                        'description' => 'Error code',
+                    ],
+                    'errorType' => [
+                        'type' => 'string',
+                        'description' => 'Type of error',
+                    ],
+                ],
+            ],
+            'LoginRequest' => [
+                'type' => 'object',
+                'required' => ['email', 'password'],
+                'properties' => [
+                    'email' => [
+                        'type' => 'string',
+                        'format' => 'email',
+                        'description' => 'User email address',
+                        'example' => 'user@example.com',
+                    ],
+                    'password' => [
+                        'type' => 'string',
+                        'format' => 'password',
+                        'description' => 'User password',
+                    ],
+                ],
+            ],
+            'LoginResponse' => [
+                'type' => 'object',
+                'properties' => [
+                    'operation' => [
+                        'type' => 'string',
+                        'example' => 'success',
+                    ],
+                    'token' => [
+                        'type' => 'string',
+                        'description' => 'JWT Bearer token for authentication',
+                    ],
+                    'user' => [
+                        'type' => 'object',
+                        'description' => 'User information',
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Get tags definition for all controllers with unique module prefix
      * @return array
      */
     protected function getTags()
     {
         $tagMap = [];
         
-        // Collect all unique controller names across all modules
+        // Collect all unique module-controller combinations
         foreach ($this->modules as $moduleKey => $moduleConfig) {
             $configPath = Yii::getAlias($moduleConfig['configPath']);
             if (!file_exists($configPath)) {
@@ -122,10 +236,14 @@ class OpenApiGenerator extends Component
                     
                     $controller = $rule['controller'] ?? '';
                     $controllerName = $this->getControllerName($controller);
+                    // Use unique tag with module prefix to avoid conflicts
+                    $tag = $moduleConfig['name'] . ' - ' . $controllerName;
                     
-                    // Store controller name only (no module prefix)
-                    if (!isset($tagMap[$controllerName])) {
-                        $tagMap[$controllerName] = true;
+                    if (!isset($tagMap[$tag])) {
+                        $tagMap[$tag] = [
+                            'name' => $tag,
+                            'description' => "{$controllerName} endpoints in the {$moduleConfig['name']} module",
+                        ];
                     }
                 }
             } catch (\Exception $e) {
@@ -133,16 +251,8 @@ class OpenApiGenerator extends Component
             }
         }
         
-        // Create tags with just controller names
-        $tags = [];
-        foreach (array_keys($tagMap) as $controllerName) {
-            $tags[] = [
-                'name' => $controllerName,
-                'description' => "{$controllerName} controller endpoints",
-            ];
-        }
-        
-        // Sort alphabetically
+        // Sort tags
+        $tags = array_values($tagMap);
         usort($tags, function($a, $b) {
             return strcmp($a['name'], $b['name']);
         });
@@ -179,10 +289,11 @@ class OpenApiGenerator extends Component
                     
                     $controller = $rule['controller'] ?? '';
                     $controllerName = $this->getControllerName($controller);
+                    // Use unique tag with module prefix
+                    $tag = $moduleConfig['name'] . ' - ' . $controllerName;
                     
-                    // Use just controller name (no module prefix)
-                    if (!in_array($controllerName, $moduleTags)) {
-                        $moduleTags[] = $controllerName;
+                    if (!in_array($tag, $moduleTags)) {
+                        $moduleTags[] = $tag;
                     }
                 }
             } catch (\Exception $e) {
@@ -229,7 +340,7 @@ class OpenApiGenerator extends Component
                 }
                 $servers[] = [
                     'url' => 'https://' . $domain,
-                    'description' => "Dev {$moduleConfig['name']} API",
+                    'description' => "Development {$moduleConfig['name']} API",
                 ];
             } else {
                 // Production
@@ -306,36 +417,13 @@ class OpenApiGenerator extends Component
                 }
 
                 $controllerName = $this->getControllerName($controller);
-                // Use only controller name as tag - will be grouped by module via x-tagGroups
-                $paths[$pathKey][strtolower($method)] = [
-                    'tags' => [$controllerName],
-                    'summary' => $this->getActionSummary($action),
-                    'description' => $this->getActionDescription($controller, $action, $moduleConfig['name']),
-                    'security' => [
-                        ['bearerAuth' => []]
-                    ],
-                    'responses' => [
-                        '200' => [
-                            'description' => 'Success',
-                            'content' => [
-                                'application/json' => [
-                                    'schema' => [
-                                        'type' => 'object'
-                                    ]
-                                ]
-                            ]
-                        ],
-                        '401' => [
-                            'description' => 'Unauthorized'
-                        ],
-                        '403' => [
-                            'description' => 'Forbidden'
-                        ],
-                        '404' => [
-                            'description' => 'Not Found'
-                        ],
-                    ],
-                ];
+                // Use unique tag with module prefix
+                $tag = $moduleConfig['name'] . ' - ' . $controllerName;
+                
+                // Build path data
+                $pathData = $this->buildPathData($tag, $controller, $action, $moduleConfig['name'], $method, $path);
+
+                $paths[$pathKey][strtolower($method)] = $pathData;
 
                 // Add parameters for path variables
                 $pathParams = $this->extractPathParameters($path);
@@ -346,6 +434,7 @@ class OpenApiGenerator extends Component
                             'name' => $param,
                             'in' => 'path',
                             'required' => true,
+                            'description' => $this->getParameterDescription($param),
                             'schema' => [
                                 'type' => 'string'
                             ]
@@ -356,9 +445,7 @@ class OpenApiGenerator extends Component
         }
 
         // Sort paths by controller prefix for logical grouping
-        // This ensures endpoints from the same controller appear together
         uksort($paths, function($a, $b) {
-            // Extract controller prefix (e.g., /v1/account -> account, /v1/auth/login -> auth)
             $getPrefix = function($path) {
                 $parts = explode('/', trim($path, '/'));
                 return isset($parts[1]) ? $parts[1] : '';
@@ -366,16 +453,242 @@ class OpenApiGenerator extends Component
             $prefixA = $getPrefix($a);
             $prefixB = $getPrefix($b);
             
-            // Compare by controller prefix first
             $cmp = strcmp($prefixA, $prefixB);
-            if ($cmp !== 0) {
-                return $cmp;
-            }
-            // If same prefix, sort by full path
-            return strcmp($a, $b);
+            return $cmp !== 0 ? $cmp : strcmp($a, $b);
         });
 
         return $paths;
+    }
+
+    /**
+     * Build path data with professional structure
+     * @param string $tag
+     * @param string $controller
+     * @param string $action
+     * @param string $moduleName
+     * @param string $method
+     * @param string $path
+     * @return array
+     */
+    protected function buildPathData($tag, $controller, $action, $moduleName, $method, $path)
+    {
+        $isAuthEndpoint = strpos(strtolower($controller), 'auth') !== false;
+        $isLoginAction = in_array(strtolower($action), ['login', 'login-two-step', 'login-auth0', 'login-by-google', 'login-by-key']);
+        $isPublicAction = in_array(strtolower($action), ['options', 'ping', 'test']);
+
+        $pathData = [
+            'tags' => [$tag],
+            'summary' => $this->getActionSummary($action, $controller),
+            'description' => $this->getActionDescription($controller, $action, $moduleName),
+            'responses' => $this->getResponseSchemas($isLoginAction),
+        ];
+
+        // Handle authentication
+        if ($isAuthEndpoint && $isLoginAction) {
+            // Login endpoints use Basic Auth
+            $pathData['security'] = [
+                ['basicAuth' => []]
+            ];
+            
+            // Add request body for POST/PATCH login endpoints
+            if (in_array(strtolower($method), ['post', 'patch'])) {
+                $pathData['requestBody'] = $this->getLoginRequestBody($action);
+            }
+        } elseif (!$isPublicAction) {
+            // Other endpoints use Bearer Auth
+            $pathData['security'] = [
+                ['bearerAuth' => []]
+            ];
+        }
+
+        // Add request body for POST/PATCH/PUT endpoints (except login)
+        if (!$isLoginAction && in_array(strtolower($method), ['post', 'patch', 'put'])) {
+            $pathData['requestBody'] = $this->getRequestBody($action, $controller);
+        }
+
+        return $pathData;
+    }
+
+    /**
+     * Get login request body schema
+     * @param string $action
+     * @return array
+     */
+    protected function getLoginRequestBody($action)
+    {
+        $body = [
+            'required' => true,
+            'description' => 'Login credentials',
+            'content' => [
+                'application/json' => [
+                    'schema' => [
+                        '$ref' => '#/components/schemas/LoginRequest'
+                    ]
+                ]
+            ]
+        ];
+
+        // Special handling for different login types
+        if ($action === 'login-by-key') {
+            $body['content']['application/json']['schema'] = [
+                'type' => 'object',
+                'required' => ['auth_key'],
+                'properties' => [
+                    'auth_key' => [
+                        'type' => 'string',
+                        'description' => 'Authentication key',
+                    ],
+                ],
+            ];
+        } elseif ($action === 'login-auth0') {
+            $body['content']['application/json']['schema'] = [
+                'type' => 'object',
+                'required' => ['accessToken'],
+                'properties' => [
+                    'accessToken' => [
+                        'type' => 'string',
+                        'description' => 'Auth0 access token',
+                    ],
+                ],
+            ];
+        } elseif ($action === 'login-two-step') {
+            $body['content']['application/json']['schema'] = [
+                'type' => 'object',
+                'required' => ['token', 'otp'],
+                'properties' => [
+                    'token' => [
+                        'type' => 'string',
+                        'description' => 'Temporary authentication token',
+                    ],
+                    'otp' => [
+                        'type' => 'string',
+                        'description' => 'One-time password',
+                    ],
+                ],
+            ];
+        }
+
+        return $body;
+    }
+
+    /**
+     * Get generic request body schema
+     * @param string $action
+     * @param string $controller
+     * @return array
+     */
+    protected function getRequestBody($action, $controller)
+    {
+        return [
+            'required' => true,
+            'description' => 'Request payload',
+            'content' => [
+                'application/json' => [
+                    'schema' => [
+                        'type' => 'object',
+                        'description' => 'Request body parameters',
+                    ]
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * Get response schemas
+     * @param bool $isLogin
+     * @return array
+     */
+    protected function getResponseSchemas($isLogin = false)
+    {
+        $responses = [
+            '200' => [
+                'description' => 'Successful response',
+                'content' => [
+                    'application/json' => [
+                        'schema' => $isLogin ? [
+                            '$ref' => '#/components/schemas/LoginResponse'
+                        ] : [
+                            'type' => 'object',
+                            'description' => 'Response data',
+                        ]
+                    ]
+                ]
+            ],
+            '400' => [
+                'description' => 'Bad Request - Invalid parameters',
+                'content' => [
+                    'application/json' => [
+                        'schema' => [
+                            '$ref' => '#/components/schemas/Error'
+                        ]
+                    ]
+                ]
+            ],
+            '401' => [
+                'description' => 'Unauthorized - Invalid or missing authentication',
+                'content' => [
+                    'application/json' => [
+                        'schema' => [
+                            '$ref' => '#/components/schemas/Error'
+                        ]
+                    ]
+                ]
+            ],
+            '403' => [
+                'description' => 'Forbidden - Insufficient permissions',
+                'content' => [
+                    'application/json' => [
+                        'schema' => [
+                            '$ref' => '#/components/schemas/Error'
+                        ]
+                    ]
+                ]
+            ],
+            '404' => [
+                'description' => 'Not Found - Resource does not exist',
+                'content' => [
+                    'application/json' => [
+                        'schema' => [
+                            '$ref' => '#/components/schemas/Error'
+                        ]
+                    ]
+                ]
+            ],
+            '500' => [
+                'description' => 'Internal Server Error',
+                'content' => [
+                    'application/json' => [
+                        'schema' => [
+                            '$ref' => '#/components/schemas/Error'
+                        ]
+                    ]
+                ]
+            ],
+        ];
+
+        return $responses;
+    }
+
+    /**
+     * Get parameter description
+     * @param string $param
+     * @return string
+     */
+    protected function getParameterDescription($param)
+    {
+        $descriptions = [
+            'id' => 'Resource identifier',
+            'request_uuid' => 'Request unique identifier',
+            'candidate_uid' => 'Candidate unique identifier',
+            'ticket_uuid' => 'Ticket unique identifier',
+            'place_id' => 'Place identifier',
+            'wid' => 'Work identifier',
+            'date' => 'Date parameter',
+            'candidateId' => 'Candidate identifier',
+            'token' => 'Token parameter',
+        ];
+
+        return $descriptions[$param] ?? ucfirst(str_replace('_', ' ', $param));
     }
 
     /**
@@ -388,7 +701,6 @@ class OpenApiGenerator extends Component
     protected function convertPatternToPath($basePath, $pattern, $action)
     {
         // Remove HTTP method from pattern (e.g., "GET config" -> "config", "GET" -> "")
-        // Make space optional to handle both "GET" and "GET config" patterns
         $path = preg_replace('/^(GET|POST|PUT|PATCH|DELETE|HEAD)\s*/', '', $pattern);
         $path = trim($path);
         
@@ -409,18 +721,17 @@ class OpenApiGenerator extends Component
         $path = str_replace('<token>', '{token}', $path);
         
         // If path equals action and it's a standard REST action, use base path
-        // Otherwise, the path is a custom endpoint (e.g., "config", "click/<id>")
         $standardActions = ['list', 'view', 'create', 'update', 'delete', 'test'];
         if (in_array($action, $standardActions) && $path === $action) {
             return $basePath;
         }
 
-        // Handle absolute paths (starting with /) - shouldn't happen with REST rules, but handle it
+        // Handle absolute paths (starting with /)
         if (strpos($path, '/') === 0) {
             return $path;
         }
 
-        // Combine with base path (e.g., /v1/cron-log + config -> /v1/cron-log/config)
+        // Combine with base path
         return rtrim($basePath, '/') . '/' . $path;
     }
 
@@ -463,20 +774,26 @@ class OpenApiGenerator extends Component
     /**
      * Get action summary
      * @param string $action
+     * @param string $controller
      * @return string
      */
-    protected function getActionSummary($action)
+    protected function getActionSummary($action, $controller = '')
     {
         $actionMap = [
-            'list' => 'List items',
-            'view' => 'View item',
-            'create' => 'Create item',
-            'update' => 'Update item',
-            'delete' => 'Delete item',
-            'test' => 'Test endpoint',
+            'list' => 'List all items',
+            'view' => 'Retrieve a specific item',
+            'create' => 'Create a new item',
+            'update' => 'Update an existing item',
+            'delete' => 'Delete an item',
+            'test' => 'Test endpoint connectivity',
             'config' => 'Get configuration',
-            'detail' => 'Get details',
-            'click' => 'Click action',
+            'detail' => 'Get detailed information',
+            'click' => 'Record click event',
+            'login' => 'Authenticate and obtain access token',
+            'login-two-step' => 'Complete two-step authentication',
+            'login-auth0' => 'Authenticate using Auth0',
+            'login-by-google' => 'Authenticate using Google',
+            'login-by-key' => 'Authenticate using authentication key',
         ];
 
         return $actionMap[$action] ?? ucfirst(str_replace('-', ' ', $action));
@@ -491,11 +808,14 @@ class OpenApiGenerator extends Component
      */
     protected function getActionDescription($controller, $action, $moduleName = '')
     {
-        $desc = "{$action} action for {$controller}";
+        $controllerName = $this->getControllerName($controller);
+        $actionName = ucfirst(str_replace('-', ' ', $action));
+        
+        $desc = "{$actionName} operation for {$controllerName}";
         if ($moduleName) {
-            $desc .= " in {$moduleName} module";
+            $desc .= " in the {$moduleName} module";
         }
-        return $desc;
+        
+        return $desc . '.';
     }
 }
-
