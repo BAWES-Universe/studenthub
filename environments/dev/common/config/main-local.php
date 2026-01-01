@@ -46,10 +46,6 @@ return [
         ],
         'eventManager' => [
             'class' => 'common\components\EventManager',
-            'sqsRagion' => getenv('AWS_SQS_REGION') ?: 'eu-west-2',
-            'sqsKey' => getenv('AWS_SQS_KEY') ?: '',
-            'sqsSecret' => getenv('AWS_SQS_SECRET') ?: '',
-            'sqsQueue' => getenv('AWS_SQS_QUEUE') ?: '438663597141/StudenthubDev',
         ],
         'mediaConvert' => [
             'class' => 'common\components\MediaConvert',

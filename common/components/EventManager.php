@@ -5,8 +5,6 @@ use common\models\Webhook;
 use Segment\Segment;
 use Yii;
 use yii\base\Component;
-use Aws\Sqs\SqsClient;
-use Aws\Exception\AwsException;
 use yii\httpclient\Client;
 
 class EventManager extends Component
@@ -20,36 +18,6 @@ class EventManager extends Component
      * @var string Mixpanel key for BAWES project
      */
     private $_walletClient;
-
-    /**
-     * @var string Mixpanel key for BAWES project
-     */
-    private $_sqsClient;
-
-    /**
-     * @var string AWS SQS Region
-     */
-    public $sqsRagion;
-
-    /**
-     * @var string AWS SQS key
-     */
-    public $sqsKey;
-
-    /**
-     * @var string AWS SQS secret
-     */
-    public $sqsSecret;
-
-    /**
-     * @var string AWS SQS queue
-     */
-    public $sqsQueue;
-
-    /**
-     * @var string AWS SQS endpoint
-     */
-    public $sqsEndpoint;
 
 	/**
      * @var string Mixpanel key
@@ -144,19 +112,6 @@ class EventManager extends Component
 
             if($this->segmentKey)
                 Segment::init($this->segmentKey);
-        }
-
-        // Create an SQS client
-        if ($this->sqsSecret && $this->sqsKey && $this->sqsRagion)
-        {
-            $this->_sqsClient = new SqsClient([
-                'region' => $this->sqsRagion, // Replace with your region
-                'version' => 'latest',
-                'credentials' => [
-                    'key'    => $this->sqsKey, // Replace with your access key
-                    'secret' => $this->sqsSecret, // Replace with your secret key
-                ],
-            ]);
         }
     }
 
@@ -333,56 +288,6 @@ class EventManager extends Component
             Segment::track($data);
 
             Segment::flush();
-        }
-
-        // send to queue
-
-        if ($this->sqsQueue) {
-
-
-            //if login and userId not provided
-
-            if(is_null($userId) && isset(Yii::$app->user) && !Yii::$app->user->isGuest) {
-                $userId = Yii::$app->user->getId();
-            }
-
-            if(!$userId) {
-                $userId = "anonymous";
-            }
-
-            $data = array_merge($eventData, [
-                "login_user_id" => $userId
-            ]);
-
-            /* Time taken: 0.6483371257782 seconds
-             * ------------------------------------------------*/
-            if ($this->_sqsClient) {
-                try {
-
-                    $queueUrl = 'https://sqs.' . $this->sqsRagion . '.amazonaws.com/' . $this->sqsQueue; // Replace with your queue URL
-
-                    $this->_sqsClient->sendMessage([
-                        'QueueUrl' => $queueUrl,
-                        'MessageBody' => json_encode($data),
-                    ]);
-
-                    //Yii::debug("Message sent! Message ID: " . $result->get("MessageId"));
-
-
-                } catch (AwsException $e) {
-                    Yii::debug("Error sending message: " . $e->getMessage());
-                }
-            }
-
-            // Time taken: 0.080348968505859 seconds
-            if ($this->sqsEndpoint) {
-                $this->call("POST", $this->sqsEndpoint . "/send", [
-                    "message" => $data,
-                    "queue" => $this->sqsQueue
-                ]);
-
-                //$result = json_decode($response->content);
-            }
         }
 
         //find webhook for this event and fire

@@ -39,7 +39,7 @@ All config files now use `getenv()` with fallback values:
 - Xero credentials
 - Mailer configuration
 - URL managers (Staff, Candidate, Verification)
-- Event Manager (SQS)
+- Event Manager
 - MediaConvert configuration
 - Resource Manager (S3)
 - Sentry DSN and environment
