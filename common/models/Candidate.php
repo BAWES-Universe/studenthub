@@ -137,7 +137,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         return [
             //'candidate_hourly_rate', 'candidate_civil_expiry_date','candidate_civil_id',
-            [['candidate_birth_date'], "validateAge"],
+            // [['candidate_birth_date'], "validateAge"], // Age validation removed - no age restrictions
             // 'candidate_phone',
             [['university_id', 'country_id', 'candidate_email', 'candidate_birth_date',
                 'candidate_civil_photo_front', 'candidate_civil_photo_back', 'candidate_personal_photo',
@@ -626,12 +626,12 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
     /**
      * Validate candidate age if exceeds limit
+     * NOTE: Age validation has been removed - no age restrictions
      */
     public function validateAge()
     {
-        if($this->age < 16 || $this->age > 25) {
-            $this->addError('candidate_birth_date', Yii::t('candidate','Candidate age should be between 16 to 25.'));
-        }
+        // Age validation removed - candidates of any age are now allowed
+        // Previously restricted to ages 16-25
     }
 
     /**
