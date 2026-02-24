@@ -19,8 +19,8 @@ return [
         ],
         'idExpiryDateExtractor' => [
             'class' => 'common\components\IdExpiryDateExtractor',
-            'key' => 'AKIAWMITDJRK7MGFFZMN',
-            'secret' => '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'
+            'key' => getenv('AWS_TEXTRACT_ACCESS_KEY_ID') ?: '',
+            'secret' => getenv('AWS_TEXTRACT_SECRET_ACCESS_KEY') ?: '',
         ],
         'googleMap' => [
         'class' => 'common\components\GoogleMap',
