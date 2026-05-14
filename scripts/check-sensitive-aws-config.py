@@ -37,11 +37,13 @@ PHP_BLOCK_COMMENT_PATTERN = re.compile(r"/\*.*?\*/", re.DOTALL)
 
 
 def strip_php_comments(text: str) -> str:
+    """Remove PHP block and line comments before checking real env usage."""
     text = PHP_BLOCK_COMMENT_PATTERN.sub("", text)
     return "\n".join(line.split("//", 1)[0] for line in text.splitlines())
 
 
 def extract_component(text: str, component_name: str) -> str:
+    """Return the configured Yii component block, preserving nested arrays."""
     marker = f"'{component_name}' => ["
     start = text.find(marker)
     if start == -1:
@@ -61,6 +63,7 @@ def extract_component(text: str, component_name: str) -> str:
 
 
 def main() -> int:
+    """Validate patched AWS config blocks and required env references."""
     failures = []
 
     for relative_path, config in CHECKS.items():
