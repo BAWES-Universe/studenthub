@@ -31,6 +31,22 @@ Use the provided script in the project root:
 ./run-tests.sh
 ```
 
+### Service Integration Secrets
+
+Keep service API tokens in deployment environment variables instead of checked-in
+config files or browser bundles:
+
+```bash
+WALLET_API_KEY=
+YEASTER_MICROSERVICE_API_KEY=
+EVENT_MANAGER_ENDPOINT_API_KEY=
+```
+
+`WALLET_API_KEY` is used by the legacy wallet integration when enabled.
+`YEASTER_MICROSERVICE_API_KEY` authenticates voicemail microservice requests.
+`EVENT_MANAGER_ENDPOINT_API_KEY` authenticates EventManager calls to the SQS
+bridge endpoint when `sqsEndpoint` is configured.
+
 ## Server Requirements
 
 ### PHP Extensions
@@ -56,4 +72,4 @@ cd console && ../yii algolia/index candidate
 ```bash
 ./yii cron/update-candidate-stats
 ./yii cron/update-company-stats
-``` 
+```

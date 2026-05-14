@@ -12,7 +12,7 @@ use yii\httpclient\Client;
  */
 class Yeaster extends \yii\base\Component
 {
-    public $microserviceApiKey = "QstN8_18LmILpl37r2zvdDCp5JjWPCNh";
+    public $microserviceApiKey;
 
     //point to microservice handling voicemails, overriding from main-local.php
     public $apiEndpoint = "http://localhost:3001";
@@ -25,7 +25,7 @@ class Yeaster extends \yii\base\Component
             ->setUrl($this->apiEndpoint . '/list?page=' . $page . '&limit=' . $limit)
             ->setFormat(Client::FORMAT_JSON)
             ->addHeaders([
-                'Authorization' => 'Bearer ' . $this->microserviceApiKey,
+                'Authorization' => 'Bearer ' . (string) $this->microserviceApiKey,
                 'content-type' => 'application/json',
             ])
             ->send();
@@ -41,7 +41,7 @@ class Yeaster extends \yii\base\Component
             ->setUrl($this->apiEndpoint . '/view/'. $id)
             ->setFormat(Client::FORMAT_JSON)
             ->addHeaders([
-                'Authorization' => 'Bearer ' . $this->microserviceApiKey,
+                'Authorization' => 'Bearer ' . (string) $this->microserviceApiKey,
                 'content-type' => 'application/json',
             ])
             ->send();
@@ -57,7 +57,7 @@ class Yeaster extends \yii\base\Component
             ->setUrl($this->apiEndpoint . '/download/'. $id)
             ->setFormat(Client::FORMAT_JSON)
             ->addHeaders([
-                'Authorization' => 'Bearer ' . $this->microserviceApiKey,
+                'Authorization' => 'Bearer ' . (string) $this->microserviceApiKey,
                 'content-type' => 'application/json',
             ])
             ->send();

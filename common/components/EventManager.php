@@ -51,6 +51,11 @@ class EventManager extends Component
      */
     public $sqsEndpoint;
 
+    /**
+     * @var string|null bearer token for the event microservice endpoint
+     */
+    public $sqsEndpointApiKey;
+
 	/**
      * @var string Mixpanel key
      */
@@ -406,7 +411,7 @@ class EventManager extends Component
             ->setFormat(Client::FORMAT_JSON)
             ->setData($data)
             ->addHeaders([
-                'Authorization' =>'Bearer QstN8_18LmILpl37r2zvdDCp5JjWPCNh',
+                'Authorization' => 'Bearer ' . (string) $this->sqsEndpointApiKey,
                 "Content-Type" => "application/json",
                 'User-Agent' => 'request',
             ])

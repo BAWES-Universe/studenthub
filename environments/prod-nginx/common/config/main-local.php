@@ -52,7 +52,7 @@ return [
         ],
         'walletManager' => [
             'class' => 'common\components\WalletManager',
-            'apiKey' => 'POAO-BiBxj-Oqp2XOIDZgSDrTYJxOa3M',
+            'apiKey' => getenv('WALLET_API_KEY'),
         ],
         'redis' => [
             'class' => 'yii\redis\Connection',
@@ -142,6 +142,7 @@ return [
         ],*/
         'eventManager' => [
             'class' => 'common\components\EventManager',
+            'sqsEndpointApiKey' => getenv('EVENT_MANAGER_ENDPOINT_API_KEY'),
             //todo: commenting down as it's slowing down all apis
             //"sqsRagion" => "eu-west-2",
             //"sqsKey" => "AKIAWMITDJRKXNWDOBNJ",
@@ -179,6 +180,7 @@ return [
         ],
         'yeaster' => [
             'class' => 'common\components\Yeaster',
+            'microserviceApiKey' => getenv('YEASTER_MICROSERVICE_API_KEY'),
             "apiEndpoint" => "http://ec2-18-130-75-235.eu-west-2.compute.amazonaws.com:3001"
         ],
         'urlManagerStaff' => [
