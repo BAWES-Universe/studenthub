@@ -46,6 +46,17 @@ sudo chmod -R o+rx /usr/lib/node_modules/puppeteer/.local-chromium
 
 ## Console Commands and Maintenance
 
+### Third-Party Service Credentials
+
+Set these runtime variables in each deployment environment before enabling the related integrations:
+
+* `GOOGLE_MAPS_API_KEY` for Google Maps geocoding and map lookups
+* `RECAPTCHA_SECRET_KEY` for reCAPTCHA verification
+* `JIRA_URL`, `JIRA_EMAIL`, and `JIRA_API_TOKEN` for Jira integration
+* `ALGOLIA_APP_ID` and `ALGOLIA_API_KEY` for Algolia indexing
+* `IPINFO_ACCESS_TOKEN` for IP geolocation lookups
+* `SLACK_WEBHOOK_URL` for Slack notifications
+
 ### Algolia Search Index Updates
 ```bash
 cd console && ../yii algolia/index fulltimer
@@ -56,4 +67,4 @@ cd console && ../yii algolia/index candidate
 ```bash
 ./yii cron/update-candidate-stats
 ./yii cron/update-company-stats
-``` 
+```

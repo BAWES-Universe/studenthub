@@ -24,11 +24,11 @@ return [
         ],
         'googleMap' => [
         'class' => 'common\components\GoogleMap',
-        'accessKey' => getenv('GOOGLE_MAPS_API_KEY'),
+        'accessKey' => getenv('GOOGLE_MAPS_API_KEY') ?: '',
         ],
         'reCaptcha' => [
             'class' => 'common\components\ReCaptcha',
-            'secretKey' => "6Lei9R4pAAAAAD5-OIUbCZeMQ00saNLKNuU62b4v"
+            'secretKey' => getenv('RECAPTCHA_SECRET_KEY') ?: ''
         ],
         'jwt' => [
             'class' => 'common\components\JWT'
@@ -38,20 +38,18 @@ return [
         ],
         'jira' => [
             'class' => 'common\components\JiraComponent',
-            'jiraUrl' => 'https://bawes-studenthub.atlassian.net',
-            'email' => 'kk@bawes.net',
-            'apiToken' => 'eYVHMtAi16zN56M2PS3gB8AB'
+            'jiraUrl' => getenv('JIRA_URL') ?: '',
+            'email' => getenv('JIRA_EMAIL') ?: '',
+            'apiToken' => getenv('JIRA_API_TOKEN') ?: ''
         ],
         'algolia' => [
             'class' => 'common\components\Algolia',
-            'appId' => 'VQF0F2SG4Y',
-            'apiKey' => 'bce91c65c212d2bb20c079eb15c2283b', 
-           // 'publicKey' => '381f91f1c08f4d2788a6821cad1ccbbb'
+            'appId' => getenv('ALGOLIA_APP_ID') ?: '',
+            'apiKey' => getenv('ALGOLIA_API_KEY') ?: '',
         ],
         'ipstack' => [
             'class' => 'common\components\Ipstack',
-            //'accessKey' => 'fac3c2117d877e078e3e8fa7839d8204'
-            'accessKey' => '911bdd76f42e7f'
+            'accessKey' => getenv('IPINFO_ACCESS_TOKEN') ?: ''
         ],
         'cloudinaryManager' => [
             'class' => 'common\components\CloudinaryManager',
@@ -70,7 +68,7 @@ return [
         ],
         'slack' => [
             'class' => 'understeam\slack\Client',
-            'url' => 'https://hooks.slack.com/services/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',
+            'url' => getenv('SLACK_WEBHOOK_URL') ?: '',
             'username' => 'StudentHub',
         ],
         'auth0' => [
