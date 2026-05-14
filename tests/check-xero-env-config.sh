@@ -19,12 +19,12 @@ environments/prod/common/config/main-local.php
 status=0
 
 for config in $configs; do
-  if ! git grep -q "XERO_CLIENT_SECRET" -- "$config"; then
+  if ! git grep -qE "['\"]clientSecret['\"]\s*=>\s*getenv\('XERO_CLIENT_SECRET'\)\s*\?:\s*null" -- "$config"; then
     echo "Missing XERO_CLIENT_SECRET wiring in $config" >&2
     status=1
   fi
 
-  if git grep -nE "clientSecret.*=>.*[\"'][A-Za-z0-9_-]{20,}" -- "$config"; then
+  if git grep -nE "['\"]clientSecret['\"]\s*=>\s*['\"][^'\"]+['\"]" -- "$config"; then
     echo "Hard-coded Xero clientSecret remains in $config" >&2
     status=1
   fi
