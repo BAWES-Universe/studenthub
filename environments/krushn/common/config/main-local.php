@@ -90,10 +90,10 @@ return [
         ],
         'resourceManager' => [
             'class' => 'common\components\S3ResourceManager',
-            'region' => 'eu-west-2', // Bucket based in London
-            'key' => 'AKIAWMITDJRKVN5ODY2X',
-            'secret' => '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',
-            'bucket' => 'studenthub-uploads-dev-server',
+            'region' => getenv('AWS_PERMANENT_S3_REGION') ?: 'eu-west-2', // Bucket based in London
+            'key' => getenv('AWS_PERMANENT_S3_ACCESS_KEY_ID') ?: null,
+            'secret' => getenv('AWS_PERMANENT_S3_SECRET_ACCESS_KEY') ?: null,
+            'bucket' => getenv('AWS_PERMANENT_S3_BUCKET') ?: 'studenthub-uploads-dev-server',
             /**
              * For Local Development, we access using key and secret
              * For Dev and Production servers, access is via server embedded IAM roles so no key/secret required

@@ -32,6 +32,17 @@ Detailed documentation is available in the `docs/` directory:
 - Access backend container: `docker-compose exec backend bash`
 - Code generator: http://localhost:8888/bawes/studenthub/admin/web/gii
 
+## S3 Environment Variables
+
+The application expects S3 credentials to be supplied through environment variables rather than committed config values.
+
+- `AWS_TEMP_BUCKET_KEY`
+- `AWS_TEMP_BUCKET_SECRET`
+- `AWS_PERMANENT_S3_ACCESS_KEY_ID`
+- `AWS_PERMANENT_S3_SECRET_ACCESS_KEY`
+- `AWS_PERMANENT_S3_REGION`
+- `AWS_PERMANENT_S3_BUCKET`
+
 ## allow access from docker to local mysql server 
 
 `GRANT ALL PRIVILEGES ON *.* TO 'root'@'192.168.1.5' IDENTIFIED BY 'root' WITH GRANT OPTION;`
@@ -202,6 +213,5 @@ BEGIN
 END $$
 
 DELIMITER;
-
 
 

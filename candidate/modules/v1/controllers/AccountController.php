@@ -382,19 +382,33 @@ class AccountController extends Controller
     public function actionRemoveCivilPhotoBack() {
         
         $model = Candidate::findOne(Yii::$app->user->getId());
+
+        if (!$model) {
+            throw new \yii\web\HttpException(404, Yii::t('candidate', 'The requested Item could not be found.'));
+        }
                 
         if ($model->candidate_civil_photo_back) {
             $model->deleteFile('civil-id', 'back');
         }
         
         $model->candidate_civil_photo_back = null;
+        $model->candidate_civil_need_verification = true;
         
         $model->scenario = 'updateCivilPhotoBack';
 
-        if (!$model->save(false)) {
+        try {
+            if (!$model->save(false)) {
+                return [
+                    'operation' => 'error',
+                    'message' => $model->getErrors()
+                ];
+            }
+        } catch (\Throwable $e) {
+            Yii::error('Failed to remove back civil photo for candidate_id=' . $model->candidate_id . ': ' . $e->getMessage(), 'candidate');
+
             return [
                 'operation' => 'error',
-                'message' => $model->getErrors()
+                'message' => Yii::t('candidate', 'Unable to remove Civil ID photo. Please try again.')
             ];
         }
 
@@ -409,18 +423,32 @@ class AccountController extends Controller
     public function actionRemoveCivilPhotoFront() {
         $model = Candidate::findOne(Yii::$app->user->getId());
 
+        if (!$model) {
+            throw new \yii\web\HttpException(404, Yii::t('candidate', 'The requested Item could not be found.'));
+        }
+
         if ($model->candidate_civil_photo_front) {
             $model->deleteFile('civil-id', 'front');
         }
         
         $model->candidate_civil_photo_front = null;
+        $model->candidate_civil_need_verification = true;
         
         $model->scenario = 'updateCivilPhotoFront';
 
-        if (!$model->save(false)) {
+        try {
+            if (!$model->save(false)) {
+                return [
+                    'operation' => 'error',
+                    'message' => $model->getErrors()
+                ];
+            }
+        } catch (\Throwable $e) {
+            Yii::error('Failed to remove front civil photo for candidate_id=' . $model->candidate_id . ': ' . $e->getMessage(), 'candidate');
+
             return [
                 'operation' => 'error',
-                'message' => $model->getErrors()
+                'message' => Yii::t('candidate', 'Unable to remove Civil ID photo. Please try again.')
             ];
         }
 
@@ -1301,7 +1329,12 @@ class AccountController extends Controller
             ];
         }
         
-        $model->updateCivilId('back');
+        if (!$model->updateCivilId('back')) {
+            return [
+                'operation' => 'error',
+                'message' => $model->getErrors()
+            ];
+        }
 
         //reset to remove old id's data
         $model->candidate_civil_expiry_date = null;
@@ -1353,7 +1386,12 @@ class AccountController extends Controller
             ];
         }
         
-        $model->updateCivilId('front');
+        if (!$model->updateCivilId('front')) {
+            return [
+                'operation' => 'error',
+                'message' => $model->getErrors()
+            ];
+        }
 
         //reset to remove old id's data
         $model->candidate_civil_expiry_date = null;
@@ -1430,24 +1468,52 @@ class AccountController extends Controller
             throw new \yii\web\HttpException(404, Yii::t('candidate', 'The requested Item could not be found.'));
         }
 
-        $candidate_civil_id = Yii::$app->request->getBodyParam('civil_id');
+        $candidate_civil_id = trim((string) Yii::$app->request->getBodyParam('civil_id'));
 
-        $candidate_civil_expiry_date = Yii::$app->request->getBodyParam('civil_expiry_date');
+        $candidate_civil_expiry_date = trim((string) Yii::$app->request->getBodyParam('civil_expiry_date'));
 
-        $candidate->candidate_civil_id = $candidate_civil_id;
+        if ($candidate_civil_id === '') {
+            return [
+                "operation" => "error",
+                "message" => Yii::t('candidate', "Civil ID is required"),
+            ];
+        }
 
-        if($candidate_civil_expiry_date)
-            $candidate->candidate_civil_expiry_date = date('Y-m-d', strtotime($candidate_civil_expiry_date));
+        if ($candidate_civil_expiry_date === '') {
+            return [
+                "operation" => "error",
+                "message" => Yii::t('candidate', "Civil ID Expiry Date is required"),
+            ];
+        }
 
-        $candidate->candidate_civil_need_verification = true;
+        $candidate_civil_expiry_timestamp = strtotime($candidate_civil_expiry_date);
 
-        $candidate->scenario = "updateCivilExpiryDateAndCivilID";
+        if ($candidate_civil_expiry_timestamp === false) {
+            return [
+                "operation" => "error",
+                "message" => Yii::t('candidate', "Civil ID Expiry Date is invalid"),
+            ];
+        }
 
-        if (!$candidate->save()) {
+        try {
+            $candidate->candidate_civil_id = $candidate_civil_id;
+            $candidate->candidate_civil_expiry_date = date('Y-m-d', $candidate_civil_expiry_timestamp);
+            $candidate->candidate_civil_need_verification = true;
+
+            $candidate->scenario = "updateCivilExpiryDateAndCivilID";
+
+            if (!$candidate->save()) {
+                return [
+                    "operation" => "error",
+                    "message" => $candidate->errors
+                ];
+            }
+        } catch (\Throwable $e) {
+            Yii::error('Failed to update Civil ID expiry for candidate_id=' . $candidate->candidate_id . ': ' . $e->getMessage(), 'candidate');
 
             return [
                 "operation" => "error",
-                "message" => $candidate->errors
+                "message" => Yii::t('candidate', "Unable to update Civil ID details. Please try again.")
             ];
         }
 

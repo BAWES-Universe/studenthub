@@ -71,8 +71,8 @@ return [
         'resourceManager' => [
             'class' => 'common\components\S3ResourceManager',
             'region' => 'eu-west-2', // Bucket based in London
-            'key' => 'AKIAWMITDJRKVN5ODY2X',
-            'secret' => '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',
+            'key' => getenv('AWS_TEMP_BUCKET_KEY') ?: null,
+            'secret' => getenv('AWS_TEMP_BUCKET_SECRET') ?: null,
             'bucket' => 'studenthub-public-anyone-can-upload-24hr-expiry'
             /**
              * You can access the Temporary bucket with:

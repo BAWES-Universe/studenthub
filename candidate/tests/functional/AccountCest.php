@@ -465,6 +465,33 @@ class AccountCest
         $I->seeResponseCodeIs(HttpCode::OK); // 200
     }
 
+    public function tryUpdateCivilExpiryRejectsMissingCivilId(FunctionalTester $I)
+    {
+        $I->amGoingTo('try to update civil id expiry date without civil id');
+        $I->sendPOST('v1/account/update-civil-id-expiry-date', [
+            'civil_expiry_date' => '3033-12-12'
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseContainsJson([
+            'operation' => 'error',
+            'message' => 'Civil ID is required'
+        ]);
+    }
+
+    public function tryUpdateCivilExpiryRejectsInvalidDate(FunctionalTester $I)
+    {
+        $I->amGoingTo('try to update civil id expiry date with invalid date');
+        $I->sendPOST('v1/account/update-civil-id-expiry-date', [
+            'civil_id' => '70',
+            'civil_expiry_date' => 'not-a-date'
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseContainsJson([
+            'operation' => 'error',
+            'message' => 'Civil ID Expiry Date is invalid'
+        ]);
+    }
+
     public function tryUpdateKuwaitiNational(FunctionalTester $I)
     {
         $I->amGoingTo('try to update if mother kuwaity');
@@ -547,4 +574,3 @@ class AccountCest
 //        $I->seeResponseCodeIs(HttpCode::OK); // 200
 //    }
 }
-
