@@ -17,6 +17,8 @@ return [
     'mailThreshold' => 500,
     "aws_temp_access_key_id" => getenv('AWS_TEMP_BUCKET_KEY') ?: '',
     "aws_temp_secret_access_key" => getenv('AWS_TEMP_BUCKET_SECRET') ?: '',
+    "aws_temp_role_arn" => getenv('AWS_TEMP_BUCKET_ROLE_ARN') ?: '',
+    "aws_temp_session_duration_seconds" => (int) (getenv('AWS_TEMP_SESSION_DURATION_SECONDS') ?: 3600),
     "elasticMailIpPool" => "Default",
     'bankInfo' => [ //BAWES Bank Info
         'accountName' => 'BAWES FOR COMPUTER AND OPERATION COMPANY',

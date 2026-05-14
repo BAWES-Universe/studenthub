@@ -7,13 +7,13 @@ use Codeception\Util\HttpCode;
 class AwsCest
 {
     /**
-     * Listing
+     * Verifies anonymous callers cannot fetch AWS config.
      * @param FunctionalTester $I
      */
-    public function tryToList(FunctionalTester $I)
+    public function tryToListWithoutToken(FunctionalTester $I)
     {
-        $I->wantTo('Validate aws api response for config');
+        $I->wantTo('Validate aws config requires authentication');
         $I->sendGET('v1/aws/config');
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseCodeIs(HttpCode::UNAUTHORIZED);
     }
 }
