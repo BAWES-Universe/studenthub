@@ -36,6 +36,27 @@ Use the provided script in the project root:
 ### PHP Extensions
 Required: exif, pdo_mysql
 
+### AWS S3 Environment Variables
+
+Do not commit AWS access keys or secret keys to the repository. Configure these
+values in Railway, Docker, or the host process environment instead:
+
+| Variable | Purpose |
+| --- | --- |
+| `AWS_TEMP_BUCKET_KEY` | Temporary browser upload bucket access key |
+| `AWS_TEMP_BUCKET_SECRET` | Temporary browser upload bucket secret |
+| `AWS_TEMP_BUCKET_NAME` | Temporary browser upload bucket name |
+| `AWS_PERMANENT_S3_ACCESS_KEY_ID` | Permanent upload bucket access key |
+| `AWS_PERMANENT_S3_SECRET_ACCESS_KEY` | Permanent upload bucket secret |
+| `AWS_PERMANENT_S3_REGION` | Permanent upload bucket region |
+| `AWS_PERMANENT_S3_BUCKET` | Permanent upload bucket name |
+
+Run the focused regression check before submitting S3 config changes:
+
+```bash
+python3 scripts/check-sensitive-aws-config.py
+```
+
 ### Puppeteer Setup
 ```bash
 curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
@@ -56,4 +77,4 @@ cd console && ../yii algolia/index candidate
 ```bash
 ./yii cron/update-candidate-stats
 ./yii cron/update-company-stats
-``` 
+```
