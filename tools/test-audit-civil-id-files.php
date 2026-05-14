@@ -15,11 +15,13 @@ candidate_id,side,filename,expected_s3_key,candidate_updated_at
 3,front,temp-file.png,photos/temp-file.png,2026-05-03
 4,back,missing-file.png,photos/missing-file.png,2026-05-04
 5,front,,,2026-05-05
+6,front,https://studenthub-uploads.s3.amazonaws.com/photos/url-normalized.png,photos/url-normalized.png,2026-05-06
+7,back,s3-key-column.png,photos/s3-key-column.png,2026-05-07
 CSV);
 
-    writeFile($workDir . '/permanent.csv', "Key\nphotos/front-ok.png\n");
+    writeFile($workDir . '/permanent.csv', "Key,Size\nphotos/front-ok.png,123\nphotos/url-normalized.png,456\n");
     writeFile($workDir . '/legacy.txt', "candidate-civil-id/back-legacy.png\n");
-    writeFile($workDir . '/temp.txt', "temp-file.png\n");
+    writeFile($workDir . '/temp.csv', "s3_key,last_modified\n" . "temp-file.png,2026-05-03T00:00:00Z\n" . "photos/s3-key-column.png,2026-05-07T00:00:00Z\n");
 
     $command = sprintf(
         'php %s --candidate-csv=%s --permanent-keys=%s --legacy-keys=%s --temp-keys=%s',
@@ -27,7 +29,7 @@ CSV);
         escapeshellarg($workDir . '/candidates.csv'),
         escapeshellarg($workDir . '/permanent.csv'),
         escapeshellarg($workDir . '/legacy.txt'),
-        escapeshellarg($workDir . '/temp.txt')
+        escapeshellarg($workDir . '/temp.csv')
     );
 
     exec($command, $lines, $exitCode);
@@ -40,10 +42,10 @@ CSV);
 
     assertSame('offline_no_database_no_aws', $payload['mode'] ?? null, 'offline mode');
     assertSame([
-        'total_rows' => 5,
-        'permanent_present' => 1,
+        'total_rows' => 7,
+        'permanent_present' => 2,
         'copy_from_legacy' => 1,
-        'copy_from_temp' => 1,
+        'copy_from_temp' => 2,
         'request_reupload' => 1,
         'invalid_empty_filename' => 1,
     ], $payload['summary'] ?? null, 'summary counts');
@@ -54,6 +56,8 @@ CSV);
     assertSame('copy_from_temp', $statuses['3'] ?? null, 'candidate 3 status');
     assertSame('request_reupload', $statuses['4'] ?? null, 'candidate 4 status');
     assertSame('invalid_empty_filename', $statuses['5'] ?? null, 'candidate 5 status');
+    assertSame('permanent_present', $statuses['6'] ?? null, 'candidate 6 status');
+    assertSame('copy_from_temp', $statuses['7'] ?? null, 'candidate 7 status');
 
     echo "audit-civil-id-files test passed\n";
 } finally {

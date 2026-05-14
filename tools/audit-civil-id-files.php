@@ -199,27 +199,9 @@ function readKeySet(?string $path): array
         return [];
     }
 
-    $firstLine = trim((string) $lines[0]);
     $keys = [];
 
-    if (str_contains($firstLine, ',')) {
-        $handle = fopen($path, 'rb');
-        $header = readCsvRow($handle);
-        $header = array_map(static fn ($value) => normalizeHeader((string) $value), $header ?: []);
-        $keyIndex = array_search('key', $header, true);
-        if ($keyIndex === false) {
-            $keyIndex = array_search('s3_key', $header, true);
-        }
-        if ($keyIndex === false) {
-            $keyIndex = 0;
-        }
-
-        while (($row = readCsvRow($handle)) !== false) {
-            if (isset($row[$keyIndex])) {
-                addKeyVariants($keys, (string) $row[$keyIndex]);
-            }
-        }
-        fclose($handle);
+    if (readCsvKeySet($path, $keys)) {
         return $keys;
     }
 
@@ -228,6 +210,35 @@ function readKeySet(?string $path): array
     }
 
     return $keys;
+}
+
+function readCsvKeySet(string $path, array &$keys): bool
+{
+    $handle = fopen($path, 'rb');
+    if (!$handle) {
+        return false;
+    }
+
+    $header = readCsvRow($handle);
+    $normalizedHeader = array_map(static fn ($value) => normalizeHeader((string) $value), $header ?: []);
+    $keyIndex = array_search('key', $normalizedHeader, true);
+    if ($keyIndex === false) {
+        $keyIndex = array_search('s3_key', $normalizedHeader, true);
+    }
+
+    if ($keyIndex === false) {
+        fclose($handle);
+        return false;
+    }
+
+    while (($row = readCsvRow($handle)) !== false) {
+        if (isset($row[$keyIndex])) {
+            addKeyVariants($keys, (string) $row[$keyIndex]);
+        }
+    }
+
+    fclose($handle);
+    return true;
 }
 
 function classifyCandidateRow(array $row, array $permanentKeys, array $legacyKeys, array $tempKeys): array
@@ -257,7 +268,7 @@ function classifyCandidateRow(array $row, array $permanentKeys, array $legacyKey
     } elseif (hasKey($legacyKeys, $legacyKey) || hasKey($permanentKeys, $legacyKey)) {
         $status = 'copy_from_legacy';
         $action = 'Copy legacy object to expected photos/ key, then verify before changing any DB state.';
-        $sourceKey = hasKey($legacyKeys, $legacyKey) ? $legacyKey : $legacyKey;
+        $sourceKey = $legacyKey;
     } else {
         foreach ($tempCandidates as $candidate) {
             if (hasKey($tempKeys, $candidate)) {

@@ -27,7 +27,7 @@ Create local key-list files for:
 - Legacy keys under `studenthub-uploads/candidate-civil-id/`
 - Temp upload bucket keys that may still be within the lifecycle window
 
-Each input may be either a newline-delimited key list or a CSV file with a `Key` column.
+Each input may be either a newline-delimited key list or a CSV file with a `Key` or `s3_key` column. Extra CSV columns are ignored.
 
 ## Generate Recovery Plan
 
