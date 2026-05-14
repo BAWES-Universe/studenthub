@@ -59,10 +59,7 @@ return [
                 'username' => getenv('MAIL_USERNAME') ?: 'resend',
                 'password' => getenv('MAIL_PASSWORD'),
                 'port' => (int)(getenv('MAIL_PORT') ?: 587),
-                // 'host' => 'email-smtp.eu-west-1.amazonaws.com',
-                // 'username' => 'AKIAWMITDJRKUESNXW5I',
-                // 'password' => 'BNLEls4MLvkjiAltRpWLTic7IMwKhggzqRVpHU5C9TFh',
-                // 'port' => 587,
+                // Legacy AWS SES SMTP fallback removed; configure MAIL_* env vars if this transport is restored.
 
                 /*
                'host' => 'smtp.elasticemail.com',

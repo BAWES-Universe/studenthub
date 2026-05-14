@@ -75,10 +75,10 @@ return [
             'viewPath' => '@common/mail',
             'transport' => [
                 'scheme' => 'smtp',
-                'host' => 'email-smtp.eu-west-1.amazonaws.com',
-                'username' => 'AKIAWMITDJRKUESNXW5I',
-                'password' => 'BNLEls4MLvkjiAltRpWLTic7IMwKhggzqRVpHU5C9TFh',
-                'port' => 587,
+                'host' => getenv('MAIL_HOST') ?: 'email-smtp.eu-west-1.amazonaws.com',
+                'username' => getenv('MAIL_USERNAME') ?: '',
+                'password' => getenv('MAIL_PASSWORD') ?: '',
+                'port' => (int)(getenv('MAIL_PORT') ?: 587),
 
                 /*
                'host' => 'smtp.elasticemail.com',
