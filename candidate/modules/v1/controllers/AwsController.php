@@ -3,6 +3,7 @@
 namespace candidate\modules\v1\controllers;
 
 use Yii;
+use yii\filters\auth\HttpBearerAuth;
 use yii\rest\Controller;
 
 class AwsController extends Controller
@@ -31,15 +32,12 @@ class AwsController extends Controller
                 ],
             ],
         ];
-/*
-        // Bearer Auth checks for Authorize: Bearer <Token> header to login the user
+
         $behaviors['authenticator'] = [
             'class' => HttpBearerAuth::class,
         ];
-
-        // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
         $behaviors['authenticator']['except'] = ['options'];
-*/
+
         return $behaviors;
     }
 

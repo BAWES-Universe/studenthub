@@ -3,6 +3,7 @@
 namespace inspector\modules\v1\controllers;
 
 use Yii;
+use yii\filters\auth\HttpBearerAuth;
 use yii\rest\Controller;
 
 class AwsController extends Controller
@@ -31,6 +32,11 @@ class AwsController extends Controller
                 ],
             ],
         ];
+
+        $behaviors['authenticator'] = [
+            'class' => HttpBearerAuth::class,
+        ];
+        $behaviors['authenticator']['except'] = ['options'];
 
         return $behaviors;
     }
