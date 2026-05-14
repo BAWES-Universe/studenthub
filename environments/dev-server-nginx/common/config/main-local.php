@@ -48,38 +48,15 @@ return [
         'mailer' => [
             'class' => \yii\symfonymailer\Mailer::class,
             'viewPath' => '@common/mail',
-            /*'transport' => [
-                'scheme' => 'smtp',
-                'host' => 'email-smtp.eu-west-1.amazonaws.com',
-                'username' => 'AKIAWMITDJRKSH3JXFI4',//AKIAWMITDJRKVNB2AFUL
-                'password' => 'd5QvU/BEagVVlKAfVjr6Nxpf2xCJyRZpmnG69YGU',// 'BFXl6illZPE3NP5EQrVNbCO+gMBCopuIi/uy5nwCsUZ6',
-                'port' => 587,
-                //   'dsn' => 'smtp://AKIAWMITDJRKVNB2AFUL:BFXl6illZPE3NP5EQrVNbCO+gMBCopuIi/uy5nwCsUZ6@email-smtp.eu-west-1.amazonaws.com:587',
-            ],*/
             'transport' => [
-                'scheme' => 'smtp',
-                'host' => 'smtp.elasticemail.com',
-                'username' => 'no-reply@mail.studenthub.co',
-                'password' => 'FB28388CE97459B250D9A24BBC650AAD2466',
-                'port' => 2525,
-                'encryption' => 'tls'
+                'scheme' => getenv('MAIL_SCHEME') ?: 'smtp',
+                'host' => getenv('MAIL_HOST') ?: 'smtp.resend.com',
+                'username' => getenv('MAIL_USERNAME') ?: 'resend',
+                'password' => getenv('MAIL_PASSWORD') ?: '',
+                'port' => (int)(getenv('MAIL_PORT') ?: 587),
+                'encryption' => getenv('MAIL_ENCRYPTION') ?: 'tls',
             ],
         ],
-        /*'transport' => [
-               'class' => 'Swift_SmtpTransport',
-               'host' => 'email-smtp.eu-west-1.amazonaws.com',
-               'username' => 'AKIAWMITDJRKVNB2AFUL',//AKIAWMITDJRKTH5HBB2O //AKIAWMITDJRKTQGXUQT3
-               'password' => 'BFXl6illZPE3NP5EQrVNbCO+gMBCopuIi/uy5nwCsUZ6',//BKyPcINpZJsEVnUrMGymff27eaIztgNwSWN7xI2960eJ //GDkiUbOkIxx4qpd0fcksh//0qKvAITbj4PCywBjh
-               'port' => '587',
-               'encryption' => 'tls',
-               /*
-               'class' => 'Swift_SmtpTransport',
-               'host' => 'smtp.sendgrid.net',
-               'username' => 'apikey',
-               'password' => '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',//WeLoveSHTrainingProg!121',
-               'port' => '587',
-               'encryption' => 'tls',*
-           ],*/
         'eventManager' => [
             'class' => 'common\components\EventManager',
             "sqsRagion" => "eu-west-2",
