@@ -72,7 +72,13 @@ function main(array $argv): void
     $output = $format === 'csv' ? toCsv($results) : json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . PHP_EOL;
 
     if ($outputPath) {
-        file_put_contents($outputPath, $output);
+        $bytes = @file_put_contents($outputPath, $output);
+        if ($bytes === false) {
+            $error = error_get_last();
+            $message = $error['message'] ?? 'unknown error';
+            fwrite(STDERR, "Unable to write output file {$outputPath}: {$message}\n");
+            exit(1);
+        }
         echo "Wrote {$outputPath}\n";
         return;
     }
@@ -168,7 +174,7 @@ function readCandidateRows(string $path): array
 
     $rows = [];
     while (($data = readCsvRow($handle)) !== false) {
-        if ($data === [null] || $data === false) {
+        if (isEmptyCsvRow($data)) {
             continue;
         }
 
@@ -181,6 +187,17 @@ function readCandidateRows(string $path): array
 
     fclose($handle);
     return $rows;
+}
+
+function isEmptyCsvRow(array $row): bool
+{
+    foreach ($row as $value) {
+        if ($value !== null && trim((string) $value) !== '') {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 function readKeySet(?string $path): array

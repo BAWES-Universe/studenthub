@@ -5,11 +5,14 @@ declare(strict_types=1);
 
 $root = dirname(__DIR__);
 $workDir = sys_get_temp_dir() . '/civil-id-audit-test-' . bin2hex(random_bytes(4));
-mkdir($workDir);
+$exitCode = 0;
 
 try {
+    createDirectory($workDir);
+
     writeFile($workDir . '/candidates.csv', <<<CSV
 candidate_id,side,filename,expected_s3_key,candidate_updated_at
+,,,,
 1,front,front-ok.png,photos/front-ok.png,2026-05-01
 2,back,back-legacy.png,photos/back-legacy.png,2026-05-02
 3,front,temp-file.png,photos/temp-file.png,2026-05-03
@@ -60,13 +63,36 @@ CSV);
     assertSame('copy_from_temp', $statuses['7'] ?? null, 'candidate 7 status');
 
     echo "audit-civil-id-files test passed\n";
+} catch (Throwable $e) {
+    fwrite(STDERR, $e->getMessage() . PHP_EOL);
+    $exitCode = 1;
 } finally {
     removeDirectory($workDir);
 }
 
+exit($exitCode);
+
+function createDirectory(string $path): void
+{
+    if (is_dir($path)) {
+        return;
+    }
+
+    if (!@mkdir($path)) {
+        $error = error_get_last();
+        $message = $error['message'] ?? 'unknown error';
+        throw new RuntimeException("Unable to create test directory {$path}: {$message}");
+    }
+}
+
 function writeFile(string $path, string $contents): void
 {
-    file_put_contents($path, $contents);
+    $bytes = @file_put_contents($path, $contents);
+    if ($bytes === false) {
+        $error = error_get_last();
+        $message = $error['message'] ?? 'unknown error';
+        throw new RuntimeException("Unable to write test file {$path}: {$message}");
+    }
 }
 
 function assertSame(mixed $expected, mixed $actual, string $label): void
@@ -78,8 +104,7 @@ function assertSame(mixed $expected, mixed $actual, string $label): void
 
 function fail(string $message): void
 {
-    fwrite(STDERR, $message . PHP_EOL);
-    exit(1);
+    throw new RuntimeException($message);
 }
 
 function removeDirectory(string $path): void
