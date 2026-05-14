@@ -1,6 +1,6 @@
 # StudentHub — Yii2 Backend API
 
-> **Bounty contributors: read this entire README before starting any work.** This repository is one part of a larger ecosystem. Understanding the full picture will save you hours.
+> **Bounty contributors: read this entire README before starting any work.** This repository is one part of a larger ecosystem. Understanding the full picture will save you hours and prevent you from breaking production.
 
 StudentHub is a platform that manages corporate recruitment and internship programs — connecting **candidates** (students), **companies** (employers), **staff** (admin operators), **inspectors**, and **managers** through a structured placement, time-tracking, and payment system.
 
@@ -13,39 +13,44 @@ This Yii2 backend **serves APIs** consumed by multiple frontend applications. Be
 | Repository | Purpose | Tech Stack | Status |
 |---|---|---|---|
 | **[BAWES-Universe/studenthub](https://github.com/BAWES-Universe/studenthub)** | ⭐ **This repo** — REST API backend | Yii2 (PHP 8.2), MySQL, Docker | ✅ Production |
-| **[BAWES-Universe/studenthub-angular](https://github.com/BAWES-Universe/studenthub-angular)** | Candidate & Company frontend apps | Angular + Ionic | ✅ Production (reference implementation) |
-| **[BAWES-Universe/studenthub-admin](https://github.com/BAWES-Universe/studenthub-admin)** | Staff admin panel | Angular | ✅ Production |
-| **[BAWES-Universe/studenthub-codex](https://github.com/BAWES-Universe/studenthub-codex)** | New frontend rebuild | Next.js 15, TypeScript, Prisma | 🚧 In development |
-| **[BAWES-Universe/studenthub-landing](https://github.com/BAWES-Universe/studenthub-landing)** | Marketing / landing pages | Static / Next.js | ✅ Live |
+| **[BAWES-Universe/studenthub-angular](https://github.com/BAWES-Universe/studenthub-angular)** | Candidate & Company frontend apps | Angular 17 + Ionic 7 | ✅ Production (reference) |
+| **[BAWES-Universe/studenthub-admin](https://github.com/BAWES-Universe/studenthub-admin)** | Staff admin panel | Angular 17 | ✅ Production |
+| **[BAWES-Universe/studenthub-landing](https://github.com/BAWES-Universe/studenthub-landing)** | Marketing / landing pages | Next.js | ✅ Live |
+| **[BAWES-Universe/studenthub-codex](https://github.com/BAWES-Universe/studenthub-codex)** | Unified frontend + backend rebuild | Next.js 15, TypeScript, Prisma, Tailwind | 🚧 In development |
 
-> **Note on other BAWES projects:** [Plugn](https://github.com/BAWES-Universe/plugn) is a separate BAWES product currently offline pending dev availability. [Universe](https://github.com/BAWES-Universe/universe) is another active open source project. Both are independent of StudentHub.
+> **Codex** is our long-term effort to unify the frontend and backend into a single modern codebase. It is **not yet in production**. All active bounties affecting live users target this repo (the Yii2 API) and the Angular frontends.
 
 ---
 
-## 🖥️ Frontend Apps — Two Candidate App Generations
+## 🖥️ Frontend Apps — Two Generations
 
 ### Generation 1: Angular + Ionic (Production ✅)
 
-The [`studenthub-angular`](https://github.com/BAWES-Universe/studenthub-angular) repo is the **battle-tested, production frontend**. It contains:
-- Candidate app (job search, applications, time tracking)
-- Company app (job posting, candidate management, payment)
-- All screens fully implemented and represent the intended UX
+**Repo:** [`studenthub-angular`](https://github.com/BAWES-Universe/studenthub-angular)
+**Stack:** Angular 17, Ionic 7, TypeScript, SCSS
+**Runs as:** Hybrid mobile/web app (iOS, Android, browser)
 
-**Before building any new feature in the Next.js codex, check the Angular app first.** The Angular app is the source of truth for business logic and UI flows this API must support.
+This is the **battle-tested production frontend**, fully implemented and live for real users. It contains:
 
-### Generation 2: Next.js / Codex (🚧 In Development)
+- **Candidate app** — job search, applications, time tracking, payments
+- **Company app** — job posting, candidate management, approval flows
 
-The [`studenthub-codex`](https://github.com/BAWES-Universe/studenthub-codex) repo is the modern rebuild:
-- Built with Next.js 15 (App Router), TypeScript, Tailwind CSS, Prisma ORM
-- **Not yet live** — bounties on this repo are greenfield work
-- Replaces the Angular app long-term; consult Angular screens as the reference design
+> ⚠️ **Before working on any API endpoint, check the Angular app first.** It is the source of truth for what business logic and response shapes this API must support. Breaking changes here affect real users immediately.
 
-### Admin Panel
+### Admin Panel: Angular (Production ✅)
 
-The [`studenthub-admin`](https://github.com/BAWES-Universe/studenthub-admin) Angular app powers the staff operations panel.
+**Repo:** [`studenthub-admin`](https://github.com/BAWES-Universe/studenthub-admin)
+**Stack:** Angular 17, TypeScript, SCSS
+**Local dev:** `http://localhost:8888/bawes/studenthub/admin/web/`
 
-- **Local dev:** `http://localhost:8888/bawes/studenthub/admin/web/`
-- **Production:** `https://admin.studenthub.com.kw` *(staff access only)*
+Powers all internal staff operations — candidate management, company approvals, payment processing, reporting.
+
+### Generation 2: Codex — Next.js Unified Rebuild (🚧 In Development)
+
+**Repo:** [`studenthub-codex`](https://github.com/BAWES-Universe/studenthub-codex)
+**Stack:** Next.js 15 (App Router), TypeScript, Tailwind CSS, Prisma ORM, tRPC
+
+Codex is the long-term replacement for both the Angular frontends and this Yii2 backend — a single unified codebase. It is **not yet live**. Bounty work on Codex is greenfield; use the Angular apps as your reference for intended UX and data models.
 
 ---
 
@@ -55,35 +60,36 @@ The [`studenthub-admin`](https://github.com/BAWES-Universe/studenthub-admin) Ang
 ┌─────────────────────────────────────────────────────────┐
 │                    FRONTEND LAYER                       │
 │                                                         │
-│  studenthub-angular     studenthub-codex                │
-│  (Angular/Ionic)        (Next.js 15) 🚧                  │
-│  Candidate + Company    Candidate + Company (rebuild)   │
+│  studenthub-angular          studenthub-admin           │
+│  Angular 17 + Ionic 7        Angular 17                 │
+│  Candidate + Company apps    Staff Operations Panel     │
+│  ✅ Production               ✅ Production              │
 │                                                         │
-│  studenthub-admin       studenthub-landing              │
-│  (Angular)              (Static/Next.js)                │
-│  Staff Admin Panel      Marketing Site                  │
+│  studenthub-landing          studenthub-codex           │
+│  Next.js — Marketing site    Next.js 15 — Unified       │
+│  ✅ Live                     🚧 In development          │
 └─────────────┬───────────────────────┬───────────────────┘
               │    REST API calls      │
               ▼                       ▼
 ┌─────────────────────────────────────────────────────────┐
 │              THIS REPO — Yii2 Backend API               │
 │                                                         │
-│  /candidate  → Candidate-facing API (port 22080)        │
-│  /company    → Company-facing API   (port 23080)        │
-│  /admin      → Admin panel API      (port 21080)        │
-│  /staff      → Staff operations     (port 25080)        │
-│  /inspector  → Inspector app        (port 24080)        │
-│  /manager    → Manager tools                            │
-│  /verification → ID verification    (port 26080)        │
-│  /console    → CLI / migrations                         │
-│  /cron       → Scheduled background jobs                │
-│  /common     → Shared models, components, services      │
+│  /candidate    → Candidate-facing API   (port 22080)    │
+│  /company      → Company-facing API     (port 23080)    │
+│  /admin        → Admin panel API        (port 21080)    │
+│  /staff        → Staff operations       (port 25080)    │
+│  /inspector    → Inspector app          (port 24080)    │
+│  /manager      → Manager tools                          │
+│  /verification → Identity verification (port 26080)    │
+│  /console      → CLI / DB migrations                    │
+│  /cron         → Scheduled background jobs              │
+│  /common       → Shared models, services, components   │
 └─────────────────────────┬───────────────────────────────┘
                           │
                           ▼
               ┌───────────────────┐
-              │   MySQL Database   │
-              │  (Docker managed)  │
+              │   MySQL Database  │
+              │  (Docker managed) │
               └───────────────────┘
 ```
 
@@ -218,29 +224,28 @@ sudo killall -HUP mDNSResponder
 
 ---
 
-## 🐳 Docker Reference
+## 🐳 Deployment (Self-Hosting / Open Source)
 
-### Cross-platform build (required for Apple Silicon → Linux server deployments)
+StudentHub is fully open source. You can self-host the entire platform.
+
+### Cross-platform build (required for Apple Silicon → Linux server)
 
 ```bash
 docker buildx build --platform linux/amd64 -t studenthub/backend-dev -f Dockerfile-nginx-dev .
 docker buildx build --platform linux/amd64 -t studenthub/backend-prod -f Dockerfile-nginx-prod .
 ```
 
-### Push to AWS ECR
+### Deploy
 
 ```bash
-# Authenticate
-aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin 438663597141.dkr.ecr.eu-west-2.amazonaws.com
+# Start production stack
+docker-compose -f docker-compose-prod.yml -p studenthub-prod-server up -d
 
-# Dev image
-docker tag studenthub/backend-dev:latest 438663597141.dkr.ecr.eu-west-2.amazonaws.com/studenthub/backend-dev:latest
-docker push 438663597141.dkr.ecr.eu-west-2.amazonaws.com/studenthub/backend-dev:latest
-
-# Prod image
-docker tag studenthub/backend-prod:latest 438663597141.dkr.ecr.eu-west-2.amazonaws.com/studenthub/backend-prod:latest
-docker push 438663597141.dkr.ecr.eu-west-2.amazonaws.com/studenthub/backend-prod:latest
+# Start dev stack
+docker-compose -f docker-compose-dev.yml -p studenthub-dev-server up -d
 ```
+
+> For cloud deployments (AWS ECS, ECR, etc.), configure your own container registry and update the image tags accordingly. See your infrastructure team or the `docker-compose-prod.yml` file for the full configuration.
 
 ---
 
@@ -262,13 +267,14 @@ docker push 438663597141.dkr.ecr.eu-west-2.amazonaws.com/studenthub/backend-prod
 Before opening a PR for a bounty issue:
 
 - [ ] **Read the issue fully** — note which module it targets (`candidate/`, `company/`, `staff/`, etc.)
-- [ ] **Check the Angular app** ([studenthub-angular](https://github.com/BAWES-Universe/studenthub-angular)) to understand the existing UX flow this API supports
-- [ ] **Check Codex** ([studenthub-codex](https://github.com/BAWES-Universe/studenthub-codex)) if the issue is for new endpoints powering the Next.js rebuild
-- [ ] **Run migrations** after schema changes: `./yii migrate`
+- [ ] **Study the Angular app** ([studenthub-angular](https://github.com/BAWES-Universe/studenthub-angular)) to understand the existing UX flow and API response shapes your change must support
+- [ ] **Check Codex** ([studenthub-codex](https://github.com/BAWES-Universe/studenthub-codex)) if the issue mentions new endpoints for the Next.js rebuild
+- [ ] **Run migrations** after any schema changes: `./yii migrate`
 - [ ] **Flush schema cache** if ActiveRecord errors appear after migrations
-- [ ] **Test with `docker-compose-local.yml`** for all local development
-- [ ] **Do not break existing API contracts** — the Angular app is in production and depends on current endpoint behaviour
+- [ ] **Use `docker-compose-local.yml`** for all local development
+- [ ] **Do not break existing API contracts** — the Angular app is live and depends on current endpoint behaviour
 - [ ] **Write or update tests** for new or modified endpoints
+- [ ] **Never commit credentials, secrets, or production config** to this repo
 
 ---
 
@@ -285,13 +291,4 @@ fi
 
 ---
 
-## 📦 S3 Utilities
-
-```bash
-# Export DB snapshot to S3
-aws s3 cp ./db.sql s3://studenthub-uploads-dev-server/exports/db.sql
-```
-
----
-
-*This project is open source under the [MIT License](LICENSE.md). All work happens in public — contributions welcome via GitHub Issues and Pull Requests.*
+*This project is open source. All work happens in public — contributions welcome via GitHub Issues and Pull Requests on [github.com/BAWES-Universe](https://github.com/BAWES-Universe).*
