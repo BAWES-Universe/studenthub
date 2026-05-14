@@ -162,7 +162,8 @@ class S3ResourceManager extends Component
             'Key' => $name
         ]);
 
-        return isset($result['DeleteMarker']) ? (bool) $result['DeleteMarker'] : true;
+        // deleteObject success is determined by request success (no exception).
+        return true;
     }
 
     /**

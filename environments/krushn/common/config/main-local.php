@@ -91,8 +91,8 @@ return [
         'resourceManager' => [
             'class' => 'common\components\S3ResourceManager',
             'region' => getenv('AWS_PERMANENT_S3_REGION') ?: 'eu-west-2', // Bucket based in London
-            'key' => getenv('AWS_PERMANENT_S3_ACCESS_KEY_ID') ?: '',
-            'secret' => getenv('AWS_PERMANENT_S3_SECRET_ACCESS_KEY') ?: '',
+            'key' => getenv('AWS_PERMANENT_S3_ACCESS_KEY_ID') ?: null,
+            'secret' => getenv('AWS_PERMANENT_S3_SECRET_ACCESS_KEY') ?: null,
             'bucket' => getenv('AWS_PERMANENT_S3_BUCKET') ?: 'studenthub-uploads-dev-server',
             /**
              * For Local Development, we access using key and secret

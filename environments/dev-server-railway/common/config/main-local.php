@@ -106,8 +106,8 @@ return [
             'authMethod' => \common\components\S3ResourceManager::AUTH_VIA_KEY_AND_SECRET,
             'region' => getenv('AWS_PERMANENT_S3_REGION') ?: 'eu-west-2', // Bucket based in London
             'bucket' => getenv('AWS_PERMANENT_S3_BUCKET') ?: 'studenthub-uploads-dev-server',
-            'key' => getenv('AWS_PERMANENT_S3_ACCESS_KEY_ID') ?: '', // railway-s3-access
-            'secret' => getenv('AWS_PERMANENT_S3_SECRET_ACCESS_KEY') ?: '',
+            'key' => getenv('AWS_PERMANENT_S3_ACCESS_KEY_ID') ?: null, // railway-s3-access
+            'secret' => getenv('AWS_PERMANENT_S3_SECRET_ACCESS_KEY') ?: null,
             /**
              * For Dev and Production servers, access is via server embedded IAM roles so no key/secret required
              *
