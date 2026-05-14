@@ -162,20 +162,47 @@ class S3ResourceManager extends Component
             'Key' => $name
         ]);
 
-        return $result['DeleteMarker'];
+        return isset($result['DeleteMarker']) ? (bool) $result['DeleteMarker'] : true;
     }
 
     /**
-     * Checks whether a file exists or not. This method only works for public resources, private resources will throw
-     * a 403 error exception.
+     * Checks whether a file exists or not.
+     * S3 object keys are checked with HeadObject; URLs are checked with an HTTP HEAD request.
      * @param string $filenameOrUrl the name or url of the file
      * @return boolean
      */
     public function fileExists($filenameOrUrl)
     {
+        if (!$filenameOrUrl) {
+            return false;
+        }
+
         $isUrl = false;
-        if (strpos($filenameOrUrl, 'http') !== false) {
+        if (strpos($filenameOrUrl, 'http') === 0) {
             $isUrl = true;
+        }
+
+        if (!$isUrl) {
+            try {
+                $this->getClient()->headObject([
+                    'Bucket' => $this->bucket,
+                    'Key' => $filenameOrUrl,
+                ]);
+
+                return true;
+            } catch (AwsException $e) {
+                if ((int) $e->getStatusCode() === 404 || $e->getAwsErrorCode() === 'NoSuchKey' || $e->getAwsErrorCode() === 'NotFound') {
+                    return false;
+                }
+
+                Yii::warning('Unable to check S3 object existence for bucket=' . $this->bucket . ' key=' . $filenameOrUrl . ': ' . $e->getMessage(), 's3');
+
+                return false;
+            } catch (\Exception $e) {
+                Yii::warning('Unable to check S3 object existence for bucket=' . $this->bucket . ' key=' . $filenameOrUrl . ': ' . $e->getMessage(), 's3');
+
+                return false;
+            }
         }
 
         $http = new \GuzzleHttp\Client(['base_uri' => $isUrl ? $filenameOrUrl : $this->getUrl($filenameOrUrl)]);
