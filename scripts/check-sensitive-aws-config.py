@@ -33,6 +33,12 @@ REQUIRED_ENV_REFERENCES = {
 }
 
 AWS_ACCESS_KEY_PATTERN = re.compile(r"AKIA[0-9A-Z]{16}")
+PHP_BLOCK_COMMENT_PATTERN = re.compile(r"/\*.*?\*/", re.DOTALL)
+
+
+def strip_php_comments(text: str) -> str:
+    text = PHP_BLOCK_COMMENT_PATTERN.sub("", text)
+    return "\n".join(line.split("//", 1)[0] for line in text.splitlines())
 
 
 def extract_component(text: str, component_name: str) -> str:
@@ -76,9 +82,10 @@ def main() -> int:
             failures.append(f"{relative_path}: uncommented AWS access key {match} is present")
 
     for relative_path, env_names in REQUIRED_ENV_REFERENCES.items():
-        text = (ROOT / relative_path).read_text()
+        text = strip_php_comments((ROOT / relative_path).read_text())
         for env_name in env_names:
-            if env_name not in text:
+            pattern = re.compile(rf"getenv\(\s*['\"]{re.escape(env_name)}['\"]\s*\)")
+            if not pattern.search(text):
                 failures.append(f"{relative_path}: missing env var reference {env_name}")
 
     if failures:
