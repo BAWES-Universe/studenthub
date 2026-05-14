@@ -2,12 +2,14 @@
 
 namespace common\controllers;
 
+use Aws\Exception\AwsException;
 use Aws\Sts\StsClient;
 use common\components\S3ResourceManager;
 use DateTimeInterface;
 use Yii;
 use yii\filters\auth\HttpBearerAuth;
 use yii\rest\Controller;
+use yii\web\ServiceUnavailableHttpException;
 
 /**
  * Provides shared AWS upload credential endpoints for each application module.
@@ -78,6 +80,11 @@ class BaseAwsController extends Controller
         $credentials = $this->createTemporaryCredentials();
         $expiration = $this->formatExpiration($credentials['Expiration'] ?? null);
 
+        $response = Yii::$app->response;
+        $response->headers->set('Cache-Control', 'no-store');
+        $response->headers->set('Pragma', 'no-cache');
+        $response->headers->set('Expires', '0');
+
         return [
             'region' => Yii::$app->temporaryBucketResourceManager->region,
             'key' => $credentials['AccessKeyId'],
@@ -101,16 +108,20 @@ class BaseAwsController extends Controller
         $roleArn = Yii::$app->params['aws_temp_role_arn'] ?? '';
         $durationSeconds = $this->getSessionDurationSeconds();
 
-        if ($roleArn !== '') {
+        if ($roleArn === '') {
+            Yii::error('AWS temporary upload role ARN is not configured.', __METHOD__);
+            throw new ServiceUnavailableHttpException('Unable to issue upload credentials.');
+        }
+
+        try {
             $result = $client->assumeRole([
                 'RoleArn' => $roleArn,
                 'RoleSessionName' => 'studenthub-upload-' . gmdate('YmdHis'),
                 'DurationSeconds' => $durationSeconds,
             ]);
-        } else {
-            $result = $client->getSessionToken([
-                'DurationSeconds' => $durationSeconds,
-            ]);
+        } catch (AwsException $exception) {
+            Yii::error($exception, __METHOD__);
+            throw new ServiceUnavailableHttpException('Unable to issue upload credentials.');
         }
 
         return $result->get('Credentials');
