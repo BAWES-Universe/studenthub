@@ -92,8 +92,8 @@ return [
         'resourceManager' => [
             'class' => 'common\components\S3ResourceManager',
             'region' => 'eu-west-2', // Bucket based in London
-            'key' => 'AKIAWMITDJRKVN5ODY2X',
-            'secret' => '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',
+            'key' => getenv('AWS_TEMP_BUCKET_KEY') ?: '',
+            'secret' => getenv('AWS_TEMP_BUCKET_SECRET') ?: '',
             'bucket' => 'studenthub-uploads-dev-server',
             /**
              * For Local Development, we access using key and secret

@@ -24,6 +24,23 @@ Available endpoints:
 docker-compose exec backend bash
 ```
 
+### S3 Credentials
+
+Do not commit AWS access keys or secrets into PHP config files. Configure S3
+credentials through environment variables in the target runtime instead:
+
+```bash
+AWS_TEMP_BUCKET_KEY=...
+AWS_TEMP_BUCKET_SECRET=...
+AWS_PERMANENT_S3_ACCESS_KEY_ID=...
+AWS_PERMANENT_S3_SECRET_ACCESS_KEY=...
+AWS_PERMANENT_S3_REGION=eu-west-2
+AWS_PERMANENT_S3_BUCKET=studenthub-uploads
+```
+
+`AWS_TEMP_BUCKET_*` is used for browser/direct-upload temporary bucket access.
+`AWS_PERMANENT_S3_*` is used by the Railway permanent upload bucket config.
+
 ### Running Tests
 
 Use the provided script in the project root:
@@ -56,4 +73,4 @@ cd console && ../yii algolia/index candidate
 ```bash
 ./yii cron/update-candidate-stats
 ./yii cron/update-company-stats
-``` 
+```
