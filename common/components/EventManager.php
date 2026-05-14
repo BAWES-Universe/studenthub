@@ -5,6 +5,7 @@ use common\models\Webhook;
 use Segment\Segment;
 use Yii;
 use yii\base\Component;
+use yii\base\InvalidConfigException;
 use Aws\Sqs\SqsClient;
 use Aws\Exception\AwsException;
 use yii\httpclient\Client;
@@ -403,6 +404,10 @@ class EventManager extends Component
      * API call for webhook
      */
     public function call($method, $url, $data = []) {
+        if (trim((string) $this->sqsEndpointApiKey) === '') {
+            throw new InvalidConfigException('EVENT_MANAGER_ENDPOINT_API_KEY must be configured before sending SQS endpoint events.');
+        }
+
         $client = new Client();
 
         return $client->createRequest()
@@ -411,7 +416,7 @@ class EventManager extends Component
             ->setFormat(Client::FORMAT_JSON)
             ->setData($data)
             ->addHeaders([
-                'Authorization' => 'Bearer ' . (string) $this->sqsEndpointApiKey,
+                'Authorization' => 'Bearer ' . $this->sqsEndpointApiKey,
                 "Content-Type" => "application/json",
                 'User-Agent' => 'request',
             ])

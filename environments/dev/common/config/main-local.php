@@ -17,13 +17,13 @@ return [
         ],
         'walletManager' => [
             'class' => 'common\components\WalletManager',
-            'apiKey' => getenv('WALLET_API_KEY'),
+            'apiKey' => getenv('WALLET_API_KEY') ?: null,
             'apiEndpoint' => 'http://localhost/wallet/webhook/web/v1',//todo:
             'companyWalletUserID' => 'user_fcac8a5f-52a2-11ed-a68e-d85ed3a264df'
         ],
         'yeaster' => [
             'class' => 'common\components\Yeaster',
-            'microserviceApiKey' => getenv('YEASTER_MICROSERVICE_API_KEY'),
+            'microserviceApiKey' => getenv('YEASTER_MICROSERVICE_API_KEY') ?: null,
             "apiEndpoint" => "http://localhost:3001"
         ],
         'cache' => [
@@ -67,7 +67,7 @@ return [
         ],
         'eventManager' => [
             'class' => 'common\components\EventManager',
-            'sqsEndpointApiKey' => getenv('EVENT_MANAGER_ENDPOINT_API_KEY'),
+            'sqsEndpointApiKey' => getenv('EVENT_MANAGER_ENDPOINT_API_KEY') ?: null,
             "sqsRagion" => "eu-west-2",
             "sqsKey" => "AKIAWMITDJRKXNWDOBNJ",
             "sqsSecret" => "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",

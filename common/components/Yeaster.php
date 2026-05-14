@@ -2,6 +2,7 @@
 
 namespace common\components;
 
+use yii\base\InvalidConfigException;
 use yii\httpclient\Client;
 
 /**
@@ -17,6 +18,18 @@ class Yeaster extends \yii\base\Component
     //point to microservice handling voicemails, overriding from main-local.php
     public $apiEndpoint = "http://localhost:3001";
 
+    private function authorizationHeaders()
+    {
+        if (trim((string) $this->microserviceApiKey) === '') {
+            throw new InvalidConfigException('YEASTER_MICROSERVICE_API_KEY must be configured before calling the voicemail microservice.');
+        }
+
+        return [
+            'Authorization' => 'Bearer ' . $this->microserviceApiKey,
+            'content-type' => 'application/json',
+        ];
+    }
+
     public function listVoicemails($page, $limit = 10) {
 
         $client = new Client();
@@ -24,10 +37,7 @@ class Yeaster extends \yii\base\Component
             ->setMethod('GET')
             ->setUrl($this->apiEndpoint . '/list?page=' . $page . '&limit=' . $limit)
             ->setFormat(Client::FORMAT_JSON)
-            ->addHeaders([
-                'Authorization' => 'Bearer ' . (string) $this->microserviceApiKey,
-                'content-type' => 'application/json',
-            ])
+            ->addHeaders($this->authorizationHeaders())
             ->send();
 
         return $response->getData();
@@ -40,10 +50,7 @@ class Yeaster extends \yii\base\Component
             ->setMethod('GET')
             ->setUrl($this->apiEndpoint . '/view/'. $id)
             ->setFormat(Client::FORMAT_JSON)
-            ->addHeaders([
-                'Authorization' => 'Bearer ' . (string) $this->microserviceApiKey,
-                'content-type' => 'application/json',
-            ])
+            ->addHeaders($this->authorizationHeaders())
             ->send();
 
         return $response->content;
@@ -56,10 +63,7 @@ class Yeaster extends \yii\base\Component
             ->setMethod('GET')
             ->setUrl($this->apiEndpoint . '/download/'. $id)
             ->setFormat(Client::FORMAT_JSON)
-            ->addHeaders([
-                'Authorization' => 'Bearer ' . (string) $this->microserviceApiKey,
-                'content-type' => 'application/json',
-            ])
+            ->addHeaders($this->authorizationHeaders())
             ->send();
 
         return $response->content;

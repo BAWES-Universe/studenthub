@@ -20,6 +20,7 @@ SKIP_DIRS = {".git", "vendor"}
 
 
 def iter_files():
+    """Yield repository files that can contain checked-in service tokens."""
     for path in ROOT.rglob("*"):
         if not path.is_file() or path.suffix not in SEARCH_SUFFIXES:
             continue
@@ -29,6 +30,7 @@ def iter_files():
 
 
 def main():
+    """Validate service tokens are referenced from runtime environment sources."""
     failures = []
     for path in iter_files():
         text = path.read_text(encoding="utf-8", errors="ignore")
@@ -38,7 +40,7 @@ def main():
                 failures.append(f"{rel}: contains {label}")
 
     wallet_literal = re.compile(
-        r"'walletManager'\s*=>\s*\[[\s\S]*?'apiKey'\s*=>\s*'(?!\s*\))",
+        r"['\"]walletManager['\"]\s*=>\s*\[[\s\S]*?['\"]apiKey['\"]\s*=>\s*['\"](?!\s*\))",
         re.MULTILINE,
     )
     for path in (ROOT / "environments").rglob("main-local.php"):
@@ -48,9 +50,14 @@ def main():
 
     for env_name, base in REQUIRED_ENV_REFERENCES:
         found = False
+        env_pattern = re.escape(env_name)
+        access_pattern = re.compile(
+            rf"(?:getenv|env)\s*\(\s*['\"]{env_pattern}['\"]\s*\)"
+            rf"|\$_(?:ENV|SERVER)\s*\[\s*['\"]{env_pattern}['\"]\s*\]"
+        )
         for path in base.rglob("*.php"):
             text = path.read_text(encoding="utf-8", errors="ignore")
-            if env_name in text:
+            if access_pattern.search(text):
                 found = True
                 break
         if not found:
