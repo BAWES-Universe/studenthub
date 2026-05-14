@@ -463,6 +463,7 @@ class AccountCest
             'civil_expiry_date' => '3033-12-12'
         ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseContainsJson(['operation' => 'success']);
     }
 
     public function tryUpdateKuwaitiNational(FunctionalTester $I)
@@ -547,4 +548,3 @@ class AccountCest
 //        $I->seeResponseCodeIs(HttpCode::OK); // 200
 //    }
 }
-
