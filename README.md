@@ -1,174 +1,146 @@
-# StudentHub
-### Payroll Platform for Kuwait's Youth Training Programme
+# StudentHub — Yii2 Backend API
 
-[![Open Source](https://img.shields.io/badge/open%20source-yes-brightgreen)](https://github.com/BAWES-Universe/studenthub)
-[![Bounties](https://img.shields.io/badge/bounties-algora.io-blue)](https://algora.io)
-[![PHP](https://img.shields.io/badge/PHP-8.2-777BB4)](https://php.net)
-[![Yii2](https://img.shields.io/badge/framework-Yii2-blue)](https://www.yiiframework.com)
+> **Bounty contributors: read this entire README before starting any work.** This repository is one part of a larger ecosystem. Understanding the full picture will save you hours.
+
+StudentHub is a platform that manages corporate recruitment and internship programs — connecting **candidates** (students), **companies** (employers), **staff** (admin operators), **inspectors**, and **managers** through a structured placement, time-tracking, and payment system.
 
 ---
 
-## What is StudentHub?
+## 🗺️ Ecosystem Map — All Related Repos
 
-StudentHub is a government-aligned payroll and workforce management platform built specifically for Kuwait’s youth training programme. It connects **companies** that hire trainees with the **trainees (candidates)** themselves, managed through a team of **staff**, **inspectors**, and **administrators**.
+This Yii2 backend **serves APIs** consumed by multiple frontend applications. Before working on any issue, understand which frontend it affects:
 
-The platform handles the full employment lifecycle: recruitment, document verification (Civil ID), timesheet submission, invoice generation, and direct salary transfers to trainees’ bank accounts.
+| Repository | Purpose | Tech Stack | Status |
+|---|---|---|---|
+| **[BAWES-Universe/studenthub](https://github.com/BAWES-Universe/studenthub)** | ⭐ **This repo** — REST API backend | Yii2 (PHP 8.2), MySQL, Docker | ✅ Production |
+| **[BAWES-Universe/studenthub-angular](https://github.com/BAWES-Universe/studenthub-angular)** | Candidate & Company frontend apps | Angular + Ionic | ✅ Production (reference implementation) |
+| **[BAWES-Universe/studenthub-admin](https://github.com/BAWES-Universe/studenthub-admin)** | Staff admin panel | Angular | ✅ Production |
+| **[BAWES-Universe/studenthub-codex](https://github.com/BAWES-Universe/studenthub-codex)** | New frontend rebuild | Next.js 15, TypeScript, Prisma | 🚧 In development |
+| **[BAWES-Universe/studenthub-landing](https://github.com/BAWES-Universe/studenthub-landing)** | Marketing / landing pages | Static / Next.js | ✅ Live |
 
-### By the numbers
-
-| Metric | Value |
-|--------|-------|
-| 💸 Annual trainee salary disbursements | ~**KWD 5 million** |
-| 📅 Years in active production | **9+ years** (since 2017) |
-| 🏗 Built by | [BAWES](https://bawes.net) — a Kuwait-based software company |
-| 🔓 Licence | Open source |
-
-This platform is **live, processing real payroll** for real people. Your code matters.
+> **Note on other BAWES projects:** [Plugn](https://github.com/BAWES-Universe/plugn) is a separate BAWES product currently offline pending dev availability. [Universe](https://github.com/BAWES-Universe/universe) is another active open source project. Both are independent of StudentHub.
 
 ---
 
-## About BAWES Universe
+## 🖥️ Frontend Apps — Two Candidate App Generations
 
-StudentHub is one of several open-source products built and maintained by **BAWES** under the [BAWES-Universe](https://github.com/BAWES-Universe) GitHub organisation.
+### Generation 1: Angular + Ionic (Production ✅)
 
-Other notable products in the ecosystem:
+The [`studenthub-angular`](https://github.com/BAWES-Universe/studenthub-angular) repo is the **battle-tested, production frontend**. It contains:
+- Candidate app (job search, applications, time tracking)
+- Company app (job posting, candidate management, payment)
+- All screens fully implemented and represent the intended UX
 
-- **[Plugn](https://github.com/BAWES-Universe/plugn)** — A plugin/app marketplace platform for online stores. Processed millions in transactions with 8,000+ stores registered across 14 countries. Currently seeking contributors to bring it back online.
-- **[Universe](https://github.com/BAWES-Universe/workadventure-universe-admin)** — A virtual office and community space built on WorkAdventure, used by the BAWES team and open-source community.
-- **[BAWES ERP](https://github.com/BAWES-Universe/BAWES-ERP)** — Internal ERP covering all BAWES business entities.
+**Before building any new feature in the Next.js codex, check the Angular app first.** The Angular app is the source of truth for business logic and UI flows this API must support.
 
-Each product has its own repositories and onboarding. This README focuses entirely on getting you productive on **StudentHub**.
+### Generation 2: Next.js / Codex (🚧 In Development)
 
----
+The [`studenthub-codex`](https://github.com/BAWES-Universe/studenthub-codex) repo is the modern rebuild:
+- Built with Next.js 15 (App Router), TypeScript, Tailwind CSS, Prisma ORM
+- **Not yet live** — bounties on this repo are greenfield work
+- Replaces the Angular app long-term; consult Angular screens as the reference design
 
-## StudentHub Repository Map
+### Admin Panel
 
-StudentHub is split across multiple repositories. **This repo is the backend API — the source of truth for all business logic, database schema, and data.** All frontend apps depend on it.
+The [`studenthub-admin`](https://github.com/BAWES-Universe/studenthub-admin) Angular app powers the staff operations panel.
 
-| Repo | Stack | Purpose |
-|------|-------|---------|
-| ⬅ **[studenthub](https://github.com/BAWES-Universe/studenthub)** | PHP 8.2 / Yii2 | Core backend REST API, DB migrations, cron jobs, business logic |
-| [studenthub-candidate](https://github.com/BAWES-Universe/studenthub-candidate) | TypeScript / Ionic (Angular) | Trainee app — view pay, upload Civil ID, submit hours |
-| [studenthub-candidate-react](https://github.com/BAWES-Universe/studenthub-candidate-react) | TypeScript / Ionic React | React rebuild of the candidate app |
-| [studenthub-candidate-next](https://github.com/BAWES-Universe/studenthub-candidate-next) | TypeScript / Next.js | Next.js rebuild (in progress) |
-| [studenthub-company](https://github.com/BAWES-Universe/studenthub-company) | TypeScript / Ionic | Company portal — log hours, generate invoices, make payments |
-| [studenthub-staff](https://github.com/BAWES-Universe/studenthub-staff) | TypeScript / Ionic | Staff app — manage candidates and company assignments |
-
-> **Before you start:** If your bounty involves an API endpoint, a database field, or a file upload flow — check whether a frontend repo also needs updating. Note it in your PR.
+- **Local dev:** `http://localhost:8888/bawes/studenthub/admin/web/`
+- **Production:** `https://admin.studenthub.com.kw` *(staff access only)*
 
 ---
 
-## Architecture
+## 🏗️ Architecture Overview
 
-The backend is a **Yii2 advanced application** structured as multiple independent API modules, each serving a different user type. In development, each module runs on its own port via Docker.
-
-| Module | Dev Port | Serves |
-|--------|----------|--------|
-| `admin` | `21080` | BAWES administrators |
-| `candidate` | `22080` | Trainees / candidates |
-| `company` | `23080` | Employer companies |
-| `inspector` | `24080` | Compliance inspectors |
-| `staff` | `25080` | Internal staff |
-| `manager` | `26080` | Programme managers |
-| `verification` | `27080` | Document verification |
-
-### Tech stack
-
-| Layer | Technology |
-|-------|------------|
-| Language | PHP 8.2 |
-| Framework | Yii2 (advanced template) |
-| Database | MySQL |
-| File storage | AWS S3 (temp + permanent buckets) |
-| Email | AWS SES (SMTP) |
-| Queue | AWS SQS (EventManager) |
-| Video processing | AWS MediaConvert |
-| Search | Algolia |
-| PDF generation | Puppeteer (headless Chrome) |
-| Hosting | Railway (production), AWS ECR (container registry) |
-| CI/CD | GitHub Actions |
-
-### User roles
-
-| Role | Description |
-|------|-------------|
-| **Candidate** | Trainee enrolled in the programme. Submits timesheets, uploads Civil ID and bank details, receives salary. |
-| **Company** | Employer. Creates monthly transfer requests with trainee hours, verifies them, receives receipts. |
-| **Staff** | BAWES employees. Create and manage candidate accounts, assign trainees to companies. |
-| **Inspector** | Compliance officers. Verify documentation, audit company records, flag issues. |
-| **Admin** | Full system access. Approve transfers, process payments, send receipts, generate reports. |
-| **Manager** | Programme oversight (role in development). |
+```
+┌─────────────────────────────────────────────────────────┐
+│                    FRONTEND LAYER                       │
+│                                                         │
+│  studenthub-angular     studenthub-codex                │
+│  (Angular/Ionic)        (Next.js 15) 🚧                  │
+│  Candidate + Company    Candidate + Company (rebuild)   │
+│                                                         │
+│  studenthub-admin       studenthub-landing              │
+│  (Angular)              (Static/Next.js)                │
+│  Staff Admin Panel      Marketing Site                  │
+└─────────────┬───────────────────────┬───────────────────┘
+              │    REST API calls      │
+              ▼                       ▼
+┌─────────────────────────────────────────────────────────┐
+│              THIS REPO — Yii2 Backend API               │
+│                                                         │
+│  /candidate  → Candidate-facing API (port 22080)        │
+│  /company    → Company-facing API   (port 23080)        │
+│  /admin      → Admin panel API      (port 21080)        │
+│  /staff      → Staff operations     (port 25080)        │
+│  /inspector  → Inspector app        (port 24080)        │
+│  /manager    → Manager tools                            │
+│  /verification → ID verification    (port 26080)        │
+│  /console    → CLI / migrations                         │
+│  /cron       → Scheduled background jobs                │
+│  /common     → Shared models, components, services      │
+└─────────────────────────┬───────────────────────────────┘
+                          │
+                          ▼
+              ┌───────────────────┐
+              │   MySQL Database   │
+              │  (Docker managed)  │
+              └───────────────────┘
+```
 
 ---
 
-## Local Development Setup
+## 📁 Backend Module Structure
+
+Each directory is a **separate Yii2 application** that shares the `common/` module:
+
+| Directory | Local Port | Who consumes it |
+|---|---|---|
+| `admin/` | 21080 | Internal admin panel + Gii code generator |
+| `candidate/` | 22080 | Candidate mobile/web app |
+| `company/` | 23080 | Company/employer app |
+| `inspector/` | 24080 | Field inspector app |
+| `staff/` | 25080 | Internal staff operations |
+| `verification/` | 26080 | Identity verification flow |
+| `manager/` | — | Manager-facing features |
+| `console/` | — | CLI commands, DB migrations |
+| `cron/` | — | Scheduled background tasks |
+| `status/` | — | Health check endpoint |
+| `common/` | — | Shared models, components, services |
+
+---
+
+## 🚀 Getting Started (Local Development)
 
 ### Prerequisites
 
-- [Docker Desktop](https://www.docker.com/products/docker-desktop)
-- [AWS CLI](https://aws.amazon.com/cli/) (for S3/SES operations)
-- PHP 8.2 + Composer (for running lint/tests outside Docker)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed
+- [Git](https://git-scm.com/) installed
+- No local PHP or Composer required — everything runs inside Docker
 
-### 1. Clone the repository
+### 1. Clone the repo
 
 ```bash
-git clone https://github.com/BAWES-Universe/studenthub.git
+git clone git@github.com:BAWES-Universe/studenthub.git
 cd studenthub
 ```
 
-### 2. Configure environment variables
-
-Copy the example env file and fill in your values. **Never commit real credentials.**
-
-```bash
-cp .env.example .env
-```
-
-Required environment variables:
-
-```env
-# Database
-DB_HOST=
-DB_NAME=
-DB_USER=
-DB_PASS=
-
-# AWS S3 — Temporary upload bucket
-AWS_TEMP_BUCKET_KEY=
-AWS_TEMP_BUCKET_SECRET=
-AWS_TEMP_BUCKET_REGION=eu-west-2
-AWS_TEMP_BUCKET_NAME=
-
-# AWS S3 — Permanent bucket
-AWS_PERMANENT_S3_ACCESS_KEY_ID=
-AWS_PERMANENT_S3_SECRET_ACCESS_KEY=
-AWS_PERMANENT_S3_REGION=eu-west-2
-AWS_PERMANENT_S3_BUCKET=
-
-# AWS SES mailer
-MAIL_HOST=
-MAIL_USERNAME=
-MAIL_PASSWORD=
-MAIL_PORT=
-
-# AWS SQS (EventManager)
-AWS_SQS_KEY=
-AWS_SQS_SECRET=
-AWS_SQS_REGION=
-AWS_SQS_QUEUE_URL=
-
-# AWS MediaConvert
-AWS_MEDIACONVERT_ACCESS_KEY_ID=
-AWS_MEDIACONVERT_SECRET_ACCESS_KEY=
-```
-
-### 3. Start the local server
+### 2. Start the local environment
 
 ```bash
 docker-compose -f docker-compose-local.yml -p studenthub-local-server up -d
 ```
 
-All 7 API modules will be accessible at their respective ports immediately.
+### 3. Verify APIs are running
+
+| App | Local URL |
+|---|---|
+| Admin | http://localhost:21080 |
+| Candidate | http://localhost:22080 |
+| Company | http://localhost:23080 |
+| Inspector | http://localhost:24080 |
+| Staff | http://localhost:25080 |
+| Verification | http://localhost:26080 |
+| Gii (code generator) | http://localhost:8888/bawes/studenthub/admin/web/gii |
 
 ### 4. Run database migrations
 
@@ -176,214 +148,150 @@ All 7 API modules will be accessible at their respective ports immediately.
 docker exec -it studenthub-backend-local ./yii migrate
 ```
 
-### 5. Run tests
+### 5. Access the backend container shell
+
+```bash
+docker exec -it studenthub-backend-local /bin/bash
+```
+
+---
+
+## 🧩 Docker Compose Environments
+
+| File | Use case |
+|---|---|
+| `docker-compose-local.yml` | **Local development** — use this for bounty work |
+| `docker-compose-dev.yml` | Remote dev server / CI |
+| `docker-compose-prod.yml` | Production deployment |
+
+---
+
+## 🧪 Running Tests
 
 ```bash
 ./run-tests.sh
 ```
 
-### 6. Access the code generator (Gii)
-
+Or inside the container:
 ```bash
-open http://localhost:21080/gii
+docker exec -it studenthub-backend-local ./vendor/bin/codecept run
 ```
 
 ---
 
-## Common Commands
+## 🔧 Common Dev Commands
 
-### Container access & logs
-
-```bash
-# Enter the running backend container
-docker exec -it studenthub-backend-local /bin/bash
-
-# View logs
-docker logs studenthub-backend-local
-
-# Rebuild after Dockerfile changes
-docker-compose -f docker-compose-local.yml up --build
-```
-
-### Database
+### Cache management
 
 ```bash
-# Access MySQL
-docker-compose exec mysql mysql -u studenthubuser -pstudenthub -h mysql-1
-
-# Flush schema cache after migrations (required when columns aren’t detected)
+# Flush schema cache (always run after migrations if models don't reflect new columns)
 docker exec -it studenthub-backend-local ./yii cache/flush-schema db
 docker exec -it studenthub-backend-local ./yii cache/flush cache
 
-# If cache flush doesn’t help, clear runtime directories manually
-rm -rf /var/www/html/*/runtime/cache
+# Nuclear option — wipe all runtime caches
+docker exec -it studenthub-backend-local bash -c "
+  rm -rf /var/www/html/admin/runtime/cache \
+         /var/www/html/candidate/runtime/cache \
+         /var/www/html/company/runtime/cache \
+         /var/www/html/staff/runtime/cache \
+         /var/www/html/inspector/runtime/cache \
+         /var/www/html/manager/runtime/cache \
+         /var/www/html/console/runtime/cache \
+         /var/www/html/common/runtime/cache
+"
 ```
 
-### Cron jobs (manual trigger)
+### MySQL
 
 ```bash
-docker exec -it studenthub-backend-local ./yii cron/update-candidate-stats
-docker exec -it studenthub-backend-local ./yii cron/update-company-stats
+docker-compose exec mysql mysql -u root -p
+docker-compose exec mysql mysql -u studenthubuser -pstudenthub -h mysql-1
 ```
 
-### Algolia search index
+### DNS (macOS — if local API domains don't resolve)
 
 ```bash
-cd console && ../yii algolia/index fulltimer
-cd console && ../yii algolia/index candidate
+# Add to /etc/hosts: 127.0.0.1 student.api.studenthub.co
+sudo vim /etc/hosts
+sudo killall -HUP mDNSResponder
 ```
 
-### Copy DB export to S3
+---
+
+## 🐳 Docker Reference
+
+### Cross-platform build (required for Apple Silicon → Linux server deployments)
 
 ```bash
+docker buildx build --platform linux/amd64 -t studenthub/backend-dev -f Dockerfile-nginx-dev .
+docker buildx build --platform linux/amd64 -t studenthub/backend-prod -f Dockerfile-nginx-prod .
+```
+
+### Push to AWS ECR
+
+```bash
+# Authenticate
+aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin 438663597141.dkr.ecr.eu-west-2.amazonaws.com
+
+# Dev image
+docker tag studenthub/backend-dev:latest 438663597141.dkr.ecr.eu-west-2.amazonaws.com/studenthub/backend-dev:latest
+docker push 438663597141.dkr.ecr.eu-west-2.amazonaws.com/studenthub/backend-dev:latest
+
+# Prod image
+docker tag studenthub/backend-prod:latest 438663597141.dkr.ecr.eu-west-2.amazonaws.com/studenthub/backend-prod:latest
+docker push 438663597141.dkr.ecr.eu-west-2.amazonaws.com/studenthub/backend-prod:latest
+```
+
+---
+
+## 📚 Documentation
+
+| Doc | Description |
+|---|---|
+| [Setup Guide](docs/setup.md) | Full installation and configuration |
+| [User Roles](docs/user-roles.md) | User types and permissions |
+| [API Endpoints](docs/api-endpoints.md) | All available API endpoints |
+| [Database](docs/database/README.md) | Schema and ER diagrams |
+| [Cron Jobs](docs/cron-jobs.md) | Scheduled background tasks |
+| [Analytics](docs/analytics.md) | Event tracking |
+
+---
+
+## 🏆 Bounty Contributor Checklist
+
+Before opening a PR for a bounty issue:
+
+- [ ] **Read the issue fully** — note which module it targets (`candidate/`, `company/`, `staff/`, etc.)
+- [ ] **Check the Angular app** ([studenthub-angular](https://github.com/BAWES-Universe/studenthub-angular)) to understand the existing UX flow this API supports
+- [ ] **Check Codex** ([studenthub-codex](https://github.com/BAWES-Universe/studenthub-codex)) if the issue is for new endpoints powering the Next.js rebuild
+- [ ] **Run migrations** after schema changes: `./yii migrate`
+- [ ] **Flush schema cache** if ActiveRecord errors appear after migrations
+- [ ] **Test with `docker-compose-local.yml`** for all local development
+- [ ] **Do not break existing API contracts** — the Angular app is in production and depends on current endpoint behaviour
+- [ ] **Write or update tests** for new or modified endpoints
+
+---
+
+## 🔑 Server SSH Agent Setup (Ubuntu)
+
+Add to `~/.bashrc` or `~/.profile`:
+
+```bash
+if [ -z "$SSH_AUTH_SOCK" ]; then
+    eval "$(ssh-agent -s)"
+    ssh-add ~/.ssh/github
+fi
+```
+
+---
+
+## 📦 S3 Utilities
+
+```bash
+# Export DB snapshot to S3
 aws s3 cp ./db.sql s3://studenthub-uploads-dev-server/exports/db.sql
 ```
 
 ---
 
-## Deployment
-
-### Environment startup
-
-```bash
-# Dev server
-docker-compose -f docker-compose-dev.yml -p studenthub-dev-server up -d
-
-# Production
-docker-compose -f docker-compose-prod.yml -p studenthub-prod-server up -d
-```
-
-### Build and push to AWS ECR
-
-```bash
-# Authenticate
-aws ecr get-login-password --region eu-west-2 \
-  | docker login --username AWS --password-stdin \
-    438663597141.dkr.ecr.eu-west-2.amazonaws.com
-
-# Build for Linux/amd64 (required — do not skip the platform flag)
-docker buildx build --platform linux/amd64 \
-  -t studenthub/backend-prod \
-  -f Dockerfile-nginx-prod .
-
-# Tag and push
-docker tag studenthub/backend-prod:latest \
-  438663597141.dkr.ecr.eu-west-2.amazonaws.com/studenthub/backend-prod:latest
-
-docker push \
-  438663597141.dkr.ecr.eu-west-2.amazonaws.com/studenthub/backend-prod:latest
-```
-
-### Tagging a release
-
-```bash
-git tag -a v2.1 -m "Version 2.1: description"
-git push origin v2.1
-```
-
----
-
-## 💰 Bounty Contributor Guide
-
-This project offers paid contributions via [Algora](https://algora.io). Welcome — and thank you for contributing to a platform that pays real salaries to real students.
-
-### Read before you write a single line of code
-
-**1. Read the entire issue.** Bounty issues are broken into numbered phases. Each phase is a separate, focused slice of work. Only claim the phase you intend to complete in full.
-
-**2. Check for duplicate PRs.** Open the [Pull Requests tab](https://github.com/BAWES-Universe/studenthub/pulls) and check if someone already has a PR open for your phase. If they do, don’t submit a duplicate — look for an unclaimed phase instead.
-
-**3. This is a live production system.** The platform processes salary payments. Security vulnerabilities and data bugs have real-world consequences. Be careful, be thorough.
-
-**4. This is the backend only.** Frontend apps live in separate repos (see [StudentHub Repository Map](#studenthub-repository-map)). If your change alters an API response shape, a field name, or a file upload path — mention in your PR which frontend repos are affected.
-
-**5. CodeRabbit reviews every PR automatically.** Address its comments before asking for a human review. PRs with unaddressed CodeRabbit feedback will not be merged.
-
-### Claiming a phase
-
-Comment `/claim #<issue-number>` on the issue. Example: `/claim #55`
-
-One contributor is awarded the bounty per phase. First to submit a passing, reviewable PR for that phase wins.
-
-### PR checklist
-
-- [ ] PR title references the issue and phase (e.g. `Fix Civil ID S3 path — closes #55 Phase 2`)
-- [ ] `git diff --check` passes (no trailing whitespace)
-- [ ] No credentials, `.env` values, or AWS keys are committed
-- [ ] PHP files pass lint: `php -l path/to/file.php` (or Docker equivalent)
-- [ ] PR description explains: what changed, why, how you verified it
-- [ ] CodeRabbit comments addressed
-- [ ] If your change affects an API response, frontend repos are noted
-
-### Security rules — mandatory
-
-- ❌ Never commit AWS access keys, SMTP passwords, bucket names, or queue URLs
-- ✅ Use `getenv('VAR_NAME') ?: 'safe-default'` in PHP config files
-- ✅ Document any new env vars in this README under the environment variables section
-- If you find exposed credentials in the codebase, **report in the issue** — do not rotate keys yourself
-
----
-
-## Documentation
-
-| File | Contents |
-|------|----------|
-| [docs/setup.md](docs/setup.md) | Full server setup including Puppeteer and PHP extensions |
-| [docs/user-roles.md](docs/user-roles.md) | Full breakdown of user types and permissions |
-| [docs/api-endpoints.md](docs/api-endpoints.md) | Available API endpoints per module |
-| [docs/database/README.md](docs/database/README.md) | Database schema and ER diagrams |
-| [docs/cron-jobs.md](docs/cron-jobs.md) | Scheduled background tasks and their triggers |
-| [docs/analytics.md](docs/analytics.md) | Event tracking and analytics implementation |
-
----
-
-## Troubleshooting
-
-**Columns not found after running a migration:**
-```bash
-docker exec -it studenthub-backend-local ./yii cache/flush-schema db
-# Still broken? Clear all runtime cache:
-rm -rf /var/www/html/*/runtime/cache
-```
-
-**MySQL grant access from Docker to local host:**
-```sql
-GRANT ALL PRIVILEGES ON *.* TO 'root'@'192.168.1.5' IDENTIFIED BY 'root' WITH GRANT OPTION;
-GRANT ALL PRIVILEGES ON wallet.* TO 'studenthubuser'@'127.0.0.1';
-```
-
-**Local API domain not resolving:**
-```bash
-sudo vim /etc/hosts
-# Add: 127.0.0.1 student.api.studenthub.co
-sudo killall -HUP mDNSResponder
-# Use http:// (not https://) for local testing
-```
-
-**SSH agent not persisting on server reboot:**
-```bash
-# Add to ~/.bashrc on the Ubuntu server
-if [ -z "$SSH_AUTH_SOCK" ]; then
-  eval "$(ssh-agent -s)"
-  ssh-add ~/.ssh/github
-fi
-```
-
-**Server reboot — remember to restart the right environment:**
-```bash
-# Production
-docker-compose -f docker-compose-prod.yml -p studenthub-prod-server up -d
-
-# Dev server
-docker-compose -f docker-compose-dev.yml -p studenthub-dev-server up -d
-```
-
----
-
-## Licence
-
-Open source. See [LICENSE](LICENSE) for details.
-
----
-
-*Built by [BAWES](https://bawes.net) · [BAWES-Universe on GitHub](https://github.com/BAWES-Universe)*
+*This project is open source under the [MIT License](LICENSE.md). All work happens in public — contributions welcome via GitHub Issues and Pull Requests.*
