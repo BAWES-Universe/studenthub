@@ -1,6 +1,6 @@
 # CloudTrail S3 Admin Event Audit
 
-Issue #55 Phase 7 asks the team to export CloudTrail events for the suspicious Apr 17-19 window and review whether service IAM users performed bucket-admin operations that should not be callable by application credentials.
+Issue #55 Phase 7 asks the team to export CloudTrail events for the suspicious 2026-04-17T00:00:00Z to 2026-04-19T23:59:59Z UTC window and review whether service IAM users performed bucket-admin operations that should not be callable by application credentials.
 
 This helper works on offline exports only. It does not call AWS, mutate IAM, rotate keys, or require contributors to see production credentials.
 

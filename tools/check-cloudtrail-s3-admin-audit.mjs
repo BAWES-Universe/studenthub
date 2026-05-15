@@ -23,7 +23,7 @@ writeFileSync(
                     eventName: 'PutBucketLifecycleConfiguration',
                     userIdentity: {
                         userName: 'railway-s3-access',
-                        accessKeyId: 'AKIA000000000000WCUM',
+                        accessKeyId: 'AKIA222222222222WCUM',
                     },
                     sourceIPAddress: '203.0.113.10',
                     userAgent: 'aws-cli/2.15.0',
@@ -37,7 +37,7 @@ writeFileSync(
                     eventName: 'PutObject',
                     userIdentity: {
                         userName: 'railway-s3-access',
-                        accessKeyId: 'AKIA000000000000WCUM',
+                        accessKeyId: 'AKIA222222222222WCUM',
                     },
                     requestParameters: {
                         bucketName: 'studenthub-uploads',
@@ -48,7 +48,7 @@ writeFileSync(
                     eventName: 'DeleteBucketPolicy',
                     userIdentity: {
                         userName: 'mediaconverter',
-                        accessKeyId: 'AKIA000000000000OFLT',
+                        accessKeyId: 'AKIA222222222222OFLT',
                     },
                     sourceIPAddress: '198.51.100.9',
                     userAgent: 'console.amazonaws.com',
@@ -69,7 +69,7 @@ writeFileSync(
     csvInput,
     [
         'eventTime,eventName,userName,accessKeyId,sourceIPAddress,userAgent,bucketName,region,errorCode',
-        '2026-04-19T08:00:00Z,PutBucketCors,n8n-s3-access,AKIA000000000000N8N1,192.0.2.22,n8n,studenthub-public-anyone-can-upload-24hr-expiry,eu-west-2,',
+        '2026-04-19T08:00:00Z,PutBucketCors,n8n-s3-access,AKIA222222222222NANA,192.0.2.22,n8n,studenthub-public-anyone-can-upload-24hr-expiry,eu-west-2,',
     ].join('\n'),
 );
 
@@ -85,14 +85,14 @@ assert.match(markdown, /mediaconverter: 1/);
 assert.match(markdown, /n8n-s3-access: 1/);
 assert.match(markdown, /wallet-uploads/);
 assert.match(markdown, /watched service user; non-StudentHub bucket; failed with AccessDenied/);
-assert.doesNotMatch(markdown, /AKIA000000000000WCUM/);
+assert.doesNotMatch(markdown, /AKIA222222222222WCUM/);
 assert.match(markdown, /\|2026-04-18T09:00:00Z\|critical\|PutBucketLifecycleConfiguration\|railway-s3-access\|WCUM\|/);
 
 const csv = execFileSync(process.execPath, [script, '--input', jsonInput, '--format', 'csv'], {encoding: 'utf8'});
 
 assert.match(csv, /event_time,severity,event_name,user_name,access_key_suffix/);
 assert.match(csv, /2026-04-18T10:00:00Z,low,DeleteBucketPolicy,mediaconverter,OFLT/);
-assert.doesNotMatch(csv, /AKIA000000000000OFLT/);
+assert.doesNotMatch(csv, /AKIA222222222222OFLT/);
 assert.doesNotMatch(csv, /PutObject/);
 
 console.log('CloudTrail S3 admin audit helper check passed.');

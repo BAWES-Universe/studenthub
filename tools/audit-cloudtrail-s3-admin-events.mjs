@@ -16,7 +16,7 @@ const SUSPICIOUS_EVENTS = new Set([
 ]);
 
 const DEFAULT_USERS = new Set(['railway-s3-access', 'n8n-s3-access', 'mediaconverter']);
-const ACCESS_KEY_PATTERN = /AKIA[0-9A-Z]{12,20}/g;
+const ACCESS_KEY_PATTERN = /AKIA[2-7A-Z]{16}/g;
 const SECRET_SHAPED_PATTERN = /(?<![A-Za-z0-9/+=])[A-Za-z0-9/+=]{32,}(?![A-Za-z0-9/+=])/g;
 
 function printUsage() {
@@ -53,9 +53,6 @@ function parseArgs(argv) {
             const value = argv[i + 1];
             if (!value || value.startsWith('--')) {
                 throw new Error('--watch-user requires a value');
-            }
-            if (args.watchUsers === DEFAULT_USERS) {
-                args.watchUsers = new Set(DEFAULT_USERS);
             }
             args.watchUsers.add(value);
             i += 1;
