@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+"""Validate that console Slack webhook config stays environment-backed."""
+
 from pathlib import Path
 
 
@@ -7,6 +9,8 @@ CONSOLE_CONFIG = ROOT / "console" / "config" / "main.php"
 
 
 def main() -> int:
+    """Return a non-zero exit code when console Slack hardening regresses."""
+
     text = CONSOLE_CONFIG.read_text(encoding="utf-8")
     failures = []
 
