@@ -5,6 +5,7 @@ import { basename } from 'node:path';
 
 const CURRENT_PREFIX = 'photos/';
 const LEGACY_PREFIX = 'candidate-civil-id/';
+const VALUE_OPTIONS = new Set(['candidates', 'permanentObjects', 'tempObjects', 'format']);
 
 function printUsage() {
   console.log(`Usage:
@@ -34,6 +35,10 @@ function parseArgs(argv) {
     } else if (arg.startsWith('--')) {
       const key = arg.slice(2).replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
       const value = argv[i + 1];
+
+      if (!VALUE_OPTIONS.has(key)) {
+        throw new Error(`Unknown argument: ${arg}`);
+      }
 
       if (!value || value.startsWith('--')) {
         throw new Error(`${arg} requires a value`);

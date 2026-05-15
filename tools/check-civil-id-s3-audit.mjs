@@ -5,8 +5,9 @@ import { mkdtempSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import assert from 'node:assert/strict';
+import { fileURLToPath } from 'node:url';
 
-const root = new URL('..', import.meta.url).pathname;
+const root = fileURLToPath(new URL('..', import.meta.url));
 const script = join(root, 'tools/audit-civil-id-s3-objects.mjs');
 const dir = mkdtempSync(join(tmpdir(), 'civil-id-s3-audit-'));
 const candidates = join(dir, 'candidates.csv');
@@ -65,5 +66,17 @@ const csv = execFileSync(process.execPath, [
 assert.match(csv, /101,back,back-legacy.jpg,recover_from_legacy/);
 assert.match(csv, /102,front,front-temp.jpg,recover_from_temp/);
 assert.match(csv, /103,back,missing.jpg,missing/);
+
+assert.throws(() => {
+  execFileSync(process.execPath, [
+    script,
+    '--candidates',
+    candidates,
+    '--permanent-objects',
+    permanent,
+    '--unknown',
+    'value',
+  ], { encoding: 'utf8', stdio: 'pipe' });
+}, /Unknown argument: --unknown/);
 
 console.log('Civil ID S3 audit helper check passed.');
