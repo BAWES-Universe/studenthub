@@ -162,7 +162,7 @@ class S3ResourceManager extends Component
             'Key' => $name
         ]);
 
-        return $result['DeleteMarker'];
+        return isset($result['DeleteMarker']) ? $result['DeleteMarker'] : true;
     }
 
     /**
@@ -176,6 +176,18 @@ class S3ResourceManager extends Component
         $isUrl = false;
         if (strpos($filenameOrUrl, 'http') !== false) {
             $isUrl = true;
+        }
+
+        if (!$isUrl) {
+            try {
+                $this->getClient()->headObject([
+                    'Bucket' => $this->bucket,
+                    'Key' => $filenameOrUrl,
+                ]);
+                return true;
+            } catch (AwsException $e) {
+                return false;
+            }
         }
 
         $http = new \GuzzleHttp\Client(['base_uri' => $isUrl ? $filenameOrUrl : $this->getUrl($filenameOrUrl)]);
