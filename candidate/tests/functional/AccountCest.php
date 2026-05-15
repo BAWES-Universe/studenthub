@@ -183,6 +183,34 @@ class AccountCest
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseContainsJson([ 'operation' => 'success','message' => 'Candidate Civil ID Info Updated Successfully']);
     }
+
+    public function tryUpdateCivilIdExpiryDateRequiresCivilId(FunctionalTester $I)
+    {
+        $I->amGoingTo('reject empty civil id while updating civil id and expiry date');
+        $I->sendPOST('v1/account/update-civil-id-expiry-date', [
+            'civil_id' => '',
+            'civil_expiry_date' => date('Y-m-d', strtotime('+1 month')),
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseContainsJson([
+            'operation' => 'error',
+            'message' => 'Civil ID is required',
+        ]);
+    }
+
+    public function tryUpdateCivilIdExpiryDateRejectsInvalidDate(FunctionalTester $I)
+    {
+        $I->amGoingTo('reject invalid civil expiry date while updating civil id and expiry date');
+        $I->sendPOST('v1/account/update-civil-id-expiry-date', [
+            'civil_id' => '123456789012',
+            'civil_expiry_date' => 'not-a-date',
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseContainsJson([
+            'operation' => 'error',
+            'message' => 'Invalid civil expiry date',
+        ]);
+    }
     
     public function tryUpdateNationality(FunctionalTester $I)
     {
