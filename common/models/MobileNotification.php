@@ -26,7 +26,10 @@ class MobileNotification {
      */
     public static function notifyCandidate($heading, $data, $filters, $subtitle = '', $content = '')
     {
-        if (empty(Yii::$app->params['oneSignalCandidateAPPID']) || empty(Yii::$app->params['oneSignalCandidateAPIKey'])) {
+        if (
+            empty(Yii::$app->params['inCodeception']) &&
+            (empty(Yii::$app->params['oneSignalCandidateAPPID']) || empty(Yii::$app->params['oneSignalCandidateAPIKey']))
+        ) {
             Yii::warning('OneSignal candidate notification skipped because app id or API key is not configured.');
             return false;
         }
@@ -93,11 +96,19 @@ class MobileNotification {
         curl_setopt($ch, CURLOPT_HEADER, FALSE);
         curl_setopt($ch, CURLOPT_POST, TRUE);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 15);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, TRUE);
 
         $response = curl_exec($ch);
         if ($response === false) {
             Yii::warning('OneSignal notification request failed: ' . curl_error($ch));
+            curl_close($ch);
+            return false;
+        }
+        $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($status < 200 || $status >= 300) {
+            Yii::warning('OneSignal notification request returned HTTP ' . $status . ': ' . $response);
             curl_close($ch);
             return false;
         }
@@ -109,4 +120,3 @@ class MobileNotification {
         return true;
     }
 }
-
