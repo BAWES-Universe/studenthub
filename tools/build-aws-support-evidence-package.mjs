@@ -11,7 +11,13 @@ if (!manifestPath) {
   process.exit(1);
 }
 
-const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+let manifest;
+try {
+  manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+} catch (error) {
+  console.error(`Failed to load manifest at ${manifestPath}: ${error.message}`);
+  process.exit(1);
+}
 
 function redact(value) {
   if (value == null) {

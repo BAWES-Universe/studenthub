@@ -30,7 +30,7 @@ try {
   const output = execFileSync(process.execPath, [
     "tools/build-aws-support-evidence-package.mjs",
     tmpManifest,
-  ], { encoding: "utf8" });
+  ], { encoding: "utf8", timeout: 10000 });
 
   const required = [
     "Deleted Inactive Keys",
