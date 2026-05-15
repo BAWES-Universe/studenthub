@@ -110,7 +110,14 @@ function collectJsonFiles(inputPath) {
 }
 
 function readRecords(filePath) {
-  const parsed = JSON.parse(fs.readFileSync(filePath, "utf8"));
+  let parsed;
+  try {
+    parsed = JSON.parse(fs.readFileSync(filePath, "utf8"));
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to parse JSON in ${filePath}: ${message}`, { cause: error });
+  }
+
   const records = Array.isArray(parsed)
     ? parsed
     : Array.isArray(parsed.Records)

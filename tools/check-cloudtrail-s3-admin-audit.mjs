@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
 import { execFileSync } from "node:child_process";
+import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -38,6 +40,31 @@ if (!csv.startsWith("eventTime,eventName,userName,accessKeyIdSuffix")) {
 
 if (csv.includes("PutObject") || csv.includes("unrelated-audit-bucket")) {
   throw new Error("Audit output included events outside the configured scope");
+}
+
+const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "studenthub-cloudtrail-"));
+const invalidFixture = path.join(tempDir, "invalid.json");
+fs.writeFileSync(invalidFixture, "{not-json");
+
+let invalidRunError;
+try {
+  execFileSync(process.execPath, [auditScript, invalidFixture], {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+} catch (error) {
+  invalidRunError = error;
+} finally {
+  fs.rmSync(tempDir, { recursive: true, force: true });
+}
+
+if (!invalidRunError) {
+  throw new Error("Expected invalid JSON input to fail");
+}
+
+const stderr = String(invalidRunError.stderr ?? "");
+if (!stderr.includes("Failed to parse JSON") || !stderr.includes(invalidFixture)) {
+  throw new Error("Invalid JSON errors should include the failing file path");
 }
 
 console.log("CloudTrail S3 admin audit check passed.");
