@@ -73,14 +73,14 @@ class AccountController extends Controller
         ];
         return $actions;
     }
-    
+
     /**
      * return profile details
      */
     public function actionProfile() {
         return Candidate::findOne(Yii::$app->user->getId());
     }
-    
+
     /**
      * update candidate experiences
      * @return array
@@ -90,15 +90,15 @@ class AccountController extends Controller
         $experiences = Yii::$app->request->getBodyParam("experiences");
 
         $experiences = $experiences? explode(',', $experiences): [];
-        
-        if (empty($experiences) || count($experiences) == 0) 
+
+        if (empty($experiences) || count($experiences) == 0)
         {
             return [
                 "operation" => "error",
                 "message" => Yii::t('candidate', "Experiences Required")
             ];
         }
-        
+
         CandidateExperience::deleteAll([
             'candidate_id' => Yii::$app->user->getId()
         ]);
@@ -117,11 +117,11 @@ class AccountController extends Controller
                 }
             }
         }
-        
+
         $experienceList = CandidateExperience::find()
             ->andWhere([
                 'candidate_id' => Yii::$app->user->getId()
-            ])    
+            ])
             ->all();
 
         Yii::$app->user->identity->updateAlgoliaIndex(false);
@@ -133,13 +133,13 @@ class AccountController extends Controller
             "lang" => Yii::$app->language
         ];
     }
-    
+
 
     public function actionToggleTwoStepAuth() {
 
         $candidate = Yii::$app->user->identity;
         $candidate->enable_two_step_auth = !$candidate->enable_two_step_auth;
-        
+
         if (!$candidate->save()) {
             return [
                 'operation' => 'error',
@@ -150,10 +150,10 @@ class AccountController extends Controller
         return [
             'operation' => 'success',
             "enable_two_step_auth" => $candidate->enable_two_step_auth,
-            'message' =>  Yii::t('candidate', $candidate->enable_two_step_auth ? 
-                'Two-step authentication enabled' : 
+            'message' =>  Yii::t('candidate', $candidate->enable_two_step_auth ?
+                'Two-step authentication enabled' :
                 'Two-step authentication disabled')
-        ];        
+        ];
     }
 
     /**
@@ -175,7 +175,7 @@ class AccountController extends Controller
                 "message" => Yii::t('candidate',"Skills Required")
             ];
         }
-        
+
         CandidateSkill::deleteAll([
             'candidate_id' => Yii::$app->user->getId()
         ]);
@@ -194,11 +194,11 @@ class AccountController extends Controller
                 }
             }
         }
-        
+
         $skillList = CandidateSkill::find()
             ->andWhere([
                 'candidate_id' => Yii::$app->user->getId()
-            ])    
+            ])
             ->all();
 
         Yii::$app->user->identity->updateAlgoliaIndex(false);
@@ -209,11 +209,11 @@ class AccountController extends Controller
             "skills" => $skillList
         ];
     }
-    
+
     /**
      * send updated candidate video status from db
      */
-    public function actionVideoStatus() 
+    public function actionVideoStatus()
     {
         $model = Candidate::findOne(Yii::$app->user->getId());
 
@@ -224,7 +224,7 @@ class AccountController extends Controller
     }
 
     /**
-     * mark video as processed 
+     * mark video as processed
      */
     public function actionVideoByWebhook() {
 
@@ -304,7 +304,7 @@ class AccountController extends Controller
         $model->candidate_video =  explode('.', $fileName)[0];
 
         $model->candidate_video_processed = true;
-        
+
         if(!$model->save(false)) {
             return [
                 'operation' => 'error',
@@ -322,7 +322,7 @@ class AccountController extends Controller
 
         return [
             'operation' => 'success',
-        ]; 
+        ];
     }
 
     /**
@@ -334,7 +334,7 @@ class AccountController extends Controller
         if ($model->candidate_video) {
             $model->deleteVideo();
         }
-        
+
         $model->candidate_video = null;
         $model->scenario = 'changeVideo';
 
@@ -359,7 +359,7 @@ class AccountController extends Controller
         if ($model->candidate_personal_photo) {
             $model->deleteProfilePhotoFromCloudinary();
         }
-        
+
         $model->candidate_personal_photo = null;
         $model->scenario = 'changeProfilePhoto';
 
@@ -380,21 +380,34 @@ class AccountController extends Controller
      * Remove civil photo back
      */
     public function actionRemoveCivilPhotoBack() {
-        
-        $model = Candidate::findOne(Yii::$app->user->getId());
-                
-        if ($model->candidate_civil_photo_back) {
-            $model->deleteFile('civil-id', 'back');
-        }
-        
-        $model->candidate_civil_photo_back = null;
-        
-        $model->scenario = 'updateCivilPhotoBack';
 
-        if (!$model->save(false)) {
+        $model = Candidate::findOne(Yii::$app->user->getId());
+
+        if (!$model) {
+            throw new \yii\web\NotFoundHttpException(Yii::t('candidate', 'The requested Item could not be found.'));
+        }
+
+        try {
+            if ($model->candidate_civil_photo_back) {
+                $model->deleteFile('civil-id', 'back');
+            }
+
+            $model->candidate_civil_photo_back = null;
+            $model->candidate_civil_need_verification = true;
+
+            $model->scenario = 'updateCivilPhotoBack';
+
+            if (!$model->save(false)) {
+                return [
+                    'operation' => 'error',
+                    'message' => $model->getErrors()
+                ];
+            }
+        } catch (\Throwable $e) {
+            Yii::error($e->getMessage(), 'candidate');
             return [
                 'operation' => 'error',
-                'message' => $model->getErrors()
+                'message' => Yii::t('app', 'Unable to remove civil photo back.')
             ];
         }
 
@@ -402,25 +415,38 @@ class AccountController extends Controller
             'operation' => 'success',
         ];
     }
-    
+
     /**
      * Remove civil photo front
      */
     public function actionRemoveCivilPhotoFront() {
         $model = Candidate::findOne(Yii::$app->user->getId());
 
-        if ($model->candidate_civil_photo_front) {
-            $model->deleteFile('civil-id', 'front');
+        if (!$model) {
+            throw new \yii\web\NotFoundHttpException(Yii::t('candidate', 'The requested Item could not be found.'));
         }
-        
-        $model->candidate_civil_photo_front = null;
-        
-        $model->scenario = 'updateCivilPhotoFront';
 
-        if (!$model->save(false)) {
+        try {
+            if ($model->candidate_civil_photo_front) {
+                $model->deleteFile('civil-id', 'front');
+            }
+
+            $model->candidate_civil_photo_front = null;
+            $model->candidate_civil_need_verification = true;
+
+            $model->scenario = 'updateCivilPhotoFront';
+
+            if (!$model->save(false)) {
+                return [
+                    'operation' => 'error',
+                    'message' => $model->getErrors()
+                ];
+            }
+        } catch (\Throwable $e) {
+            Yii::error($e->getMessage(), 'candidate');
             return [
                 'operation' => 'error',
-                'message' => $model->getErrors()
+                'message' => Yii::t('app', 'Unable to remove civil photo front.')
             ];
         }
 
@@ -430,11 +456,11 @@ class AccountController extends Controller
     }
 
     /**
-     * Update candidate email address 
+     * Update candidate email address
      * @return type
      */
     public function actionUpdateEmail() {
-        
+
         $candidate = Candidate::findOne(Yii::$app->user->getId());
 
         $new_email = Yii::$app->request->getBodyParam("email");
@@ -556,7 +582,7 @@ class AccountController extends Controller
     }
 
     /**
-     * Set language preference 
+     * Set language preference
      */
     public function actionLanguagePref() {
         $language_pref = Yii::$app->request->getBodyParam('language_pref');
@@ -577,15 +603,15 @@ class AccountController extends Controller
             'operation' => 'success',
         ];
     }
-    
+
     /**
      * return job status
      * @return type
      */
-    public function actionGetJobSearchStatus() 
+    public function actionGetJobSearchStatus()
     {
         $model = Yii::$app->user->identity;
-        
+
         return [
             'candidate_job_search_status' => (int) $model->candidate_job_search_status,
             'isProfileCompleted' => $model->isProfileCompleted(),
@@ -594,12 +620,12 @@ class AccountController extends Controller
             'parent_company' => (isset($model->company->parentCompany)) ? $model->company->parentCompany : null
         ];
     }
-    
+
     /**
      * Set job search status
      */
     public function actionJobSearchStatus() {
-        
+
         $job_search_status = Yii::$app->request->getBodyParam('job_search_status');
 
         $model = Candidate::findOne(Yii::$app->user->getId());
@@ -625,7 +651,7 @@ class AccountController extends Controller
             'operation' => 'success',
         ];
     }
-    
+
     /**
      * Return a List of Salary transfers
      */
@@ -718,35 +744,35 @@ class AccountController extends Controller
         }
 
         $model->scenario = 'changePassword';
-        
-        $model->setPassword($newPassword); 
-        
+
+        $model->setPassword($newPassword);
+
         if (!$model->save()) {
             return [
                 "operation" => "error",
                 "message" => $model->getErrors()
             ];
         }
-        
+
         return [
             "operation" => "success",
             "message" => Yii::t('candidate',"Password changed successfully!")
         ];
     }
-    
+
     /**
      * update nationality
      * @return type
      * @throws \yii\web\HttpException
      */
     public function actionUpdateNationality() {
-        
+
         $candidate = Candidate::findOne(Yii::$app->user->getId());
 
         if (!$candidate) {
             throw new \yii\web\HttpException(404, Yii::t('candidate', 'The requested Item could not be found.'));
         }
-        
+
         $candidate->country_id = Yii::$app->request->getBodyParam('country_id');
 
         $candidate->scenario = "updateNationality";
@@ -764,20 +790,20 @@ class AccountController extends Controller
             "message" => Yii::t('candidate', "Candidate Nationality Info Updated Successfully"),
         ];
     }
-    
+
     /**
      * update candidate driving license
      * @return type
      * @throws \yii\web\HttpException
      */
     public function actionUpdateDrivingLicense() {
-        
+
         $candidate = Candidate::findOne(Yii::$app->user->getId());
 
         if (!$candidate) {
             throw new \yii\web\HttpException(404, Yii::t('candidate', 'The requested Item could not be found.'));
         }
-        
+
         $candidate->candidate_driving_license = Yii::$app->request->getBodyParam('driving_license');
 
         $candidate->scenario = "updateDrivingLicense";
@@ -795,12 +821,12 @@ class AccountController extends Controller
             "message" => Yii::t('candidate', "Candidate Driving License Info Updated Successfully"),
         ];
     }
-    
+
     /**
      * Update introductory video
      */
     public function actionVideo() {
-        
+
         $model = Yii::$app->user->identity;
 
         // deleting old video
@@ -837,9 +863,9 @@ class AccountController extends Controller
             'message' => Yii::t('candidate', 'Video Uploaded Successfully')
         ];
     }
-    
+
     /**
-     * Update personal photo 
+     * Update personal photo
      */
     public function actionProfilePhoto() {
         $model = Yii::$app->user->identity;
@@ -902,13 +928,13 @@ class AccountController extends Controller
      * @throws \yii\web\HttpException
      */
     public function actionUpdateName() {
-        
+
         $candidate = Candidate::findOne(Yii::$app->user->getId());
 
         if (!$candidate) {
             throw new \yii\web\HttpException(404, Yii::t('candidate', 'The requested Item could not be found.'));
         }
-        
+
         $candidate->candidate_name = Yii::$app->request->getBodyParam('name');
 
         $candidate->scenario = "updateName";
@@ -964,13 +990,13 @@ class AccountController extends Controller
      * @throws \yii\web\HttpException
      */
     public function actionUpdateNameAr() {
-        
+
         $candidate = Candidate::findOne(Yii::$app->user->getId());
 
         if (!$candidate) {
             throw new \yii\web\HttpException(404, Yii::t('candidate', 'The requested Item could not be found.'));
         }
-        
+
         $candidate->candidate_name_ar = Yii::$app->request->getBodyParam('name_ar');
 
         $candidate->scenario = "updateNameAr";
@@ -993,7 +1019,7 @@ class AccountController extends Controller
      * Update candidate location info
      */
     public function actionUpdateLocation() {
-        
+
         $candidate = Candidate::findOne(Yii::$app->user->getId());
 
         if (!$candidate) {
@@ -1027,35 +1053,35 @@ class AccountController extends Controller
     }
 
     /**
-     * Return area by geolocation 
+     * Return area by geolocation
      * @return type
      */
-    public function actionAreaByLocation() 
+    public function actionAreaByLocation()
     {
         $latitude = Yii::$app->request->get("latitude");
         $longitude = Yii::$app->request->get("longitude");
         $area_name = Yii::$app->request->get("area");
 
-        // call google api to get country name, lat, long 
-        
+        // call google api to get country name, lat, long
+
         $url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=' . $latitude .','. $longitude;
-        
+
         return Area::addByGoogleAPIResponse($url, $area_name);
     }
-    
+
     /**
      * update candidate civil id number
      * @return type
      * @throws \yii\web\HttpException
      */
     public function actionUpdateCivilId() {
-        
+
         $candidate = Candidate::findOne(Yii::$app->user->getId());
 
         if (!$candidate) {
             throw new \yii\web\HttpException(404, Yii::t('candidate', 'The requested Item could not be found.'));
         }
-        
+
         $candidate->candidate_civil_id = Yii::$app->request->getBodyParam('civil_id');
         $candidate->candidate_civil_need_verification = true;
 
@@ -1074,21 +1100,21 @@ class AccountController extends Controller
             "message" => Yii::t('candidate', "Candidate Civil ID Info Updated Successfully"),
         ];
     }
-    
-    
+
+
     /**
      * update candidate intro
      * @return type
      * @throws \yii\web\HttpException
      */
     public function actionUpdateIntro() {
-        
+
         $candidate = Candidate::findOne(Yii::$app->user->getId());
 
         if (!$candidate) {
             throw new \yii\web\HttpException(404, Yii::t('candidate', 'The requested Item could not be found.'));
         }
-        
+
         $candidate->candidate_intro = Yii::$app->request->getBodyParam('intro');
 
         $candidate->scenario = "updateIntro";
@@ -1113,13 +1139,13 @@ class AccountController extends Controller
      * @throws \yii\web\HttpException
      */
     public function actionUpdateObjective() {
-        
+
         $candidate = Candidate::findOne(Yii::$app->user->getId());
 
         if (!$candidate) {
             throw new \yii\web\HttpException(404, Yii::t('candidate', 'The requested Item could not be found.'));
         }
-        
+
         $candidate->candidate_objective = Yii::$app->request->getBodyParam('objective');
 
         $candidate->scenario = "updateObjective";
@@ -1137,20 +1163,20 @@ class AccountController extends Controller
             "message" => Yii::t('candidate', "Candidate Objective Info Updated Successfully"),
         ];
     }
-    
+
     /**
      * update candidate gender
      * @return type
      * @throws \yii\web\HttpException
      */
     public function actionUpdateGender() {
-        
+
         $candidate = Candidate::findOne(Yii::$app->user->getId());
 
         if (!$candidate) {
             throw new \yii\web\HttpException(404, Yii::t('candidate', 'The requested Item could not be found.'));
         }
-        
+
         $candidate->candidate_gender = Yii::$app->request->getBodyParam('gender');
 
         $candidate->scenario = "updateGender";
@@ -1168,20 +1194,20 @@ class AccountController extends Controller
             "message" => Yii::t('candidate', "Candidate Gender Info Updated Successfully"),
         ];
     }
-    
+
     /**
      * candidate university
      * @return type
      * @throws \yii\web\HttpException
      */
     public function actionUpdateUniversity() {
-        
+
         $candidate = Candidate::findOne(Yii::$app->user->getId());
 
         if (!$candidate) {
             throw new \yii\web\HttpException(404, Yii::t('candidate', 'The requested Item could not be found.'));
         }
-        
+
         $candidate->university_id = Yii::$app->request->getBodyParam('university_id');
 
         $candidate->scenario = "updateUniversity";
@@ -1199,20 +1225,20 @@ class AccountController extends Controller
             "message" => Yii::t('candidate', "Candidate University Info Updated Successfully"),
         ];
     }
-    
+
     /**
      * update resume
      * @return type
      * @throws \yii\web\HttpException
      */
     public function actionUpdateResume() {
-        
+
         $model = Candidate::findOne(Yii::$app->user->getId());
 
         if (!$model) {
             throw new \yii\web\HttpException(404, Yii::t('candidate', 'The requested Item could not be found.'));
         }
-         
+
         if ($model->candidate_resume) {
             $model->deleteResume();
         }
@@ -1235,7 +1261,7 @@ class AccountController extends Controller
                 ])
             ];
         }
-        
+
         if (!$model->updateResume()) {
             return [
                 'operation' => 'error',
@@ -1281,7 +1307,7 @@ class AccountController extends Controller
      * @throws \yii\web\HttpException
      */
     public function actionUpdateCivilPhotoBack() {
-        
+
         $model = Candidate::findOne(Yii::$app->user->getId());
 
         if (!$model) {
@@ -1289,7 +1315,7 @@ class AccountController extends Controller
         }
 
         $model->scenario = "updateCivilPhotoBack";
-        
+
         $model->candidate_civil_photo_back = urldecode(Yii::$app->request->getBodyParam('civil_photo_back'));
 
         if(!$model->candidate_civil_photo_back || $model->candidate_civil_photo_back == "undefined") {
@@ -1300,8 +1326,13 @@ class AccountController extends Controller
                 ])
             ];
         }
-        
-        $model->updateCivilId('back');
+
+        if (!$model->updateCivilId('back')) {
+            return [
+                'operation' => 'error',
+                'message' => $model->getErrors()
+            ];
+        }
 
         //reset to remove old id's data
         $model->candidate_civil_expiry_date = null;
@@ -1326,14 +1357,14 @@ class AccountController extends Controller
             'message' => Yii::t('candidate', 'Civil Photo Back Uploaded Successfully')
         ];
     }
-   
+
     /**
      * update civil photo front
      * @return type
      * @throws \yii\web\HttpException
      */
     public function actionUpdateCivilPhotoFront() {
-        
+
         $model = Candidate::findOne(Yii::$app->user->getId());
 
         if (!$model) {
@@ -1341,7 +1372,7 @@ class AccountController extends Controller
         }
 
         $model->scenario = "updateCivilPhotoFront";
-        
+
         $model->candidate_civil_photo_front = urldecode(Yii::$app->request->getBodyParam('civil_photo_front'));
 
         if(!$model->candidate_civil_photo_front || $model->candidate_civil_photo_front == "undefined") {
@@ -1352,8 +1383,13 @@ class AccountController extends Controller
                 ])
             ];
         }
-        
-        $model->updateCivilId('front');
+
+        if (!$model->updateCivilId('front')) {
+            return [
+                'operation' => 'error',
+                'message' => $model->getErrors()
+            ];
+        }
 
         //reset to remove old id's data
         $model->candidate_civil_expiry_date = null;
@@ -1379,20 +1415,20 @@ class AccountController extends Controller
             'message' => Yii::t('candidate', 'Civil Photo Front Uploaded Successfully')
         ];
     }
-   
+
     /**
      * update civil id expiry date
      * @return type
      * @throws \yii\web\HttpException
      */
     public function actionUpdateCivilExpiryDate() {
-        
+
         $candidate = Candidate::findOne(Yii::$app->user->getId());
 
         if (!$candidate) {
             throw new \yii\web\HttpException(404, Yii::t('candidate', 'The requested Item could not be found.'));
         }
-        
+
         $candidate_civil_expiry_date = Yii::$app->request->getBodyParam('civil_expiry_date');
 
         if($candidate_civil_expiry_date)
@@ -1430,24 +1466,38 @@ class AccountController extends Controller
             throw new \yii\web\HttpException(404, Yii::t('candidate', 'The requested Item could not be found.'));
         }
 
-        $candidate_civil_id = Yii::$app->request->getBodyParam('civil_id');
+        $candidate_civil_id = trim((string) Yii::$app->request->getBodyParam('civil_id'));
 
         $candidate_civil_expiry_date = Yii::$app->request->getBodyParam('civil_expiry_date');
 
+        if (!$candidate_civil_id || !$candidate_civil_expiry_date || strtotime($candidate_civil_expiry_date) === false) {
+            return [
+                "operation" => "error",
+                "message" => Yii::t('app', 'Invalid civil ID or expiry date')
+            ];
+        }
+
         $candidate->candidate_civil_id = $candidate_civil_id;
 
-        if($candidate_civil_expiry_date)
-            $candidate->candidate_civil_expiry_date = date('Y-m-d', strtotime($candidate_civil_expiry_date));
+        $candidate->candidate_civil_expiry_date = date('Y-m-d', strtotime($candidate_civil_expiry_date));
 
         $candidate->candidate_civil_need_verification = true;
 
         $candidate->scenario = "updateCivilExpiryDateAndCivilID";
 
-        if (!$candidate->save()) {
+        try {
+            if (!$candidate->save()) {
 
+                return [
+                    "operation" => "error",
+                    "message" => $candidate->errors
+                ];
+            }
+        } catch (\Exception $e) {
+            Yii::error($e->getMessage(), 'candidate');
             return [
                 "operation" => "error",
-                "message" => $candidate->errors
+                "message" => Yii::t('candidate', "Civil ID And Expiry Date could not be updated")
             ];
         }
 
@@ -1457,22 +1507,22 @@ class AccountController extends Controller
             "message" => Yii::t('candidate', "Civil ID And Expiry Date Updated Successfully"),
         ];
     }
-    
+
     /**
-     * update birth date 
+     * update birth date
      * @return type
      * @throws \yii\web\HttpException
      */
     public function actionUpdateBirthDate() {
-        
+
         $candidate = Candidate::findOne(Yii::$app->user->getId());
 
         if (!$candidate) {
             throw new \yii\web\HttpException(404, Yii::t('candidate', 'The requested Item could not be found.'));
         }
-        
+
         $birth_date = Yii::$app->request->getBodyParam('birth_date');
-        
+
         $candidate->candidate_birth_date = empty($birth_date)? date('Y-m-d'): date('Y-m-d', strtotime($birth_date));
 
         $candidate->scenario = "updateBirthDate";

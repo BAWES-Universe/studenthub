@@ -118,8 +118,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     // Array of attribute names and folder names to store them in the permanent bucket
     public $FILE_ATTRIBUTES = [
         'candidate_personal_photo' => 'photos',
-        'candidate_civil_photo_front' => 'civil-id',
-        'candidate_civil_photo_back' => 'civil-id'
+        'candidate_civil_photo_front' => 'photos',
+        'candidate_civil_photo_back' => 'photos'
     ];
 
     /**
@@ -2705,13 +2705,17 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 if ($type == 'resume' && isset($this->oldAttributes['candidate_resume'])) {
                     $file = "candidate-resume/" . $this->oldAttributes['candidate_resume'];
                 } else if ($type == 'civil-id' && $side == 'front' && isset($this->oldAttributes['candidate_civil_photo_front'])) {
-                    $file = "candidate-civil-id/" . $this->oldAttributes['candidate_civil_photo_front'];
+                    $file = "photos/" . $this->oldAttributes['candidate_civil_photo_front'];
                 } else if ($type == 'civil-id' && $side == 'back' && isset($this->oldAttributes['candidate_civil_photo_back'])) {
-                    $file = "candidate-civil-id/" . $this->oldAttributes['candidate_civil_photo_back'];
+                    $file = "photos/" . $this->oldAttributes['candidate_civil_photo_back'];
                 }
                 
                 if ($file) {
-                    Yii::$app->resourceManager->delete($file);
+                    if (Yii::$app->resourceManager->fileExists($file)) {
+                        Yii::$app->resourceManager->delete($file);
+                    } else {
+                        Yii::warning("Civil ID file already missing during delete: " . $file, 'candidate');
+                    }
                 }
             }
 
@@ -2719,7 +2723,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
             Yii::error($e->getMessage(), 'candidate');
 
-            $this->addError('candidate_resume', Yii::t('app', 'file not available to delete.'));
+            if ($type != 'civil-id') {
+                $this->addError('candidate_resume', Yii::t('app', 'file not available to delete.'));
+            }
 
             return false;
 
@@ -2727,7 +2733,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
             Yii::error($e->getMessage(), 'candidate');
 
-            $this->addError('candidate_resume', Yii::t('app', 'file not available to delete.'));
+            if ($type != 'civil-id') {
+                $this->addError('candidate_resume', Yii::t('app', 'file not available to delete.'));
+            }
 
             return false;
         }
@@ -2740,10 +2748,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $idSide = ($side == 'front') ? 'candidate_civil_photo_front' : 'candidate_civil_photo_back';
 
-        if (!empty($this->oldAttributes[$idSide])) {
-            $this->deleteFile('civil-id', $side);
-        }
-
         $fileName = $this->$idSide;
 
         $sourceBucket = Yii::$app->temporaryBucketResourceManager->bucket;
@@ -2754,7 +2758,19 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         
         try {
 
-            return Yii::$app->resourceManager->copy($fileName, $targetPath, $sourceBucket);
+            $result = Yii::$app->resourceManager->copy($fileName, $targetPath, $sourceBucket);
+
+            if (!Yii::$app->resourceManager->fileExists($targetPath)) {
+                Yii::error("Civil ID copy verification failed for {$idSide}: {$targetPath}", 'candidate');
+                $this->addError($idSide, Yii::t('app', 'file not available to save.'));
+                return false;
+            }
+
+            if (!empty($this->oldAttributes[$idSide])) {
+                $this->deleteFile('civil-id', $side);
+            }
+
+            return $result;
 
         } catch (\Aws\S3\Exception\S3Exception $e) {
 
