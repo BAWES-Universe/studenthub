@@ -36,7 +36,7 @@ class Yeaster extends \yii\base\Component
         }
 
         return [
-            'Authorization' => 'Bearer ' . $this->microserviceApiKey,
+            'Authorization' => 'Bearer ' . trim((string) $this->microserviceApiKey),
             'content-type' => 'application/json',
         ];
     }

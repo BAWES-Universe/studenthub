@@ -425,7 +425,7 @@ class EventManager extends Component
             ->setFormat(Client::FORMAT_JSON)
             ->setData($data)
             ->addHeaders([
-                'Authorization' => 'Bearer ' . $this->sqsEndpointApiKey,
+                'Authorization' => 'Bearer ' . trim((string) $this->sqsEndpointApiKey),
                 "Content-Type" => "application/json",
                 'User-Agent' => 'request',
             ])
