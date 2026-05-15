@@ -33,6 +33,7 @@ REQUIRED_ENV_VARS = [
 
 
 def main() -> int:
+    """Validate third-party credentials are removed from checked-in config."""
     failures: list[str] = []
     combined = ""
 
