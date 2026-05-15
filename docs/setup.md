@@ -36,6 +36,23 @@ Use the provided script in the project root:
 ### PHP Extensions
 Required: exif, pdo_mysql
 
+### Third-Party Integration Environment Variables
+
+Configure these values in the runtime environment instead of committing service credentials:
+
+| Variable | Purpose |
+| --- | --- |
+| `GOOGLE_MAPS_API_KEY` | Server-side Google Maps component key |
+| `GOOGLE_MAPS_BROWSER_API_KEY` | Browser-facing Google Maps key exposed through app params |
+| `RECAPTCHA_SECRET_KEY` | Server-side reCAPTCHA verification secret |
+| `JIRA_URL` | Jira instance URL |
+| `JIRA_EMAIL` | Jira API account email |
+| `JIRA_API_TOKEN` | Jira API token |
+| `ALGOLIA_APP_ID` | Algolia application ID |
+| `ALGOLIA_API_KEY` | Algolia API key |
+| `IPINFO_ACCESS_TOKEN` | IP geolocation lookup token |
+| `SLACK_WEBHOOK_URL` | Slack incoming webhook URL |
+
 ### Puppeteer Setup
 ```bash
 curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
@@ -56,4 +73,4 @@ cd console && ../yii algolia/index candidate
 ```bash
 ./yii cron/update-candidate-stats
 ./yii cron/update-company-stats
-``` 
+```
