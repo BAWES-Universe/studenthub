@@ -5,8 +5,9 @@ import {execFileSync} from 'node:child_process';
 import {mkdtempSync, writeFileSync} from 'node:fs';
 import {join} from 'node:path';
 import {tmpdir} from 'node:os';
+import {fileURLToPath} from 'node:url';
 
-const root = new URL('..', import.meta.url).pathname;
+const root = fileURLToPath(new URL('..', import.meta.url));
 const script = join(root, 'tools/audit-cloudtrail-s3-admin-events.mjs');
 const dir = mkdtempSync(join(tmpdir(), 'cloudtrail-s3-admin-audit-'));
 const jsonInput = join(dir, 'cloudtrail.json');
