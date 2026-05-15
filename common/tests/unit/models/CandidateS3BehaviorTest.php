@@ -4,6 +4,7 @@ namespace common\tests\unit\models;
 
 use Yii;
 use common\models\Candidate;
+use common\components\S3ResourceManager;
 
 class CandidateS3BehaviorTestModel extends Candidate
 {
@@ -21,6 +22,19 @@ class CandidateS3BehaviorTestModel extends Candidate
             'candidate_civil_photo_back',
             'candidate_civil_need_verification',
         ];
+    }
+}
+
+class CandidateS3BehaviorResourceManager extends S3ResourceManager
+{
+    /**
+     * Exposes S3 URL parsing for focused regression tests.
+     * @param string $filenameOrUrl
+     * @return array
+     */
+    public function resolveLocation($filenameOrUrl)
+    {
+        return $this->resolveObjectLocation($filenameOrUrl);
     }
 }
 
@@ -75,7 +89,10 @@ class CandidateS3BehaviorTest extends \Codeception\Test\Unit
         }
     }
 
-    public function testUpdateCivilIdCopiesBeforeDeletingAndVerifiesTheNewFile()
+    /**
+     * Verifies old Civil ID files are deleted only after callers finish saving.
+     */
+    public function testUpdateCivilIdCopiesAndDefersOldFileDeletionUntilAfterSave()
     {
         $candidate = new CandidateS3BehaviorTestModel();
         $candidate->candidate_id = 1;
@@ -124,6 +141,12 @@ class CandidateS3BehaviorTest extends \Codeception\Test\Unit
             $this->assertSame([
                 ['copy', 'new-front.jpg', 'photos/new-front.jpg', 'temp-upload-bucket'],
                 ['fileExists', 'photos/new-front.jpg'],
+            ], $resourceManager->operations);
+
+            $this->assertTrue($candidate->deletePendingCivilIdFiles('front'));
+            $this->assertSame([
+                ['copy', 'new-front.jpg', 'photos/new-front.jpg', 'temp-upload-bucket'],
+                ['fileExists', 'photos/new-front.jpg'],
                 ['delete', 'photos/old-front.jpg'],
             ], $resourceManager->operations);
 
@@ -147,5 +170,28 @@ class CandidateS3BehaviorTest extends \Codeception\Test\Unit
             Yii::$app->set('resourceManager', $originalManager);
             Yii::$app->set('temporaryBucketResourceManager', $originalTempManager);
         }
+    }
+
+    /**
+     * Verifies S3 object resolution handles both URL styles and encoded keys.
+     */
+    public function testS3ResourceManagerResolvesPathStyleAndEncodedUrls()
+    {
+        $manager = new CandidateS3BehaviorResourceManager([
+            'key' => 'test-key',
+            'secret' => 'test-secret',
+            'region' => 'eu-west-1',
+            'bucket' => 'default-bucket',
+        ]);
+
+        $this->assertSame(
+            ['candidate-bucket', 'photos/front id.jpg'],
+            $manager->resolveLocation('https://candidate-bucket.s3.eu-west-1.amazonaws.com/photos/front%20id.jpg')
+        );
+
+        $this->assertSame(
+            ['candidate-bucket', 'photos/back id.jpg'],
+            $manager->resolveLocation('https://s3.eu-west-1.amazonaws.com/candidate-bucket/photos/back%20id.jpg')
+        );
     }
 }

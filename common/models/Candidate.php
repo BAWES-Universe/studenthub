@@ -114,6 +114,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     const NOT_HAVE_DRIVING_LICENCE = 2;
 
     public $pendingProfile = [];
+
+    /**
+     * @var array Civil ID S3 keys staged for cleanup after the DB row is saved.
+     */
+    private $pendingCivilIdDeletionKeys = [];
     
     // Array of attribute names and folder names to store them in the permanent bucket
     public $FILE_ATTRIBUTES = [
@@ -2785,6 +2790,38 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     }
 
     /**
+     * Deletes old Civil ID files that were staged after a verified replacement copy.
+     * @param string|null $side
+     * @return bool
+     */
+    public function deletePendingCivilIdFiles($side = null)
+    {
+        $pending = $side === null
+            ? $this->pendingCivilIdDeletionKeys
+            : [$side => $this->pendingCivilIdDeletionKeys[$side] ?? null];
+
+        $deleted = true;
+        foreach ($pending as $pendingSide => $entry) {
+            if (!$entry || empty($entry['file_key'])) {
+                continue;
+            }
+
+            try {
+                Yii::$app->resourceManager->delete($entry['file_key']);
+                unset($this->pendingCivilIdDeletionKeys[$pendingSide]);
+            } catch (\Aws\S3\Exception\S3Exception $e) {
+                $this->logS3FileFailure('delete', $entry['attribute'], $entry['file_key'], $e);
+                unset($this->pendingCivilIdDeletionKeys[$pendingSide]);
+            } catch (\Exception $e) {
+                $this->logS3FileFailure('delete', $entry['attribute'], $entry['file_key'], $e);
+                unset($this->pendingCivilIdDeletionKeys[$pendingSide]);
+            }
+        }
+
+        return $deleted;
+    }
+
+    /**
      * @return bool
      */
     public function updateCivilId($side = 'front') {
@@ -2816,7 +2853,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             }
 
             if ($oldFilePath && $oldFilePath !== $targetPath) {
-                $this->deleteFile('civil-id', $side, true);
+                $this->pendingCivilIdDeletionKeys[$side] = [
+                    'attribute' => $idSide,
+                    'file_key' => $oldFilePath,
+                ];
             }
 
             return true;

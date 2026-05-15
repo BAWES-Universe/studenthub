@@ -1321,6 +1321,8 @@ class AccountController extends Controller
             ];
         }
 
+        $model->deletePendingCivilIdFiles('back');
+
         return [
             'operation' => 'success',
             "candidate_civil_photo_back" => $model->candidate_civil_photo_back,
@@ -1377,6 +1379,8 @@ class AccountController extends Controller
                 'message' => $model->getErrors()
             ];
         }
+
+        $model->deletePendingCivilIdFiles('front');
 
         return [
             'operation' => 'success',
@@ -1493,8 +1497,6 @@ class AccountController extends Controller
                 'message' => 'Failed to update civil ID and expiry date',
                 'route' => Yii::$app->requestedRoute,
                 'candidate_id' => $candidate->candidate_id,
-                'civil_id' => $candidate_civil_id,
-                'civil_expiry_date' => $candidate->candidate_civil_expiry_date,
                 'error' => $e->getMessage(),
             ], 'candidate');
 

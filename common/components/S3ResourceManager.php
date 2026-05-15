@@ -182,7 +182,13 @@ class S3ResourceManager extends Component
 
             if (!empty($parts['host']) && preg_match('/^([^.]+)\.s3[.-]/', $parts['host'], $matches)) {
                 $bucket = $matches[1];
+            } elseif (!empty($parts['host']) && preg_match('/^s3[.-]/', $parts['host']) && $key !== '') {
+                $segments = explode('/', $key, 2);
+                $bucket = $segments[0] ?: $bucket;
+                $key = $segments[1] ?? '';
             }
+
+            $key = rawurldecode($key);
         }
 
         return [$bucket, $key];

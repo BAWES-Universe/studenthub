@@ -198,6 +198,23 @@ class AccountCest
         ]);
     }
 
+    /**
+     * Verifies non-empty but invalid Civil IDs are rejected before saving.
+     */
+    public function tryUpdateCivilIdExpiryDateRejectsShortCivilId(FunctionalTester $I)
+    {
+        $I->amGoingTo('reject short civil id while updating civil id and expiry date');
+        $I->sendPOST('v1/account/update-civil-id-expiry-date', [
+            'civil_id' => '70',
+            'civil_expiry_date' => date('Y-m-d', strtotime('+1 month')),
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseContainsJson([
+            'operation' => 'error',
+            'message' => 'Civil ID must be 12 digits',
+        ]);
+    }
+
     public function tryUpdateCivilIdExpiryDateRejectsInvalidDate(FunctionalTester $I)
     {
         $I->amGoingTo('reject invalid civil expiry date while updating civil id and expiry date');
