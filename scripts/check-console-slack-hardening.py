@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Validate that console Slack webhook config stays environment-backed."""
 
+import re
 from pathlib import Path
 
 
@@ -23,7 +24,7 @@ def main() -> int:
     if "SLACK_WEBHOOK_URL" not in text:
         failures.append("console/config/main.php does not include the shared SLACK_WEBHOOK_URL fallback")
 
-    if "'url' => $consoleSlackWebhookUrl" not in text:
+    if not re.search(r"['\"]url['\"]\s*=>\s*\$consoleSlackWebhookUrl\b", text):
         failures.append("console/config/main.php does not wire the Slack client URL through the env-backed value")
 
     if failures:
