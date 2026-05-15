@@ -267,6 +267,15 @@ class AccountController extends Controller
 
         $jobId = $detail->jobId;
 
+        if (!$this->isMediaConvertWebhookEvent($data, $detail, $jobId)) {
+            Yii::warning("[Rejected MediaConvert webhook] " . print_r($data, true), 'webhook');
+
+            return [
+                'operation' => 'error',
+                "message" => "Invalid MediaConvert webhook"
+            ];
+        }
+
         $model = Candidate::find()
             ->andWhere([
                 'candidate_video_job_id' => $jobId
@@ -280,11 +289,26 @@ class AccountController extends Controller
             ];
         }
 
-        if($detail->status == 'ERROR') {
+        $metadataUser = isset($detail->userMetadata) && isset($detail->userMetadata->User)
+            ? $detail->userMetadata->User
+            : null;
+
+        if ((string) $metadataUser !== (string) $model->candidate_id) {
+            Yii::warning("[Rejected MediaConvert webhook user mismatch] jobId=" . $jobId, 'webhook');
+
+            return [
+                'operation' => 'error',
+                'message' => Yii::t('candidate', "Invalid Job ID")
+            ];
+        }
+
+        $status = strtoupper((string) $detail->status);
+
+        if($status == 'ERROR') {
 
             //log to sentry
 
-            Yii::error($detail->errorMessage, 'candidate');
+            Yii::error(isset($detail->errorMessage) ? $detail->errorMessage : 'MediaConvert job failed', 'candidate');
 
             //remove video
 
@@ -299,7 +323,25 @@ class AccountController extends Controller
             ];
         }
 
-        $fileName = basename($detail->outputGroupDetails[0]->outputDetails[0]->outputFilePaths[0]);
+        if ($status != 'COMPLETE') {
+            return [
+                'operation' => 'error',
+                'message' => Yii::t('candidate', "MediaConvert Job Not Complete")
+            ];
+        }
+
+        $outputFilePath = $this->getMediaConvertOutputFilePath($detail);
+
+        if (!$outputFilePath) {
+            Yii::warning("[Rejected MediaConvert webhook without output path] jobId=" . $jobId, 'webhook');
+
+            return [
+                'operation' => 'error',
+                'message' => Yii::t('candidate', "MediaConvert output file missing")
+            ];
+        }
+
+        $fileName = basename($outputFilePath);
 
         $model->candidate_video =  explode('.', $fileName)[0];
 
@@ -323,6 +365,61 @@ class AccountController extends Controller
         return [
             'operation' => 'success',
         ]; 
+    }
+
+    /**
+     * Validate the public MediaConvert webhook before mutating candidate video state.
+     */
+    private function isMediaConvertWebhookEvent($data, $detail, $jobId)
+    {
+        if (!isset($data->source) || $data->source !== 'aws.mediaconvert') {
+            return false;
+        }
+
+        if (!isset($data->{'detail-type'}) || $data->{'detail-type'} !== 'MediaConvert Job State Change') {
+            return false;
+        }
+
+        if (!isset($detail->status) || $detail->status === '') {
+            return false;
+        }
+
+        if (isset($data->account) && isset($detail->accountId) && (string) $data->account !== (string) $detail->accountId) {
+            return false;
+        }
+
+        if (empty($data->resources) || !is_array($data->resources)) {
+            return false;
+        }
+
+        foreach ($data->resources as $resource) {
+            if (substr((string) $resource, -strlen((string) $jobId)) === (string) $jobId) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function getMediaConvertOutputFilePath($detail)
+    {
+        if (empty($detail->outputGroupDetails) || !is_array($detail->outputGroupDetails)) {
+            return null;
+        }
+
+        $group = $detail->outputGroupDetails[0];
+
+        if (empty($group->outputDetails) || !is_array($group->outputDetails)) {
+            return null;
+        }
+
+        $output = $group->outputDetails[0];
+
+        if (empty($output->outputFilePaths) || !is_array($output->outputFilePaths)) {
+            return null;
+        }
+
+        return $output->outputFilePaths[0];
     }
 
     /**
