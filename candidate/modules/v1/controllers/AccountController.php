@@ -1472,8 +1472,22 @@ class AccountController extends Controller
         
         $candidate_civil_expiry_date = Yii::$app->request->getBodyParam('civil_expiry_date');
 
-        if($candidate_civil_expiry_date)
-            $candidate->candidate_civil_expiry_date = date('Y-m-d', strtotime($candidate_civil_expiry_date));
+        if (!is_string($candidate_civil_expiry_date) || trim($candidate_civil_expiry_date) === '') {
+            return [
+                'operation' => 'error',
+                'message' => Yii::t('candidate', 'Civil ID expiry date is required.'),
+            ];
+        }
+
+        $expiryDt = $this->parseStrictCivilExpiryDateUtc(trim($candidate_civil_expiry_date));
+        if ($expiryDt === null) {
+            return [
+                'operation' => 'error',
+                'message' => Yii::t('candidate', 'Civil ID expiry date is invalid.'),
+            ];
+        }
+
+        $candidate->candidate_civil_expiry_date = $expiryDt->format('Y-m-d');
 
         $candidate->candidate_civil_need_verification = true;
 
