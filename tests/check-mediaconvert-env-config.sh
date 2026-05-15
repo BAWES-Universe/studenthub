@@ -15,8 +15,8 @@ for env in circle-ci dev-server-railway docker krushn krushn-nginx prod-railway;
   config="environments/${env}/common/config/main-local.php"
 
   for var in AWS_MEDIACONVERT_ACCESS_KEY_ID AWS_MEDIACONVERT_SECRET_ACCESS_KEY; do
-    if ! git grep -q "$var" -- "$config"; then
-      echo "$var is not referenced in $config." >&2
+    if ! git grep -q -E "getenv\\(['\"]${var}['\"]\\)" -- "$config"; then
+      echo "$var is not wired through getenv() in $config." >&2
       exit 1
     fi
   done
