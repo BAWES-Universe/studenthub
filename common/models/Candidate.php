@@ -338,10 +338,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $scenarios['tmpProfilePhoto'] = ['profile_photo', 'is_incomplete_profile'];
 
         $scenarios['updateCivilPhotoBack'] = ['candidate_civil_photo_back', "candidate_civil_expiry_date",
-            "candidate_civil_id", 'is_incomplete_profile'];
+            "candidate_civil_id", "candidate_civil_need_verification", 'is_incomplete_profile'];
 
         $scenarios['updateCivilPhotoFront'] = ['candidate_civil_photo_front', "candidate_civil_expiry_date",
-            "candidate_civil_id", 'is_incomplete_profile'];
+            "candidate_civil_id", "candidate_civil_need_verification", 'is_incomplete_profile'];
         
         $scenarios['updateNationality'] = ['country_id', 'is_incomplete_profile'];
 
@@ -2697,6 +2697,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function deleteFile($type = 'resume', $side = 'front') {
 
+        $errorAttribute = 'candidate_resume';
+
         try {
             if (isset($this->oldPrimaryKey)) {
                 
@@ -2705,29 +2707,57 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 if ($type == 'resume' && isset($this->oldAttributes['candidate_resume'])) {
                     $file = "candidate-resume/" . $this->oldAttributes['candidate_resume'];
                 } else if ($type == 'civil-id' && $side == 'front' && isset($this->oldAttributes['candidate_civil_photo_front'])) {
-                    $file = "candidate-civil-id/" . $this->oldAttributes['candidate_civil_photo_front'];
+                    $file = "photos/" . $this->oldAttributes['candidate_civil_photo_front'];
+                    $errorAttribute = 'candidate_civil_photo_front';
                 } else if ($type == 'civil-id' && $side == 'back' && isset($this->oldAttributes['candidate_civil_photo_back'])) {
-                    $file = "candidate-civil-id/" . $this->oldAttributes['candidate_civil_photo_back'];
+                    $file = "photos/" . $this->oldAttributes['candidate_civil_photo_back'];
+                    $errorAttribute = 'candidate_civil_photo_back';
                 }
                 
                 if ($file) {
+                    if ($type == 'civil-id' && !Yii::$app->resourceManager->fileExistsInBucket($file)) {
+                        Yii::warning([
+                            'message' => 'Civil ID file was already missing during delete.',
+                            'candidate_id' => $this->candidate_id,
+                            'side' => $side,
+                            'filename' => basename($file),
+                            's3_key' => $file,
+                        ], 'candidate');
+
+                        return true;
+                    }
+
                     Yii::$app->resourceManager->delete($file);
                 }
             }
 
+            return true;
+
         } catch (\Aws\S3\Exception\S3Exception $e) {
 
-            Yii::error($e->getMessage(), 'candidate');
+            Yii::error([
+                'message' => 'Failed to delete candidate file from S3.',
+                'candidate_id' => $this->candidate_id,
+                'type' => $type,
+                'side' => $side,
+                's3_error' => $e->getMessage(),
+            ], 'candidate');
 
-            $this->addError('candidate_resume', Yii::t('app', 'file not available to delete.'));
+            $this->addError($errorAttribute, Yii::t('app', 'file not available to delete.'));
 
             return false;
 
         } catch (\Exception $e) {
 
-            Yii::error($e->getMessage(), 'candidate');
+            Yii::error([
+                'message' => 'Failed to delete candidate file.',
+                'candidate_id' => $this->candidate_id,
+                'type' => $type,
+                'side' => $side,
+                'error' => $e->getMessage(),
+            ], 'candidate');
 
-            $this->addError('candidate_resume', Yii::t('app', 'file not available to delete.'));
+            $this->addError($errorAttribute, Yii::t('app', 'file not available to delete.'));
 
             return false;
         }
@@ -2740,10 +2770,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $idSide = ($side == 'front') ? 'candidate_civil_photo_front' : 'candidate_civil_photo_back';
 
-        if (!empty($this->oldAttributes[$idSide])) {
-            $this->deleteFile('civil-id', $side);
-        }
-
         $fileName = $this->$idSide;
 
         $sourceBucket = Yii::$app->temporaryBucketResourceManager->bucket;
@@ -2754,11 +2780,38 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         
         try {
 
-            return Yii::$app->resourceManager->copy($fileName, $targetPath, $sourceBucket);
+            Yii::$app->resourceManager->copy($fileName, $targetPath, $sourceBucket);
+
+            if (!Yii::$app->resourceManager->fileExistsInBucket($targetPath)) {
+                Yii::error([
+                    'message' => 'Civil ID copy destination was not found after copy.',
+                    'candidate_id' => $this->candidate_id,
+                    'side' => $side,
+                    'filename' => $fileName,
+                    's3_key' => $targetPath,
+                ], 'candidate');
+
+                $this->addError($idSide, Yii::t('app', 'file not available to save.'));
+
+                return false;
+            }
+
+            if (!empty($this->oldAttributes[$idSide])) {
+                $this->deleteFile('civil-id', $side);
+            }
+
+            return true;
 
         } catch (\Aws\S3\Exception\S3Exception $e) {
 
-            Yii::error($e->getMessage(), 'candidate');
+            Yii::error([
+                'message' => 'Failed to copy Civil ID file to permanent S3 bucket.',
+                'candidate_id' => $this->candidate_id,
+                'side' => $side,
+                'filename' => $fileName,
+                's3_key' => $targetPath,
+                's3_error' => $e->getMessage(),
+            ], 'candidate');
 
             $this->addError($idSide, Yii::t('app', 'file not available to save.'));
 
@@ -2766,7 +2819,14 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         } catch (\Exception $e) {
 
-            Yii::error($e->getMessage(), 'candidate');
+            Yii::error([
+                'message' => 'Failed to copy Civil ID file.',
+                'candidate_id' => $this->candidate_id,
+                'side' => $side,
+                'filename' => $fileName,
+                's3_key' => $targetPath,
+                'error' => $e->getMessage(),
+            ], 'candidate');
 
             $this->addError($idSide, Yii::t('app', 'file not available to save.'));
 

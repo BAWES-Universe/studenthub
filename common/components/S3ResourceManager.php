@@ -162,7 +162,23 @@ class S3ResourceManager extends Component
             'Key' => $name
         ]);
 
-        return $result['DeleteMarker'];
+        return isset($result['DeleteMarker']) ? $result['DeleteMarker'] : true;
+    }
+
+    public function fileExistsInBucket($name)
+    {
+        try {
+            $this->getClient()->headObject([
+                'Bucket' => $this->bucket,
+                'Key' => $name
+            ]);
+            return true;
+        } catch (\Aws\S3\Exception\S3Exception $e) {
+            if ($e->getAwsErrorCode() === 'NotFound' || $e->getStatusCode() === 404) {
+                return false;
+            }
+            throw $e;
+        }
     }
 
     /**
@@ -176,6 +192,10 @@ class S3ResourceManager extends Component
         $isUrl = false;
         if (strpos($filenameOrUrl, 'http') !== false) {
             $isUrl = true;
+        }
+
+        if (!$isUrl) {
+            return $this->fileExistsInBucket($filenameOrUrl);
         }
 
         $http = new \GuzzleHttp\Client(['base_uri' => $isUrl ? $filenameOrUrl : $this->getUrl($filenameOrUrl)]);
