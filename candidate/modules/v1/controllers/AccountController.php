@@ -389,25 +389,6 @@ class AccountController extends Controller
 
         $oldFileName = $model->candidate_civil_photo_back;
 
-        if ($oldFileName) {
-            // Old-file delete is best-effort: a missing object (the
-            // PressureDelete3Days lifecycle may have already removed it)
-            // must not block clearing the DB column.
-            try {
-                $model->deleteFile('civil-id', 'back');
-            } catch (\Throwable $e) {
-                Yii::warning([
-                    'action'       => 'actionRemoveCivilPhotoBack',
-                    'candidate_id' => $model->candidate_id,
-                    'side'         => 'back',
-                    'filename'     => $oldFileName,
-                    's3_key'       => 'photos/' . $oldFileName,
-                    'exception'    => get_class($e),
-                    'message'      => $e->getMessage(),
-                ], 'candidate.civil-id');
-            }
-        }
-
         $model->candidate_civil_photo_back = null;
         $model->candidate_civil_need_verification = true;
         $model->scenario = 'updateCivilPhotoBack';
@@ -434,6 +415,27 @@ class AccountController extends Controller
             ];
         }
 
+        // DB committed first — only then best-effort remove the orphan object.
+        if ($oldFileName !== null && $oldFileName !== '') {
+            $s3Key = Candidate::normalizeCivilIdPermanentS3Key($oldFileName);
+            if ($s3Key !== '') {
+                try {
+                    Yii::$app->resourceManager->delete($s3Key);
+                } catch (\Throwable $e) {
+                    Yii::warning([
+                        'action'       => 'actionRemoveCivilPhotoBack',
+                        'candidate_id' => $model->candidate_id,
+                        'side'         => 'back',
+                        'filename'     => $oldFileName,
+                        's3_key'       => $s3Key,
+                        'reason'       => Candidate::classifyS3DeleteThrowable($e),
+                        'exception'    => get_class($e),
+                        'message'      => $e->getMessage(),
+                    ], 'candidate.civil-id');
+                }
+            }
+        }
+
         return [
             'operation' => 'success',
         ];
@@ -451,25 +453,6 @@ class AccountController extends Controller
         }
 
         $oldFileName = $model->candidate_civil_photo_front;
-
-        if ($oldFileName) {
-            // Old-file delete is best-effort: a missing object (the
-            // PressureDelete3Days lifecycle may have already removed it)
-            // must not block clearing the DB column.
-            try {
-                $model->deleteFile('civil-id', 'front');
-            } catch (\Throwable $e) {
-                Yii::warning([
-                    'action'       => 'actionRemoveCivilPhotoFront',
-                    'candidate_id' => $model->candidate_id,
-                    'side'         => 'front',
-                    'filename'     => $oldFileName,
-                    's3_key'       => 'photos/' . $oldFileName,
-                    'exception'    => get_class($e),
-                    'message'      => $e->getMessage(),
-                ], 'candidate.civil-id');
-            }
-        }
 
         $model->candidate_civil_photo_front = null;
         $model->candidate_civil_need_verification = true;
@@ -495,6 +478,27 @@ class AccountController extends Controller
                 'operation' => 'error',
                 'message' => Yii::t('candidate', 'Could not remove civil photo front.'),
             ];
+        }
+
+        // DB committed first — only then best-effort remove the orphan object.
+        if ($oldFileName !== null && $oldFileName !== '') {
+            $s3Key = Candidate::normalizeCivilIdPermanentS3Key($oldFileName);
+            if ($s3Key !== '') {
+                try {
+                    Yii::$app->resourceManager->delete($s3Key);
+                } catch (\Throwable $e) {
+                    Yii::warning([
+                        'action'       => 'actionRemoveCivilPhotoFront',
+                        'candidate_id' => $model->candidate_id,
+                        'side'         => 'front',
+                        'filename'     => $oldFileName,
+                        's3_key'       => $s3Key,
+                        'reason'       => Candidate::classifyS3DeleteThrowable($e),
+                        'exception'    => get_class($e),
+                        'message'      => $e->getMessage(),
+                    ], 'candidate.civil-id');
+                }
+            }
         }
 
         return [
@@ -1521,9 +1525,8 @@ class AccountController extends Controller
             ];
         }
 
-        // Accept ISO-8601 strings like "2028-05-12T10:25:00.000Z".
-        $expiryTimestamp = strtotime($candidate_civil_expiry_date);
-        if ($expiryTimestamp === false || $expiryTimestamp <= 0) {
+        $expiryDt = $this->parseStrictCivilExpiryDateUtc(trim($candidate_civil_expiry_date));
+        if ($expiryDt === null) {
             return [
                 'operation' => 'error',
                 'message' => Yii::t('candidate', 'Civil ID expiry date is invalid.'),
@@ -1531,7 +1534,7 @@ class AccountController extends Controller
         }
 
         $candidate->candidate_civil_id = trim($candidate_civil_id);
-        $candidate->candidate_civil_expiry_date = date('Y-m-d', $expiryTimestamp);
+        $candidate->candidate_civil_expiry_date = $expiryDt->format('Y-m-d');
         $candidate->candidate_civil_need_verification = true;
         $candidate->scenario = 'updateCivilExpiryDateAndCivilID';
 
@@ -1892,5 +1895,58 @@ class AccountController extends Controller
         if ($password) {
             return Yii::$app->user->identity->validatePassword($password);
         }
+    }
+
+    /**
+     * Parse civil expiry from strict formats only (UTC Zulu or calendar date).
+     * Rejects relative phrases and silently-normalized invalid calendar dates.
+     *
+     * Accepted patterns:
+     * - Y-m-d\\TH:i:s.u\\Z (fractional seconds padded to 6 µs digits)
+     * - Y-m-d\\TH:i:s\\Z
+     * - Y-m-d
+     *
+     * @param string $raw
+     * @return \DateTimeImmutable|null
+     */
+    private function parseStrictCivilExpiryDateUtc(string $raw): ?\DateTimeImmutable
+    {
+        $utc = new \DateTimeZone('UTC');
+
+        // Pad fractional seconds to 6 digits so PHP's `u` token parses ISO milliseconds.
+        $normalized = preg_replace_callback(
+            '/^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})\.(\d+)Z$/',
+            static function ($m) {
+                $digits = substr($m[2], 0, 6);
+                $digits = str_pad($digits, 6, '0', STR_PAD_RIGHT);
+
+                return $m[1] . '.' . $digits . 'Z';
+            },
+            $raw
+        );
+
+        $variants = [$normalized];
+        if ($normalized !== $raw) {
+            $variants[] = $raw;
+        }
+
+        // Leading ! rejects trailing junk and bogus partial parses.
+        $formats = ['!Y-m-d\TH:i:s.u\Z', '!Y-m-d\TH:i:s\Z', '!Y-m-d'];
+
+        foreach ($variants as $candidateStr) {
+            foreach ($formats as $format) {
+                $dt = \DateTimeImmutable::createFromFormat($format, $candidateStr, $utc);
+                $errors = \DateTimeImmutable::getLastErrors();
+
+                if ($dt !== false && (
+                    $errors === false
+                    || ($errors['warning_count'] === 0 && $errors['error_count'] === 0)
+                )) {
+                    return $dt;
+                }
+            }
+        }
+
+        return null;
     }
 }
