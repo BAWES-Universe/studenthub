@@ -2726,6 +2726,20 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         }
 
         $directory = $type === 'civil-id' ? 'photos' : 'candidate-resume';
+        $fileName = ltrim((string) $fileName, '/');
+
+        if (preg_match('/^https?:\/\//i', $fileName)) {
+            $parts = parse_url($fileName);
+            $fileName = isset($parts['path']) ? ltrim(rawurldecode($parts['path']), '/') : '';
+        }
+
+        if ($fileName === '') {
+            return null;
+        }
+
+        if (strpos($fileName, '/') !== false) {
+            return $fileName;
+        }
 
         return $directory . '/' . $fileName;
     }
@@ -2811,10 +2825,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 unset($this->pendingCivilIdDeletionKeys[$pendingSide]);
             } catch (\Aws\S3\Exception\S3Exception $e) {
                 $this->logS3FileFailure('delete', $entry['attribute'], $entry['file_key'], $e);
-                unset($this->pendingCivilIdDeletionKeys[$pendingSide]);
+                $deleted = false;
             } catch (\Exception $e) {
                 $this->logS3FileFailure('delete', $entry['attribute'], $entry['file_key'], $e);
-                unset($this->pendingCivilIdDeletionKeys[$pendingSide]);
+                $deleted = false;
             }
         }
 

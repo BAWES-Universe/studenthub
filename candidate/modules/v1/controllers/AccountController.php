@@ -1321,7 +1321,7 @@ class AccountController extends Controller
             ];
         }
 
-        $model->deletePendingCivilIdFiles('back');
+        $oldCivilIdCleanupComplete = $model->deletePendingCivilIdFiles('back');
 
         return [
             'operation' => 'success',
@@ -1331,6 +1331,7 @@ class AccountController extends Controller
             "candidate_civil_id" => $model->candidate_civil_id,
             'civilExpired' => $model->candidate_civil_expiry_date && (strtotime($model->candidate_civil_expiry_date) <
                     strtotime(date('Y-m-d'))),
+            'civil_photo_cleanup_pending' => !$oldCivilIdCleanupComplete,
 
             'message' => Yii::t('candidate', 'Civil Photo Back Uploaded Successfully')
         ];
@@ -1380,7 +1381,7 @@ class AccountController extends Controller
             ];
         }
 
-        $model->deletePendingCivilIdFiles('front');
+        $oldCivilIdCleanupComplete = $model->deletePendingCivilIdFiles('front');
 
         return [
             'operation' => 'success',
@@ -1391,6 +1392,7 @@ class AccountController extends Controller
             "candidate_civil_id" => $model->candidate_civil_id,
             'civilExpired' => $model->candidate_civil_expiry_date && (strtotime($model->candidate_civil_expiry_date) <
                     strtotime(date('Y-m-d'))),
+            'civil_photo_cleanup_pending' => !$oldCivilIdCleanupComplete,
 
             'message' => Yii::t('candidate', 'Civil Photo Front Uploaded Successfully')
         ];

@@ -71,6 +71,16 @@ class CandidateS3BehaviorTest extends \Codeception\Test\Unit
             $this->assertTrue($candidate->deleteFile('civil-id', 'front'));
             $this->assertSame(['photos/front.jpg'], $trackingManager->deleted);
 
+            $candidate->setOldAttributes([
+                'candidate_id' => 1,
+                'candidate_civil_photo_front' => 'photos/existing-front.jpg',
+            ]);
+            $this->assertTrue($candidate->deleteFile('civil-id', 'front'));
+            $this->assertSame([
+                'photos/front.jpg',
+                'photos/existing-front.jpg',
+            ], $trackingManager->deleted);
+
             $failingManager = new class extends \yii\base\Component {
                 public function delete($name)
                 {
@@ -79,6 +89,10 @@ class CandidateS3BehaviorTest extends \Codeception\Test\Unit
             };
 
             Yii::$app->set('resourceManager', $failingManager);
+            $candidate->setOldAttributes([
+                'candidate_id' => 1,
+                'candidate_civil_photo_back' => 'back.jpg',
+            ]);
             $candidate->clearErrors();
 
             $this->assertFalse($candidate->deleteFile('civil-id', 'back'));
@@ -166,6 +180,92 @@ class CandidateS3BehaviorTest extends \Codeception\Test\Unit
                 ['fileExists', 'photos/verify-miss.jpg'],
             ], $resourceManager->operations);
             $this->assertArrayHasKey('candidate_civil_photo_front', $candidate->getErrors());
+
+            $candidate->candidate_civil_photo_front = 'new-front.jpg';
+            $candidate->setOldAttributes([
+                'candidate_id' => 1,
+                'candidate_civil_photo_front' => 'photos/persisted-old-front.jpg',
+            ]);
+            $candidate->clearErrors();
+
+            $resourceManager->operations = [];
+            $resourceManager->exists = true;
+
+            $this->assertTrue($candidate->updateCivilId('front'));
+            $this->assertTrue($candidate->deletePendingCivilIdFiles('front'));
+            $this->assertSame([
+                ['copy', 'new-front.jpg', 'photos/new-front.jpg', 'temp-upload-bucket'],
+                ['fileExists', 'photos/new-front.jpg'],
+                ['delete', 'photos/persisted-old-front.jpg'],
+            ], $resourceManager->operations);
+        } finally {
+            Yii::$app->set('resourceManager', $originalManager);
+            Yii::$app->set('temporaryBucketResourceManager', $originalTempManager);
+        }
+    }
+
+    /**
+     * Verifies failed deferred Civil ID cleanup remains visible to callers.
+     */
+    public function testPendingCivilIdDeletionReturnsFalseAndCanBeRetried()
+    {
+        $candidate = new CandidateS3BehaviorTestModel();
+        $candidate->candidate_id = 1;
+        $candidate->candidate_civil_photo_front = 'new-front.jpg';
+        $candidate->setOldAttributes([
+            'candidate_id' => 1,
+            'candidate_civil_photo_front' => 'old-front.jpg',
+        ]);
+
+        $originalManager = Yii::$app->get('resourceManager');
+        $originalTempManager = Yii::$app->get('temporaryBucketResourceManager');
+
+        $resourceManager = new class extends \yii\base\Component {
+            public $operations = [];
+            public $failDelete = true;
+
+            public function copy($oldFile, $newFile, $sourceBucket = "", $options = [])
+            {
+                $this->operations[] = ['copy', $oldFile, $newFile, $sourceBucket];
+                return true;
+            }
+
+            public function fileExists($name)
+            {
+                $this->operations[] = ['fileExists', $name];
+                return true;
+            }
+
+            public function delete($name)
+            {
+                $this->operations[] = ['delete', $name];
+                if ($this->failDelete) {
+                    throw new \Exception('delete failed');
+                }
+
+                return true;
+            }
+        };
+
+        $tempManager = new class extends \yii\base\Component {
+            public $bucket = 'temp-upload-bucket';
+        };
+
+        try {
+            Yii::$app->set('resourceManager', $resourceManager);
+            Yii::$app->set('temporaryBucketResourceManager', $tempManager);
+
+            $this->assertTrue($candidate->updateCivilId('front'));
+            $this->assertFalse($candidate->deletePendingCivilIdFiles('front'));
+
+            $resourceManager->failDelete = false;
+            $this->assertTrue($candidate->deletePendingCivilIdFiles('front'));
+            $this->assertSame([
+                ['copy', 'new-front.jpg', 'photos/new-front.jpg', 'temp-upload-bucket'],
+                ['fileExists', 'photos/new-front.jpg'],
+                ['delete', 'photos/old-front.jpg'],
+                ['delete', 'photos/old-front.jpg'],
+            ], $resourceManager->operations);
         } finally {
             Yii::$app->set('resourceManager', $originalManager);
             Yii::$app->set('temporaryBucketResourceManager', $originalTempManager);
