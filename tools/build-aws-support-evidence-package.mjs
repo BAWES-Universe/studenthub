@@ -28,7 +28,9 @@ function redact(value) {
 }
 
 function line(value) {
-  return redact(value || "not provided");
+  return redact(value || "not provided")
+    .replace(/\|/g, "\\|")
+    .replace(/\r?\n/g, " ");
 }
 
 function list(values) {
