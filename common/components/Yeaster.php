@@ -13,11 +13,22 @@ use yii\httpclient\Client;
  */
 class Yeaster extends \yii\base\Component
 {
+    /**
+     * @var string|null bearer token used to authenticate calls to the voicemail microservice
+     */
     public $microserviceApiKey;
 
-    //point to microservice handling voicemails, overriding from main-local.php
+    /**
+     * @var string base URL for the voicemail microservice, overridden from main-local.php
+     */
     public $apiEndpoint = "http://localhost:3001";
 
+    /**
+     * Build authenticated request headers and fail fast if the service token is missing.
+     *
+     * @return array<string, string>
+     * @throws InvalidConfigException when YEASTER_MICROSERVICE_API_KEY is not configured
+     */
     private function authorizationHeaders()
     {
         if (trim((string) $this->microserviceApiKey) === '') {
@@ -30,6 +41,13 @@ class Yeaster extends \yii\base\Component
         ];
     }
 
+    /**
+     * Fetch a paginated voicemail listing from the Yeaster microservice.
+     *
+     * @param int $page page number to request
+     * @param int $limit maximum number of voicemails to return
+     * @return mixed decoded response payload
+     */
     public function listVoicemails($page, $limit = 10) {
 
         $client = new Client();
@@ -43,6 +61,12 @@ class Yeaster extends \yii\base\Component
         return $response->getData();
     }
 
+    /**
+     * Fetch a single voicemail payload from the Yeaster microservice.
+     *
+     * @param int|string $id voicemail identifier
+     * @return string raw response content
+     */
     public function viewVoicemail($id) {
 
         $client = new Client();
@@ -56,6 +80,12 @@ class Yeaster extends \yii\base\Component
         return $response->content;
     }
 
+    /**
+     * Download a voicemail recording from the Yeaster microservice.
+     *
+     * @param int|string $id voicemail identifier
+     * @return string raw response content
+     */
     public function downloadVoicemail($id) {
 
         $client = new Client();
