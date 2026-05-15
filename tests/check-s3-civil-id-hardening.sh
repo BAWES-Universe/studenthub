@@ -14,16 +14,25 @@ grep -q 'Civil ID copy verification failed' "$candidate_model"
 grep -q 'fileExists($targetPath)' "$candidate_model"
 
 grep -q 'headObject' "$s3_manager"
-grep -q "return isset(\$result\\['DeleteMarker'\\]) ? \$result\\['DeleteMarker'\\] : true;" "$s3_manager"
+grep -q 'DeleteMarker' "$s3_manager"
 
 grep -q 'candidate_civil_need_verification = true' "$account_controller"
 grep -q 'Invalid civil ID or expiry date' "$account_controller"
-grep -q 'try {' "$account_controller"
+grep -q 'actionRemoveCivilPhotoBack' "$account_controller"
+grep -q 'actionRemoveCivilPhotoFront' "$account_controller"
+grep -q 'Unable to remove civil photo back.' "$account_controller"
+grep -q 'Unable to remove civil photo front.' "$account_controller"
+grep -q "if (!\$model->updateCivilId('back'))" "$account_controller"
+grep -q "if (!\$model->updateCivilId('front'))" "$account_controller"
 
 grep -q 'AWS_TEMP_BUCKET_KEY' "$common_config"
 grep -q 'AWS_TEMP_BUCKET_SECRET' "$common_config"
+grep -q "'key' => getenv('AWS_TEMP_BUCKET_KEY') ?: null" "$common_config"
+grep -q "'secret' => getenv('AWS_TEMP_BUCKET_SECRET') ?: null" "$common_config"
 grep -q 'AWS_PERMANENT_S3_ACCESS_KEY_ID' "$railway_config"
 grep -q 'AWS_PERMANENT_S3_SECRET_ACCESS_KEY' "$railway_config"
+grep -q "'key' => getenv('AWS_PERMANENT_S3_ACCESS_KEY_ID') ?: null" "$railway_config"
+grep -q "'secret' => getenv('AWS_PERMANENT_S3_SECRET_ACCESS_KEY') ?: null" "$railway_config"
 
 if grep -R "AKIAWMITDJRKVN5ODY2X\\|AKIAWMITDJRKWZZEWCUM" \
     "$common_config" "$railway_config"; then

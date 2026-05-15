@@ -8,8 +8,8 @@ return [
         'temporaryBucketResourceManager' => [
             'class' => 'common\components\S3ResourceManager',
             'region' => getenv('AWS_TEMP_BUCKET_REGION') ?: 'eu-west-2',
-            'key' => getenv('AWS_TEMP_BUCKET_KEY') ?: '',
-            'secret' => getenv('AWS_TEMP_BUCKET_SECRET') ?: '',
+            'key' => getenv('AWS_TEMP_BUCKET_KEY') ?: null,
+            'secret' => getenv('AWS_TEMP_BUCKET_SECRET') ?: null,
             'bucket' => getenv('AWS_TEMP_BUCKET_NAME') ?: 'studenthub-public-anyone-can-upload-24hr-expiry'
             /**
              * You can access the Temporary bucket with:

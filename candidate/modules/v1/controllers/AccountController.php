@@ -383,6 +383,10 @@ class AccountController extends Controller
 
         $model = Candidate::findOne(Yii::$app->user->getId());
 
+        if (!$model) {
+            throw new \yii\web\NotFoundHttpException(Yii::t('candidate', 'The requested Item could not be found.'));
+        }
+
         try {
             if ($model->candidate_civil_photo_back) {
                 $model->deleteFile('civil-id', 'back');
@@ -399,7 +403,7 @@ class AccountController extends Controller
                     'message' => $model->getErrors()
                 ];
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Yii::error($e->getMessage(), 'candidate');
             return [
                 'operation' => 'error',
@@ -418,6 +422,10 @@ class AccountController extends Controller
     public function actionRemoveCivilPhotoFront() {
         $model = Candidate::findOne(Yii::$app->user->getId());
 
+        if (!$model) {
+            throw new \yii\web\NotFoundHttpException(Yii::t('candidate', 'The requested Item could not be found.'));
+        }
+
         try {
             if ($model->candidate_civil_photo_front) {
                 $model->deleteFile('civil-id', 'front');
@@ -434,7 +442,7 @@ class AccountController extends Controller
                     'message' => $model->getErrors()
                 ];
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Yii::error($e->getMessage(), 'candidate');
             return [
                 'operation' => 'error',
@@ -1319,7 +1327,12 @@ class AccountController extends Controller
             ];
         }
 
-        $model->updateCivilId('back');
+        if (!$model->updateCivilId('back')) {
+            return [
+                'operation' => 'error',
+                'message' => $model->getErrors()
+            ];
+        }
 
         //reset to remove old id's data
         $model->candidate_civil_expiry_date = null;
@@ -1371,7 +1384,12 @@ class AccountController extends Controller
             ];
         }
 
-        $model->updateCivilId('front');
+        if (!$model->updateCivilId('front')) {
+            return [
+                'operation' => 'error',
+                'message' => $model->getErrors()
+            ];
+        }
 
         //reset to remove old id's data
         $model->candidate_civil_expiry_date = null;
