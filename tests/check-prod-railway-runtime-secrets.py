@@ -14,8 +14,9 @@ def require(condition, message):
 
 def component_block(config, component):
     marker = f"'{component}' => ["
-    start = config.index(marker)
-    next_component = re.search(r"\n        '[^']+' => \[", config[start + len(marker):])
+    start = config.find(marker)
+    require(start != -1, f"Component '{component}' must exist in config.")
+    next_component = re.search(r"\n\s{8}'[^']+'\s*=>\s*\[", config[start + len(marker):])
     end = start + len(marker) + next_component.start() if next_component else len(config)
     return config[start:end]
 
