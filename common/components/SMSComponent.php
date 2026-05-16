@@ -43,7 +43,16 @@ class SMSComponent extends Component
         parent::init();
 
         foreach (['apiEndpoint', 'username', 'password', 'sender'] as $attribute) {
-            if (!is_string($this->$attribute) || trim($this->$attribute) === '') {
+            if (!is_string($this->$attribute)) {
+                throw new InvalidConfigException(strtr('"{class}::{attribute}" cannot be empty.', [
+                    '{class}' => static::class,
+                    '{attribute}' => '$' . $attribute
+                ]));
+            }
+
+            $this->$attribute = trim($this->$attribute);
+
+            if ($this->$attribute === '') {
                 throw new InvalidConfigException(strtr('"{class}::{attribute}" cannot be empty.', [
                     '{class}' => static::class,
                     '{attribute}' => '$' . $attribute

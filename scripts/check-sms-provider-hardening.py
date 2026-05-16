@@ -12,12 +12,20 @@ MAIN_CONFIG = ROOT / "common" / "config" / "main.php"
 
 
 def fail(message):
+    """Exit with a consistent check failure message."""
     print(f"SMS provider hardening check failed: {message}", file=sys.stderr)
     sys.exit(1)
 
 
-component = SMS_COMPONENT.read_text()
-config = MAIN_CONFIG.read_text()
+def read_required_text(path, label):
+    """Read a required repository file or fail with a clear path."""
+    if not path.exists():
+        fail(f"{label} not found at {path}")
+    return path.read_text()
+
+
+component = read_required_text(SMS_COMPONENT, "SMSComponent")
+config = read_required_text(MAIN_CONFIG, "common config")
 
 if re.search(r"\$apiEndpoint\s*=\s*['\"]https?://", component):
     fail("SMSComponent must not hardcode the provider endpoint")
