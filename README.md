@@ -25,6 +25,7 @@ Detailed documentation is available in the `docs/` directory:
 - [Database Documentation](docs/database/README.md) - Database structure and diagrams
 - [Cron Jobs](docs/cron-jobs.md) - Scheduled tasks
 - [Analytics](docs/analytics.md) - Event tracking and analytics
+- [Legacy Mailer Environment](docs/legacy-mailer-env.md) - SMTP environment variables and provider examples
 
 ## Development
 
