@@ -3,9 +3,9 @@ return [
     'components' => [
         'db' => [
             'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=mysql.railway.internal;dbname=railway',
-            'username' => 'root',
-            'password' => 'JImnisvcRDpKLdWpoMECoHHoCbutPhQC',
+            'dsn' => getenv('DB_DSN'),
+            'username' => getenv('DB_USERNAME'),
+            'password' => getenv('DB_PASSWORD'),
             'charset' => 'utf8mb4',
             // Enable Caching of Schema to Reduce SQL Queries
             'enableSchemaCache' => true,
@@ -16,9 +16,9 @@ return [
         ],
         'walletDb' => [
             'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=mysql-5abl.railway.internal;dbname=railway',
-            'username' => 'root',
-            'password' => 'mECIXVloEolvFJXnDTcuLGUtvbwzoCgS',
+            'dsn' => getenv('WALLET_DB_DSN'),
+            'username' => getenv('WALLET_DB_USERNAME'),
+            'password' => getenv('WALLET_DB_PASSWORD'),
 
             'charset' => 'utf8',
             // Enable Caching of Schema to Reduce SQL Queries
@@ -34,11 +34,11 @@ return [
         ],
         'redis' => [
             'class' => 'yii\redis\Connection',
-            'hostname' => 'redis.railway.internal',
-            'username' => 'default',
-            'password' => 'VjCTsdeqMTNwmzBidlzbciDRVceiFXYS',
-            'port' => 6379,
-            'database' => 0,
+            'hostname' => getenv('REDIS_HOSTNAME'),
+            'username' => getenv('REDIS_USERNAME') ?: null,
+            'password' => getenv('REDIS_PASSWORD'),
+            'port' => getenv('REDIS_PORT') ? (int)getenv('REDIS_PORT') : 6379,
+            'database' => getenv('REDIS_DATABASE') ? (int)getenv('REDIS_DATABASE') : 0,
         ],/*
         'redis' => [
             'class' => 'yii\redis\Connection',
@@ -191,7 +191,7 @@ return [
             'targets' => [
                 [
                     'class' => 'notamedia\sentry\SentryTarget',
-                    'dsn' => 'https://6cbd2100e1ff41e7875352655ffbf50d:e18336b09d864b29aa12aca3fbc6706c@sentry.io/168200',
+                    'dsn' => getenv('SENTRY_DSN') ?: null,
                     'levels' => ['error', 'warning'],
                     'except' => [
                         'yii\web\BadRequestHttpException',
