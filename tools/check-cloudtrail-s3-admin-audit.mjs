@@ -12,26 +12,41 @@ const script = join(root, 'tools/audit-cloudtrail-s3-admin-events.mjs');
 const dir = mkdtempSync(join(tmpdir(), 'cloudtrail-s3-admin-audit-'));
 const jsonInput = join(dir, 'cloudtrail.json');
 const csvInput = join(dir, 'cloudtrail.csv');
+const invalidJsonInput = join(dir, 'invalid-cloudtrail.json');
+const invalidJsonlInput = join(dir, 'invalid-cloudtrail.jsonl');
+
+const riskyEvents = [
+    'PutBucketLifecycleConfiguration',
+    'DeleteBucketCors',
+    'PutBucketCors',
+    'DeleteBucketPolicy',
+    'PutBucketPolicy',
+    'PutBucketReplicationConfiguration',
+    'PutBucketLogging',
+    'PutPublicAccessBlock',
+    'DeletePublicAccessBlock',
+];
 
 writeFileSync(
     jsonInput,
     JSON.stringify(
         {
             Records: [
-                {
-                    eventTime: '2026-04-18T09:00:00Z',
-                    eventName: 'PutBucketLifecycleConfiguration',
+                ...riskyEvents.map((eventName, index) => ({
+                    eventTime: `2026-04-18T09:${String(index).padStart(2, '0')}:00Z`,
+                    eventName,
                     userIdentity: {
-                        userName: 'railway-s3-access',
-                        accessKeyId: 'AKIA222222222222WCUM',
+                        userName: index % 2 === 0 ? 'railway-s3-access' : 'n8n-s3-access',
+                        accessKeyId: `AKIA222222222222${String(index).padStart(4, '0')}`,
                     },
-                    sourceIPAddress: '203.0.113.10',
+                    sourceIPAddress: `203.0.113.${index + 10}`,
                     userAgent: 'aws-cli/2.15.0',
                     awsRegion: 'eu-west-2',
                     requestParameters: {
-                        bucketName: 'studenthub-uploads',
+                        bucketName: index === 3 ? 'wallet-uploads' : 'studenthub-uploads',
                     },
-                },
+                    ...(index === 3 ? {errorCode: 'AccessDenied'} : {}),
+                })),
                 {
                     eventTime: '2026-04-18T09:05:00Z',
                     eventName: 'PutObject',
@@ -42,21 +57,6 @@ writeFileSync(
                     requestParameters: {
                         bucketName: 'studenthub-uploads',
                     },
-                },
-                {
-                    eventTime: '2026-04-18T10:00:00Z',
-                    eventName: 'DeleteBucketPolicy',
-                    userIdentity: {
-                        userName: 'mediaconverter',
-                        accessKeyId: 'AKIA222222222222OFLT',
-                    },
-                    sourceIPAddress: '198.51.100.9',
-                    userAgent: 'console.amazonaws.com',
-                    awsRegion: 'eu-west-2',
-                    requestParameters: {
-                        bucketName: 'wallet-uploads',
-                    },
-                    errorCode: 'AccessDenied',
                 },
             ],
         },
@@ -73,26 +73,37 @@ writeFileSync(
     ].join('\n'),
 );
 
+writeFileSync(invalidJsonInput, JSON.stringify({Records: {eventName: 'PutBucketPolicy'}}));
+writeFileSync(invalidJsonlInput, '{"eventName": "PutBucketPolicy"}\n{"eventName":');
+
 const markdown = execFileSync(process.execPath, [script, '--input', jsonInput, '--input', csvInput], {encoding: 'utf8'});
 
-assert.match(markdown, /Matching bucket-admin events: 3/);
-assert.match(markdown, /Critical\/high events: 1/);
-assert.match(markdown, /PutBucketLifecycleConfiguration: 1/);
-assert.match(markdown, /DeleteBucketPolicy: 1/);
-assert.match(markdown, /PutBucketCors: 1/);
-assert.match(markdown, /railway-s3-access: 1/);
-assert.match(markdown, /mediaconverter: 1/);
-assert.match(markdown, /n8n-s3-access: 1/);
+assert.match(markdown, /Matching bucket-admin events: 10/);
+assert.match(markdown, /Critical\/high events: 4/);
+for (const eventName of riskyEvents) {
+    const expectedCount = eventName === 'PutBucketCors' ? 2 : 1;
+    assert.match(markdown, new RegExp(`${eventName}: ${expectedCount}`));
+}
+assert.match(markdown, /railway-s3-access: 5/);
+assert.match(markdown, /n8n-s3-access: 5/);
 assert.match(markdown, /wallet-uploads/);
 assert.match(markdown, /watched service user; non-StudentHub bucket; failed with AccessDenied/);
-assert.doesNotMatch(markdown, /AKIA222222222222WCUM/);
-assert.match(markdown, /\|2026-04-18T09:00:00Z\|critical\|PutBucketLifecycleConfiguration\|railway-s3-access\|WCUM\|/);
+assert.doesNotMatch(markdown, /AKIA2222222222220000/);
+assert.match(markdown, /\|2026-04-18T09:00:00Z\|critical\|PutBucketLifecycleConfiguration\|railway-s3-access\|0000\|/);
 
 const csv = execFileSync(process.execPath, [script, '--input', jsonInput, '--format', 'csv'], {encoding: 'utf8'});
 
 assert.match(csv, /event_time,severity,event_name,user_name,access_key_suffix/);
-assert.match(csv, /2026-04-18T10:00:00Z,low,DeleteBucketPolicy,mediaconverter,OFLT/);
-assert.doesNotMatch(csv, /AKIA222222222222OFLT/);
+assert.match(csv, /2026-04-18T09:03:00Z,low,DeleteBucketPolicy,n8n-s3-access,0003/);
+assert.doesNotMatch(csv, /AKIA2222222222220003/);
 assert.doesNotMatch(csv, /PutObject/);
+
+const csvFromCsvInput = execFileSync(process.execPath, [script, '--input', csvInput, '--format', 'csv'], {encoding: 'utf8'});
+
+assert.match(csvFromCsvInput, /2026-04-19T08:00:00Z,medium,PutBucketCors,n8n-s3-access,NANA/);
+assert.doesNotMatch(csvFromCsvInput, /AKIA222222222222NANA/);
+
+assert.throws(() => execFileSync(process.execPath, [script, '--input', invalidJsonInput], {encoding: 'utf8', stdio: 'pipe'}), /Records array/);
+assert.throws(() => execFileSync(process.execPath, [script, '--input', invalidJsonlInput], {encoding: 'utf8', stdio: 'pipe'}), /Invalid JSONL.*line 2/);
 
 console.log('CloudTrail S3 admin audit helper check passed.');

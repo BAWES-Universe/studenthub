@@ -89,21 +89,40 @@ function readEvents(file) {
 }
 
 function parseJsonEvents(raw, file) {
+    let parsed;
+
     try {
-        const parsed = JSON.parse(raw);
-        const records = Array.isArray(parsed) ? parsed : parsed.Records;
-
-        if (!Array.isArray(records)) {
-            throw new Error('JSON input must be an array or an object with a Records array');
-        }
-
-        return records.map((event) => normalizeEvent(event, file));
+        parsed = JSON.parse(raw);
     } catch (error) {
-        return raw
-            .split(/\r?\n/)
-            .filter(Boolean)
-            .map((line) => normalizeEvent(JSON.parse(line), file));
+        return parseJsonlEvents(raw, file, error);
     }
+
+    const records = Array.isArray(parsed) ? parsed : parsed.Records;
+
+    if (!Array.isArray(records)) {
+        throw new Error('JSON input must be an array or an object with a Records array');
+    }
+
+    return records.map((event) => normalizeEvent(event, file));
+}
+
+function parseJsonlEvents(raw, file, originalError) {
+    const lines = raw
+        .split(/\r?\n/)
+        .map((line, index) => ({line: line.trim(), lineNumber: index + 1}))
+        .filter(({line}) => line);
+
+    if (lines.length <= 1 || !lines.every(({line}) => line.startsWith('{'))) {
+        throw new Error(`Invalid JSON input in ${file}: ${originalError.message}`);
+    }
+
+    return lines.map(({line, lineNumber}) => {
+        try {
+            return normalizeEvent(JSON.parse(line), file);
+        } catch (error) {
+            throw new Error(`Invalid JSONL input in ${file} at line ${lineNumber}: ${error.message}`);
+        }
+    });
 }
 
 function parseCsvEvents(raw, file) {
@@ -366,7 +385,7 @@ function mapToBullets(map) {
 function redact(value) {
     return String(value ?? '')
         .replace(ACCESS_KEY_PATTERN, (match) => `AKIA…${match.slice(-4)}`)
-        .replace(SECRET_SHAPED_PATTERN, '[REDACTED]');
+        .replace(SECRET_SHAPED_PATTERN, (match) => (/[0-9/+=]/.test(match) ? '[REDACTED]' : match));
 }
 
 function csvEscape(value) {
