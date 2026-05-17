@@ -1,6 +1,7 @@
 """Validate that Railway database credentials stay runtime-configured."""
 
 
+import os
 from pathlib import Path
 
 
@@ -45,6 +46,18 @@ COMPONENT_PASSWORD_ENV = {
 }
 
 
+def load_forbidden_secret_fragments():
+    """Load optional secret fragments without committing them to this test."""
+    fragments = []
+    fragments.extend(os.environ.get("FORBIDDEN_SECRET_FRAGMENTS", "").splitlines())
+
+    fragment_file = os.environ.get("FORBIDDEN_SECRET_FRAGMENTS_FILE")
+    if fragment_file:
+        fragments.extend(Path(fragment_file).read_text(encoding="utf-8").splitlines())
+
+    return [fragment.strip() for fragment in fragments if fragment.strip()]
+
+
 def read(path):
     """Read a repository file as UTF-8 text."""
     return path.read_text(encoding="utf-8")
@@ -71,6 +84,12 @@ def main():
     config = read(DEV_CONFIG)
     doc = read(DOC)
     script_contents = [read(path) for path in DEPLOYMENT_SCRIPTS]
+    forbidden_fragments = load_forbidden_secret_fragments()
+    checked_files = [
+        (DEV_CONFIG, config),
+        (DOC, doc),
+        *zip(DEPLOYMENT_SCRIPTS, script_contents),
+    ]
 
     for name in DEV_CONFIG_ENV_VARS:
         require(f"getenv('{name}')" in config, f"Dev Railway config must use getenv('{name}').")
@@ -90,6 +109,13 @@ def main():
             require(token in content, f"{path} must contain {token!r}.")
         require('-p"$MYSQL_PASSWORD"' not in content, f"{path} must not pass MYSQL_PASSWORD on the command line.")
         require('MYSQL_PASSWORD="' not in content, f"{path} must not assign a committed MYSQL_PASSWORD.")
+
+    for path, content in checked_files:
+        match_count = sum(1 for fragment in forbidden_fragments if fragment in content)
+        require(
+            match_count == 0,
+            f"{path} must not contain {match_count} runtime-provided forbidden secret fragment(s).",
+        )
 
     print("Railway DB runtime secret check passed.")
 
