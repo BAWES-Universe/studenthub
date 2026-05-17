@@ -55,9 +55,9 @@ return [
         ],
         'cloudinaryManager' => [
             'class' => 'common\components\CloudinaryManager',
-            'cloud_name' => 'studenthub',
-            'api_key' => '251218449868375',
-            'api_secret' => 'FILAex7q93GUB-q1bEe1pAKOIvY'
+            'cloud_name' => getenv('CLOUDINARY_CLOUD_NAME') ?: null,
+            'api_key' => getenv('CLOUDINARY_API_KEY') ?: null,
+            'api_secret' => getenv('CLOUDINARY_API_SECRET') ?: null
             /**
              * You can access the bucket with:
              * http://res.cloudinary.com/studenthub/
