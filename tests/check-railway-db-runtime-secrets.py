@@ -2,6 +2,7 @@
 
 
 import os
+import re
 from pathlib import Path
 
 
@@ -53,7 +54,15 @@ def load_forbidden_secret_fragments():
 
     fragment_file = os.environ.get("FORBIDDEN_SECRET_FRAGMENTS_FILE")
     if fragment_file:
-        fragments.extend(Path(fragment_file).read_text(encoding="utf-8").splitlines())
+        fragment_path = Path(fragment_file)
+        require(
+            fragment_path.is_file(),
+            f"Forbidden secret fragment file is not readable: {fragment_file}",
+        )
+        try:
+            fragments.extend(fragment_path.read_text(encoding="utf-8").splitlines())
+        except OSError as error:
+            raise SystemExit(f"Could not read forbidden secret fragment file {fragment_file}: {error}") from error
 
     return [fragment.strip() for fragment in fragments if fragment.strip()]
 
@@ -79,6 +88,22 @@ def component_block(config, name):
     return config[start:end]
 
 
+def uses_getenv(text, env_var):
+    """Return whether text reads an environment variable via getenv."""
+    return re.search(rf"getenv\(\s*['\"]{re.escape(env_var)}['\"]\s*\)", text) is not None
+
+
+def password_uses_getenv(text, env_var):
+    """Return whether a PHP password key reads the expected environment variable."""
+    pattern = rf"['\"]password['\"]\s*=>\s*getenv\(\s*['\"]{re.escape(env_var)}['\"]\s*\)"
+    return re.search(pattern, text) is not None
+
+
+def password_has_inline_literal(text):
+    """Return whether a PHP password key is assigned a quoted literal."""
+    return re.search(r"['\"]password['\"]\s*=>\s*['\"]", text) is not None
+
+
 def main():
     """Run the Railway runtime secret regression checks."""
     config = read(DEV_CONFIG)
@@ -92,17 +117,16 @@ def main():
     ]
 
     for name in DEV_CONFIG_ENV_VARS:
-        require(f"getenv('{name}')" in config, f"Dev Railway config must use getenv('{name}').")
+        require(uses_getenv(config, name), f"Dev Railway config must use getenv('{name}').")
         require(f"`{name}`" in doc, f"Docs must mention `{name}`.")
 
     for component, env_var in COMPONENT_PASSWORD_ENV.items():
         block = component_block(config, component)
         require(
-            f"'password' => getenv('{env_var}')" in block,
+            password_uses_getenv(block, env_var),
             f"{component} password must come from getenv('{env_var}').",
         )
-        require("'password' => '" not in block, f"{component} password must not be an inline literal.")
-        require("'password' => \"" not in block, f"{component} password must not be an inline literal.")
+        require(not password_has_inline_literal(block), f"{component} password must not be an inline literal.")
 
     for path, content in zip(DEPLOYMENT_SCRIPTS, script_contents):
         for token in SCRIPT_TOKENS:
