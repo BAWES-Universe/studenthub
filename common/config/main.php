@@ -26,6 +26,10 @@ return [
         'class' => 'common\components\GoogleMap',
         'accessKey' => getenv('GOOGLE_MAPS_API_KEY'),
         ],
+        'googleIdTokenVerifier' => [
+            'class' => 'common\components\GoogleIdTokenVerifier',
+            'allowedClientIds' => getenv('GOOGLE_OAUTH_CLIENT_IDS') ?: '',
+        ],
         'reCaptcha' => [
             'class' => 'common\components\ReCaptcha',
             'secretKey' => "6Lei9R4pAAAAAD5-OIUbCZeMQ00saNLKNuU62b4v"
