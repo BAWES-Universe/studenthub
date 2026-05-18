@@ -2690,6 +2690,66 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     }
 
     /**
+     * Normalize a Civil ID object key stored in the DB to the permanent-bucket path:
+     * always `photos/<basename>` without duplicate `photos/photos/` prefixes.
+     *
+     * @param string|null $stored Raw DB value (filename only, photos/..., or candidate-civil-id/...)
+     * @return string Normalized S3 key or empty string when empty after trim
+     */
+    public static function normalizeCivilIdPermanentS3Key($stored): string
+    {
+        if ($stored === null || $stored === '') {
+            return '';
+        }
+
+        $v = ltrim(trim((string)$stored), '/');
+
+        if ($v === '') {
+            return '';
+        }
+
+        if (strpos($v, 'photos/') === 0) {
+            return $v;
+        }
+
+        if (strpos($v, 'candidate-civil-id/') === 0) {
+            $rest = substr($v, strlen('candidate-civil-id/'));
+            $basename = basename($rest);
+
+            return $basename === '' ? '' : ('photos/' . $basename);
+        }
+
+        return 'photos/' . $v;
+    }
+
+    /**
+     * Classify S3 delete failures for logging (missing object vs other).
+     *
+     * @param \Throwable $e
+     * @return string `s3_object_missing` or `s3_delete_failed`
+     */
+    public static function classifyS3DeleteThrowable(\Throwable $e): string
+    {
+        if ($e instanceof \Aws\S3\Exception\S3Exception) {
+            $code = $e->getAwsErrorCode();
+            if ($code === 'NoSuchKey' || $code === 'NotFound') {
+                return 's3_object_missing';
+            }
+        }
+
+        $msg = $e->getMessage();
+        if (stripos($msg, 'NoSuchKey') !== false || stripos($msg, 'not found') !== false) {
+            return 's3_object_missing';
+        }
+
+        if (preg_match('/\b404\b/', $msg)) {
+            return 's3_object_missing';
+        }
+
+        return 's3_delete_failed';
+    }
+
+    /**
      * delete file from aws
      * @param string $type
      * @param string $side
@@ -2697,39 +2757,58 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function deleteFile($type = 'resume', $side = 'front') {
 
+        $file = null;
+
+        $errorAttribute = 'candidate_resume';
+        if ($type === 'civil-id') {
+            $errorAttribute = ($side === 'back')
+                ? 'candidate_civil_photo_back'
+                : 'candidate_civil_photo_front';
+        }
+
         try {
             if (isset($this->oldPrimaryKey)) {
-                
-                $file = null; 
-                
+
                 if ($type == 'resume' && isset($this->oldAttributes['candidate_resume'])) {
                     $file = "candidate-resume/" . $this->oldAttributes['candidate_resume'];
                 } else if ($type == 'civil-id' && $side == 'front' && isset($this->oldAttributes['candidate_civil_photo_front'])) {
-                    $file = "candidate-civil-id/" . $this->oldAttributes['candidate_civil_photo_front'];
+                    $file = self::normalizeCivilIdPermanentS3Key($this->oldAttributes['candidate_civil_photo_front']);
                 } else if ($type == 'civil-id' && $side == 'back' && isset($this->oldAttributes['candidate_civil_photo_back'])) {
-                    $file = "candidate-civil-id/" . $this->oldAttributes['candidate_civil_photo_back'];
+                    $file = self::normalizeCivilIdPermanentS3Key($this->oldAttributes['candidate_civil_photo_back']);
                 }
-                
+
                 if ($file) {
                     Yii::$app->resourceManager->delete($file);
                 }
             }
 
-        } catch (\Aws\S3\Exception\S3Exception $e) {
+            return true;
 
-            Yii::error($e->getMessage(), 'candidate');
+        } catch (\Throwable $e) {
 
-            $this->addError('candidate_resume', Yii::t('app', 'file not available to delete.'));
+            // Missing-object deletes (e.g. the legacy PressureDelete3Days lifecycle
+            // already removed the object) must not break remove/replace flows.
+            $reason = ($type === 'civil-id')
+                ? self::classifyS3DeleteThrowable($e)
+                : 's3_delete_failed';
 
-            return false;
+            Yii::warning([
+                'action'       => 'Candidate::deleteFile',
+                'candidate_id' => $this->candidate_id ?? null,
+                'type'         => $type,
+                'side'         => $side,
+                'reason'       => $reason,
+                's3_key'       => $file,
+                'exception'    => get_class($e),
+                'message'      => $e->getMessage(),
+            ], 'candidate.civil-id');
 
-        } catch (\Exception $e) {
+            if ($type === 'resume') {
+                $this->addError($errorAttribute, Yii::t('app', 'file not available to delete.'));
+                return false;
+            }
 
-            Yii::error($e->getMessage(), 'candidate');
-
-            $this->addError('candidate_resume', Yii::t('app', 'file not available to delete.'));
-
-            return false;
+            return true;
         }
     }
 
@@ -2740,38 +2819,77 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $idSide = ($side == 'front') ? 'candidate_civil_photo_front' : 'candidate_civil_photo_back';
 
-        if (!empty($this->oldAttributes[$idSide])) {
-            $this->deleteFile('civil-id', $side);
-        }
-
         $fileName = $this->$idSide;
 
         $sourceBucket = Yii::$app->temporaryBucketResourceManager->bucket;
 
-        $targetPath = "photos/" . $fileName;
+        $targetPath = self::normalizeCivilIdPermanentS3Key($fileName);
 
-        // Copy using S3ResourceManager Component
-        
+        if ($targetPath === '') {
+            $this->addError($idSide, Yii::t('app', 'file not available to save.'));
+            return false;
+        }
+
+        // 1) Copy new file from temp bucket to permanent bucket FIRST.
+        //    Only after a successful copy do we touch the old file.
         try {
 
-            return Yii::$app->resourceManager->copy($fileName, $targetPath, $sourceBucket);
+            Yii::$app->resourceManager->copy($fileName, $targetPath, $sourceBucket);
 
-        } catch (\Aws\S3\Exception\S3Exception $e) {
+        } catch (\Throwable $e) {
 
-            Yii::error($e->getMessage(), 'candidate');
-
-            $this->addError($idSide, Yii::t('app', 'file not available to save.'));
-
-            return false;
-
-        } catch (\Exception $e) {
-
-            Yii::error($e->getMessage(), 'candidate');
+            Yii::error([
+                'action'       => 'Candidate::updateCivilId',
+                'candidate_id' => $this->candidate_id ?? null,
+                'side'         => $side,
+                'source_key'   => $fileName,
+                'source_bucket'=> $sourceBucket,
+                'target_key'   => $targetPath,
+                'exception'    => get_class($e),
+                'message'      => $e->getMessage(),
+            ], 'candidate.civil-id');
 
             $this->addError($idSide, Yii::t('app', 'file not available to save.'));
 
             return false;
         }
+
+        // 2) Optional post-copy verification. Non-fatal: existing fileExists()
+        //    performs an HTTP HEAD on the public URL, which is fine because
+        //    copy() writes objects with ACL=public-read.
+        try {
+            if (!Yii::$app->resourceManager->fileExists($targetPath)) {
+                Yii::warning([
+                    'action'       => 'Candidate::updateCivilId',
+                    'candidate_id' => $this->candidate_id ?? null,
+                    'side'         => $side,
+                    'target_key'   => $targetPath,
+                    'reason'       => 'post-copy verification failed',
+                ], 'candidate.civil-id');
+            }
+        } catch (\Throwable $e) {
+            // verification is best-effort; never fail the upload because of it
+            Yii::warning([
+                'action'       => 'Candidate::updateCivilId',
+                'candidate_id' => $this->candidate_id ?? null,
+                'side'         => $side,
+                'target_key'   => $targetPath,
+                'reason'       => 'post-copy verification raised',
+                'exception'    => get_class($e),
+                'message'      => $e->getMessage(),
+            ], 'candidate.civil-id');
+        }
+
+        // 3) Best-effort delete of the old permanent-bucket file. deleteFile()
+        //    now logs and swallows missing-object failures for civil-id.
+        $oldNorm = self::normalizeCivilIdPermanentS3Key($this->oldAttributes[$idSide] ?? '');
+        $newNorm = self::normalizeCivilIdPermanentS3Key((string)$fileName);
+
+        if ($oldNorm !== '' && $oldNorm !== $newNorm) {
+            $this->deleteFile('civil-id', $side);
+        }
+
+        return true;
     }
 
     /**
