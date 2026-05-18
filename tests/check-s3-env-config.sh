@@ -4,6 +4,8 @@ set -euo pipefail
 TEMP_CONFIG="common/config/main.php"
 PERMANENT_CONFIG="environments/prod-railway/common/config/main-local.php"
 
+# Assert that a config file still contains an expected env-backed setting.
+# This keeps the security regression check readable as new S3 keys are added.
 require_line() {
   local file="$1"
   local expected="$2"
