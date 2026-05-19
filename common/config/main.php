@@ -10,12 +10,7 @@ return [
             'region' => 'eu-west-2', // Bucket based in London
             'key' => getenv('AWS_TEMP_BUCKET_KEY'),
             'secret' => getenv('AWS_TEMP_BUCKET_SECRET'),
-            'bucket' => 'studenthub-public-anyone-can-upload-24hr-expiry'
-            /**
-             * You can access the Temporary bucket with:
-             * https://studenthub-public-anyone-can-upload-24hr-expiry.s3.amazonaws.com/
-             * https://studenthub-public-anyone-can-upload-24hr-expiry.s3.amazonaws.com/folderName/fileName.jpg
-             */
+            'bucket' => getenv('AWS_TEMP_BUCKET_NAME') ?: 'studenthub-public-anyone-can-upload-24hr-expiry'
         ],
         'idExpiryDateExtractor' => [
             'class' => 'common\components\IdExpiryDateExtractor',
@@ -23,12 +18,12 @@ return [
             'secret' => getenv('AWS_TEXTRACT_SECRET_ACCESS_KEY') ?: '',
         ],
         'googleMap' => [
-        'class' => 'common\components\GoogleMap',
-        'accessKey' => getenv('GOOGLE_MAPS_API_KEY'),
+            'class' => 'common\components\GoogleMap',
+            'accessKey' => getenv('GOOGLE_MAPS_API_KEY'),
         ],
         'reCaptcha' => [
             'class' => 'common\components\ReCaptcha',
-            'secretKey' => "6Lei9R4pAAAAAD5-OIUbCZeMQ00saNLKNuU62b4v"
+            'secretKey' => getenv('RECAPTCHA_SECRET_KEY')
         ],
         'jwt' => [
             'class' => 'common\components\JWT'
@@ -38,31 +33,24 @@ return [
         ],
         'jira' => [
             'class' => 'common\components\JiraComponent',
-            'jiraUrl' => 'https://bawes-studenthub.atlassian.net',
-            'email' => 'kk@bawes.net',
-            'apiToken' => 'eYVHMtAi16zN56M2PS3gB8AB'
+            'jiraUrl' => getenv('JIRA_URL') ?: 'https://bawes-studenthub.atlassian.net',
+            'email' => getenv('JIRA_EMAIL'),
+            'apiToken' => getenv('JIRA_API_TOKEN')
         ],
         'algolia' => [
             'class' => 'common\components\Algolia',
-            'appId' => 'VQF0F2SG4Y',
-            'apiKey' => 'bce91c65c212d2bb20c079eb15c2283b', 
-           // 'publicKey' => '381f91f1c08f4d2788a6821cad1ccbbb'
+            'appId' => getenv('ALGOLIA_APP_ID'),
+            'apiKey' => getenv('ALGOLIA_API_KEY'), 
         ],
         'ipstack' => [
             'class' => 'common\components\Ipstack',
-            //'accessKey' => 'fac3c2117d877e078e3e8fa7839d8204'
-            'accessKey' => '911bdd76f42e7f'
+            'accessKey' => getenv('IPSTACK_ACCESS_KEY')
         ],
         'cloudinaryManager' => [
             'class' => 'common\components\CloudinaryManager',
-            'cloud_name' => 'studenthub',
-            'api_key' => '251218449868375',
-            'api_secret' => 'FILAex7q93GUB-q1bEe1pAKOIvY'
-            /**
-             * You can access the bucket with:
-             * http://res.cloudinary.com/studenthub/
-             * http://res.cloudinary.com/studenthub/image/upload/candidate-photo/fileName.jpg
-             */ 
+            'cloud_name' => getenv('CLOUDINARY_CLOUD_NAME'),
+            'api_key' => getenv('CLOUDINARY_API_KEY'),
+            'api_secret' => getenv('CLOUDINARY_API_SECRET')
         ],
         'formatter' => [
             'currencyCode' => 'KWD',
@@ -70,7 +58,7 @@ return [
         ],
         'slack' => [
             'class' => 'understeam\slack\Client',
-            'url' => 'https://hooks.slack.com/services/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',
+            'url' => getenv('SLACK_WEBHOOK_URL'),
             'username' => 'StudentHub',
         ],
         'auth0' => [
