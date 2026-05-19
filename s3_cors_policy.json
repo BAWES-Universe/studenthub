@@ -1,0 +1,26 @@
+[
+    {
+        "AllowedHeaders": [
+            "*"
+        ],
+        "AllowedMethods": [
+            "GET",
+            "PUT",
+            "POST",
+            "DELETE",
+            "HEAD"
+        ],
+        "AllowedOrigins": [
+            "https://studenthub.co",
+            "https://staff.api.studenthub.co",
+            "https://student.api.studenthub.co"
+        ],
+        "ExposeHeaders": [
+            "ETag",
+            "x-amz-server-side-encryption",
+            "x-amz-request-id",
+            "x-amz-id-2"
+        ],
+        "MaxAgeSeconds": 3000
+    }
+]
