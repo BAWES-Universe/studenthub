@@ -155,12 +155,9 @@ class AuthController extends Controller
 
         $token = Yii::$app->request->getBodyParam("idToken");
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, "https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=" . $token);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        $response = json_decode(curl_exec($ch));
+        $response = Yii::$app->googleIdTokenVerifier->verify($token);
 
-        if (empty($response->email)) {
+        if (!$response) {
             return [
                 'operation' => 'error',
                 "code" => 1,
