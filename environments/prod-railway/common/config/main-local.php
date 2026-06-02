@@ -1,7 +1,8 @@
 <?php
-$sentryDsn = getenv('SENTRY_DSN') ?: '';
+$sentryDsn = getenv('SENTRY_DSN') ?: null;
 $sentryEnvironment = getenv('SENTRY_ENVIRONMENT') ?: (defined('YII_ENV') ? YII_ENV : 'production');
 $sentryTracesSampleRate = getenv('SENTRY_TRACES_SAMPLE_RATE');
+$sentryTracesSampleRate = is_numeric($sentryTracesSampleRate) ? max(0.0, min(1.0, (float) $sentryTracesSampleRate)) : 0.1;
 
 return [
     'components' => [
@@ -208,7 +209,7 @@ return [
                     'clientOptions' => [
                         //which environment are we running this on?
                         'environment' => $sentryEnvironment,
-                        'traces_sample_rate' => $sentryTracesSampleRate !== false ? (float) $sentryTracesSampleRate : 0.1,
+                        'traces_sample_rate' => $sentryTracesSampleRate,
 
                         // Disable notifications for malicious errors from 3rd party
                         // 'send_callback' => function($data) {
