@@ -1,4 +1,8 @@
 <?php
+$sentryDsn = getenv('SENTRY_DSN') ?: '';
+$sentryEnvironment = getenv('SENTRY_ENVIRONMENT') ?: (defined('YII_ENV') ? YII_ENV : 'production');
+$sentryTracesSampleRate = getenv('SENTRY_TRACES_SAMPLE_RATE');
+
 return [
     'components' => [
         'db' => [
@@ -191,7 +195,7 @@ return [
             'targets' => [
                 [
                     'class' => 'notamedia\sentry\SentryTarget',
-                    'dsn' => 'https://6cbd2100e1ff41e7875352655ffbf50d:e18336b09d864b29aa12aca3fbc6706c@sentry.io/168200',
+                    'dsn' => $sentryDsn,
                     'levels' => ['error', 'warning'],
                     'except' => [
                         'yii\web\BadRequestHttpException',
@@ -203,7 +207,8 @@ return [
                     ],
                     'clientOptions' => [
                         //which environment are we running this on?
-                        'environment' => 'production',
+                        'environment' => $sentryEnvironment,
+                        'traces_sample_rate' => $sentryTracesSampleRate !== false ? (float) $sentryTracesSampleRate : 0.1,
 
                         // Disable notifications for malicious errors from 3rd party
                         // 'send_callback' => function($data) {
