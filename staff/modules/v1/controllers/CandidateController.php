@@ -264,7 +264,11 @@ class CandidateController extends Controller
         $model->candidate_iban = Yii::$app->request->getBodyParam("iban");
         $model->candidate_name = Yii::$app->request->getBodyParam("name");
         $model->candidate_name_ar = Yii::$app->request->getBodyParam("name_ar");
-        $model->candidate_personal_photo = Yii::$app->request->getBodyParam("personal_photo");
+        $personalPhoto = Yii::$app->request->getBodyParam("personal_photo");
+        if (!empty($personalPhoto)) {
+            $model->candidate_personal_photo = $personalPhoto;
+        }
+
         $model->candidate_email = Yii::$app->request->getBodyParam("email");
         $model->candidate_phone = Yii::$app->request->getBodyParam("phone");
         $model->candidate_civil_id = Yii::$app->request->getBodyParam("civil_id");
