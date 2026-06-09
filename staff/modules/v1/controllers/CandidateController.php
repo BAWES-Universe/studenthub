@@ -254,6 +254,7 @@ class CandidateController extends Controller
         $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $model = $this->findModel($id);
+        $model->scenario = 'staffUpdate';
 
         $model->candidate_preferred_time = Yii::$app->request->getBodyParam ('preferred_time');
         $model->store_id = Yii::$app->request->getBodyParam("store_id");
@@ -263,13 +264,25 @@ class CandidateController extends Controller
         $model->candidate_iban = Yii::$app->request->getBodyParam("iban");
         $model->candidate_name = Yii::$app->request->getBodyParam("name");
         $model->candidate_name_ar = Yii::$app->request->getBodyParam("name_ar");
-        $model->candidate_personal_photo = Yii::$app->request->getBodyParam("personal_photo");
+        $personalPhoto = Yii::$app->request->getBodyParam("personal_photo");
+        if (!empty($personalPhoto)) {
+            $model->candidate_personal_photo = $personalPhoto;
+        }
+
         $model->candidate_email = Yii::$app->request->getBodyParam("email");
         $model->candidate_phone = Yii::$app->request->getBodyParam("phone");
         $model->candidate_civil_id = Yii::$app->request->getBodyParam("civil_id");
 
-        $model->candidate_civil_photo_front = Yii::$app->request->getBodyParam("photo_front");
-        $model->candidate_civil_photo_back = Yii::$app->request->getBodyParam("photo_back");
+        $photoFront = Yii::$app->request->getBodyParam("photo_front");
+        if (!empty($photoFront)) {
+            $model->candidate_civil_photo_front = $photoFront;
+        }
+
+        $photoBack = Yii::$app->request->getBodyParam("photo_back");
+        if (!empty($photoBack)) {
+            $model->candidate_civil_photo_back = $photoBack;
+        }
+
         //$model->candidate_hourly_rate = Yii::$app->request->getBodyParam("hourly_rate");
         $model->currency_code =  Yii::$app->request->getBodyParam("currency_code", "KWD");
 
