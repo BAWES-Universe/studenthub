@@ -140,8 +140,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_birth_date'], "validateAge"],
             // 'candidate_phone',
             [['university_id', 'country_id', 'candidate_email', 'candidate_birth_date',
-                'candidate_civil_photo_front', 'candidate_civil_photo_back', 'candidate_personal_photo',
-                'currency_code'], 'required'],
+                'candidate_personal_photo', 'currency_code'], 'required'],
+            [['candidate_civil_photo_front', 'candidate_civil_photo_back'], 'required', 'except' => ['staffUpdate']],
             [['candidate_name','candidate_name_ar'], 'trim'],
             [['candidate_password_hash'], 'required'],
             [['candidate_email_verification'], 'default', 'value' => self::EMAIL_NOT_VERIFIED],
@@ -308,6 +308,17 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $scenarios = parent::scenarios();
 
         $scenarios['deleteCandidate'] = ['deleted', 'is_duplicate'];
+
+        $scenarios['staffUpdate'] = [
+            'candidate_preferred_time', 'store_id', 'university_id', 'country_id',
+            'bank_account_name', 'candidate_iban', 'candidate_name', 'candidate_name_ar',
+            'candidate_personal_photo', 'candidate_email', 'candidate_phone',
+            'candidate_civil_id', 'candidate_civil_photo_front', 'candidate_civil_photo_back',
+            'currency_code', 'candidate_driving_license', 'candidate_gender',
+            'candidate_objective', 'candidate_birth_date', 'candidate_civil_expiry_date',
+            'candidate_resume', 'candidate_latitude', 'candidate_longitude',
+            'candidate_area_uuid', 'candidate_mom_kuwaiti', 'is_incomplete_profile'
+        ];
 
         $scenarios['updateName'] = ['candidate_name', 'is_incomplete_profile'];
 
