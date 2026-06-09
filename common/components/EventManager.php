@@ -5,10 +5,14 @@ use common\models\Webhook;
 use Segment\Segment;
 use Yii;
 use yii\base\Component;
+use yii\base\InvalidConfigException;
 use Aws\Sqs\SqsClient;
 use Aws\Exception\AwsException;
 use yii\httpclient\Client;
 
+/**
+ * Coordinates analytics, queue, endpoint, and webhook event delivery.
+ */
 class EventManager extends Component
 {
     /**
@@ -50,6 +54,11 @@ class EventManager extends Component
      * @var string AWS SQS endpoint
      */
     public $sqsEndpoint;
+
+    /**
+     * @var string|null bearer token for the event microservice endpoint
+     */
+    public $sqsEndpointApiKey;
 
 	/**
      * @var string Mixpanel key
@@ -395,9 +404,19 @@ class EventManager extends Component
     }
 
     /**
-     * API call for webhook
+     * Send a JSON request to the configured SQS endpoint with a required bearer token.
+     *
+     * @param string $method HTTP method to use
+     * @param string $url endpoint URL to call
+     * @param array $data JSON payload to send
+     * @return \yii\httpclient\Response
+     * @throws InvalidConfigException when EVENT_MANAGER_ENDPOINT_API_KEY is not configured
      */
     public function call($method, $url, $data = []) {
+        if (trim((string) $this->sqsEndpointApiKey) === '') {
+            throw new InvalidConfigException('EVENT_MANAGER_ENDPOINT_API_KEY must be configured before sending SQS endpoint events.');
+        }
+
         $client = new Client();
 
         return $client->createRequest()
@@ -406,7 +425,7 @@ class EventManager extends Component
             ->setFormat(Client::FORMAT_JSON)
             ->setData($data)
             ->addHeaders([
-                'Authorization' =>'Bearer QstN8_18LmILpl37r2zvdDCp5JjWPCNh',
+                'Authorization' => 'Bearer ' . trim((string) $this->sqsEndpointApiKey),
                 "Content-Type" => "application/json",
                 'User-Agent' => 'request',
             ])

@@ -31,6 +31,34 @@ Use the provided script in the project root:
 ./run-tests.sh
 ```
 
+### Service Integration Secrets
+
+Keep service API tokens in deployment environment variables instead of checked-in
+config files or browser bundles:
+
+```bash
+WALLET_API_KEY=
+YEASTER_MICROSERVICE_API_KEY=
+EVENT_MANAGER_ENDPOINT_API_KEY=
+```
+
+`WALLET_API_KEY` is used by the legacy wallet integration when enabled.
+`YEASTER_MICROSERVICE_API_KEY` authenticates voicemail microservice requests.
+`EVENT_MANAGER_ENDPOINT_API_KEY` authenticates EventManager calls to the SQS
+bridge endpoint when `sqsEndpoint` is configured.
+
+Configure these values in each deployment environment that enables the
+corresponding integration. Production and shared staging environments should use
+provider-issued tokens from the wallet service, voicemail microservice, and SQS
+bridge service owners; local development can leave an integration unset only
+when that feature is not exercised.
+
+Missing values are treated as disabled or invalid credentials. Wallet requests
+must not be sent without `WALLET_API_KEY`. Voicemail calls fail fast before
+emitting an empty `Authorization` header when `YEASTER_MICROSERVICE_API_KEY` is
+missing. EventManager calls to the SQS bridge fail fast when
+`EVENT_MANAGER_ENDPOINT_API_KEY` is missing and `sqsEndpoint` is configured.
+
 ## Server Requirements
 
 ### PHP Extensions
@@ -56,4 +84,4 @@ cd console && ../yii algolia/index candidate
 ```bash
 ./yii cron/update-candidate-stats
 ./yii cron/update-company-stats
-``` 
+```
