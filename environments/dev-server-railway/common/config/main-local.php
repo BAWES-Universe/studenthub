@@ -98,8 +98,8 @@ return [
             'endpoint' => 'https://ey3xqwxpb.mediaconvert.eu-west-2.amazonaws.com',
             'role' => 'arn:aws:iam::438663597141:role/MediaConvertPermissions',
             'jobQueue' =>  "arn:aws:mediaconvert:eu-west-2:438663597141:queues/Default",
-            "key" => "AKIAWMITDJRK5STO55KF",
-            "secret" => "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"
+            "key" => getenv('AWS_MEDIACONVERT_RAILWAY_ACCESS_KEY_ID') ?: '',
+            "secret" => getenv('AWS_MEDIACONVERT_RAILWAY_SECRET_ACCESS_KEY') ?: '',
         ],
         'resourceManager' => [
             'class' => 'common\components\S3ResourceManager',
