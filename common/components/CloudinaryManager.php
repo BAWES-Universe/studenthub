@@ -2,11 +2,10 @@
 
 namespace common\components;
 
-use Yii; 
-use Cloudinary\Cloudinary;
 use Cloudinary\Configuration\Configuration;
 use Cloudinary\Api\Upload\UploadApi;
 use Cloudinary\Api\Admin\AdminApi;
+use yii\base\InvalidConfigException;
 
 /**
  *
@@ -21,7 +20,7 @@ class CloudinaryManager extends \yii\base\Component {
     public $api_key;
     public $api_secret;
     
-    private $cloudinary;
+    private $configured = false;
 
     /**
      * @inheritdoc
@@ -30,13 +29,16 @@ class CloudinaryManager extends \yii\base\Component {
     {
         parent::init();
 
-        foreach (['cloud_name', 'api_key', 'api_secret'] as $attribute) {
-            if ($this->$attribute === null) {
-                throw new yii\base\InvalidConfigException(strtr('"{class}::{attribute}" cannot be empty.', [
-                    '{class}' => static::class,
-                    '{attribute}' => '$' . $attribute
-                ]));
-            }
+        $this->cloud_name = $this->normalizeConfigValue($this->cloud_name);
+        $this->api_key = $this->normalizeConfigValue($this->api_key);
+        $this->api_secret = $this->normalizeConfigValue($this->api_secret);
+
+        $this->configured = $this->cloud_name !== null
+            && $this->api_key !== null
+            && $this->api_secret !== null;
+
+        if (!$this->configured) {
+            return;
         }
 
         /*define('CLOUDINARY_CLOUD_NAME', $this->cloud_name);
@@ -55,6 +57,24 @@ class CloudinaryManager extends \yii\base\Component {
         ]);
     }
 
+    private function normalizeConfigValue($value)
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $value = trim((string) $value);
+
+        return $value === '' ? null : $value;
+    }
+
+    private function assertConfigured()
+    {
+        if (!$this->configured) {
+            throw new InvalidConfigException('Cloudinary credentials are not configured.');
+        }
+    }
+
     /**
      * Upload image 
      * @param string $filePath
@@ -63,7 +83,9 @@ class CloudinaryManager extends \yii\base\Component {
      */
     public function upload($filePath, $options) 
     {
-        return (new uploadApi())->upload(
+        $this->assertConfigured();
+
+        return (new UploadApi())->upload(
             $filePath, 
             $options
         );
@@ -76,6 +98,8 @@ class CloudinaryManager extends \yii\base\Component {
      */
     public function delete($path, $type = "image")
     {
+        $this->assertConfigured();
+
         //remove extension from path to get public_id
         
         $ext = pathinfo($path, PATHINFO_EXTENSION);
@@ -83,7 +107,7 @@ class CloudinaryManager extends \yii\base\Component {
         $public_id = str_replace(".".$ext, "", $path);
         //$this->cloudinary->delete
 
-        $result = (new uploadApi())->destroy($public_id, [
+        $result = (new UploadApi())->destroy($public_id, [
             "invalidate" => true,//remove from CDN cache if any
             "resource_type" => $type
         ]);
@@ -98,7 +122,9 @@ class CloudinaryManager extends \yii\base\Component {
      */
     public function getUrl($public_id, $type = "image")
     {
-        $result = (new adminApi())->asset($public_id);
+        $this->assertConfigured();
+
+        $result = (new AdminApi())->asset($public_id);
 
         if ($result['secure_url']) {
             return $result['secure_url'];
