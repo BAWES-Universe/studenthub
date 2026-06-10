@@ -151,8 +151,8 @@ return [
             'authMethod' => \common\components\S3ResourceManager::AUTH_VIA_KEY_AND_SECRET,
             'role' => 'arn:aws:iam::438663597141:role/MediaConvertPermissions',
             'jobQueue' =>  "arn:aws:mediaconvert:eu-west-2:438663597141:queues/Default",
-            "key" => getenv('AWS_MEDIACONVERT_RAILWAY_ACCESS_KEY_ID') ?: '',
-            "secret" => getenv('AWS_MEDIACONVERT_RAILWAY_SECRET_ACCESS_KEY') ?: '',
+            "key" => getenv('AWS_MEDIACONVERT_RAILWAY_ACCESS_KEY_ID') ?: null,
+            "secret" => getenv('AWS_MEDIACONVERT_RAILWAY_SECRET_ACCESS_KEY') ?: null,
         ],
         'resourceManager' => [
             'class' => 'common\components\S3ResourceManager',
