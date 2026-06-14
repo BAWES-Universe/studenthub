@@ -56,4 +56,26 @@ cd console && ../yii algolia/index candidate
 ```bash
 ./yii cron/update-candidate-stats
 ./yii cron/update-company-stats
-``` 
+```
+
+## Cloudinary Runtime Configuration
+
+Profile photos, brand logos, and company documents are stored in Cloudinary through
+`common\components\CloudinaryManager`. Do not commit Cloudinary credentials to
+the repository. Configure them through the runtime environment instead:
+
+```bash
+CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-api-key
+CLOUDINARY_API_SECRET=your-api-secret
+```
+
+If any of these variables are missing, Cloudinary upload, delete, and asset URL
+lookups fail before calling Cloudinary. This prevents partial configuration from
+accidentally using stale checked-in credentials.
+
+Before submitting config changes, run:
+
+```bash
+python scripts/check-cloudinary-hardening.py
+```

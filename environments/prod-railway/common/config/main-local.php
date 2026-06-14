@@ -1,4 +1,9 @@
 <?php
+$sentryDsn = getenv('SENTRY_DSN') ?: null;
+$sentryEnvironment = getenv('SENTRY_ENVIRONMENT') ?: (defined('YII_ENV') ? YII_ENV : 'production');
+$sentryTracesSampleRate = getenv('SENTRY_TRACES_SAMPLE_RATE');
+$sentryTracesSampleRate = is_numeric($sentryTracesSampleRate) ? max(0.0, min(1.0, (float) $sentryTracesSampleRate)) : 0.1;
+
 return [
     'components' => [
         'db' => [
@@ -146,8 +151,8 @@ return [
             'authMethod' => \common\components\S3ResourceManager::AUTH_VIA_KEY_AND_SECRET,
             'role' => 'arn:aws:iam::438663597141:role/MediaConvertPermissions',
             'jobQueue' =>  "arn:aws:mediaconvert:eu-west-2:438663597141:queues/Default",
-            "key" => getenv('AWS_MEDIACONVERT_ACCESS_KEY_ID') ?: null,
-            "secret" => getenv('AWS_MEDIACONVERT_SECRET_ACCESS_KEY') ?: null
+            "key" => getenv('AWS_MEDIACONVERT_RAILWAY_ACCESS_KEY_ID') ?: null,
+            "secret" => getenv('AWS_MEDIACONVERT_RAILWAY_SECRET_ACCESS_KEY') ?: null,
         ],
         'resourceManager' => [
             'class' => 'common\components\S3ResourceManager',
@@ -191,7 +196,7 @@ return [
             'targets' => [
                 [
                     'class' => 'notamedia\sentry\SentryTarget',
-                    'dsn' => 'https://6cbd2100e1ff41e7875352655ffbf50d:e18336b09d864b29aa12aca3fbc6706c@sentry.io/168200',
+                    'dsn' => $sentryDsn,
                     'levels' => ['error', 'warning'],
                     'except' => [
                         'yii\web\BadRequestHttpException',
@@ -203,7 +208,8 @@ return [
                     ],
                     'clientOptions' => [
                         //which environment are we running this on?
-                        'environment' => 'production',
+                        'environment' => $sentryEnvironment,
+                        'traces_sample_rate' => $sentryTracesSampleRate,
 
                         // Disable notifications for malicious errors from 3rd party
                         // 'send_callback' => function($data) {

@@ -3,16 +3,16 @@ return [
     'components' => [
         'db' => [
             'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=mysql.railway.internal;dbname=railway',
-            'username' => 'root',
-            'password' => 'TpijAlObvfdvZxzPgrnMTHMxyekEqTtt',
+            'dsn' => getenv('DB_DSN') ?: 'mysql:host=mysql.railway.internal;dbname=railway',
+            'username' => getenv('DB_USERNAME') ?: 'root',
+            'password' => getenv('DB_PASSWORD') ?: '',
             'charset' => 'utf8mb4',
         ],
         'walletDb' => [
             'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=mysql-5abl.railway.internal;dbname=railway',
-            'username' => 'root',
-            'password' => 'hOCpxbVoSIbPUnuuBmaQGILPshVyRRuj',
+            'dsn' => getenv('WALLET_DB_DSN') ?: 'mysql:host=mysql-5abl.railway.internal;dbname=railway',
+            'username' => getenv('WALLET_DB_USERNAME') ?: 'root',
+            'password' => getenv('WALLET_DB_PASSWORD') ?: '',
             'charset' => 'utf8',
         ],
         //todo: replace with wallet from sandbox
@@ -39,11 +39,11 @@ return [
         ],
         'redis' => [
             'class' => 'yii\redis\Connection',
-            'hostname' => 'redis.railway.internal',
-            'username' => 'default',
-            'password' => 'nySjmLVspFXlYOzKrOFQcRwuUprjyDli',
-            'port' => 6379,
-            'database' => 0,
+            'hostname' => getenv('REDIS_HOSTNAME') ?: 'redis.railway.internal',
+            'username' => getenv('REDIS_USERNAME') ?: 'default',
+            'password' => getenv('REDIS_PASSWORD') ?: null,
+            'port' => (int)(getenv('REDIS_PORT') ?: 6379),
+            'database' => (int)(getenv('REDIS_DATABASE') ?: 0),
         ],
         'cache' => [
             //'class' => 'yii\redis\Cache',
@@ -98,8 +98,8 @@ return [
             'endpoint' => 'https://ey3xqwxpb.mediaconvert.eu-west-2.amazonaws.com',
             'role' => 'arn:aws:iam::438663597141:role/MediaConvertPermissions',
             'jobQueue' =>  "arn:aws:mediaconvert:eu-west-2:438663597141:queues/Default",
-            "key" => getenv('AWS_MEDIACONVERT_ACCESS_KEY_ID') ?: null,
-            "secret" => getenv('AWS_MEDIACONVERT_SECRET_ACCESS_KEY') ?: null
+            "key" => getenv('AWS_MEDIACONVERT_RAILWAY_ACCESS_KEY_ID') ?: null,
+            "secret" => getenv('AWS_MEDIACONVERT_RAILWAY_SECRET_ACCESS_KEY') ?: null,
         ],
         'resourceManager' => [
             'class' => 'common\components\S3ResourceManager',
