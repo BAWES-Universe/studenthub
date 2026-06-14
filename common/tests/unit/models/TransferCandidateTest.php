@@ -14,6 +14,12 @@ use common\fixtures\InvoiceFixture;
 use common\fixtures\CandidateExperienceFixture;
 use common\fixtures\CandidateSkillFixture;
 use common\models\TransferCandidate;
+use common\models\Candidate;
+use common\models\Company;
+use common\models\Contract;
+use common\models\HourlyContract;
+use common\models\Transfer;
+use common\models\CandidateWorkHistory;
 
 
 class TransferCandidateTest extends \Codeception\Test\Unit
@@ -297,5 +303,234 @@ class TransferCandidateTest extends \Codeception\Test\Unit
             $this->assertFalse($transfer->validate());
             $this->assertArrayHasKey('bank_id', $transfer->getErrors());
         //});
+    }
+
+    public function testManualFallbackResolvesServerRatesWhenPayloadRatesMissing()
+    {
+        $candidateId = 1;
+        $storeId = 31;
+        $companyId = 7;
+
+        $this->prepareManualFallbackScenario($candidateId, $storeId, $companyId, 1.400, 1.700);
+
+        $transfer = $this->createMayTransfer();
+        $candidate = $this->loadCandidateArray($candidateId);
+        $value = [
+            'candidate_id' => $candidateId,
+            'hours' => 1,
+            'minutes' => 1,
+            'seconds' => 0,
+            'bonus' => 0,
+            'currency_code' => 'KWD',
+        ];
+
+        $response = TransferCandidate::saveCandidateTransfer($candidate, $transfer, $value);
+
+        $this->assertSame('success', $response['operation']);
+        $this->assertEqualsWithDelta(1.423, $response['total'], 0.001);
+        $this->assertEqualsWithDelta(1.728, $response['company_total'], 0.001);
+
+        $saved = TransferCandidate::find()
+            ->where(['transfer_id' => $transfer->transfer_id, 'candidate_id' => $candidateId])
+            ->orderBy(['tc_id' => SORT_DESC])
+            ->one();
+
+        $this->assertNotNull($saved);
+        $this->assertNull($saved->contract_uuid);
+        $this->assertEqualsWithDelta(1.400, (float)$saved->candidate_hourly_rate, 0.001);
+        $this->assertEqualsWithDelta(1.700, (float)$saved->company_hourly_rate, 0.001);
+        $this->assertEqualsWithDelta(1.423, (float)$saved->candidate_total, 0.001);
+        $this->assertEqualsWithDelta(1.728, (float)$saved->company_total, 0.001);
+    }
+
+    public function testOverlappingContractBehaviorRemainsUnchanged()
+    {
+        $candidateId = 1;
+        $storeId = 31;
+        $companyId = 7;
+
+        $this->prepareManualFallbackScenario($candidateId, $storeId, $companyId, 1.400, 1.700);
+        $contract = $this->createOverlappingHourlyContract(
+            $candidateId,
+            $storeId,
+            $companyId,
+            '2026-05-01',
+            2.100,
+            2.800
+        );
+
+        $transfer = $this->createMayTransfer();
+        $candidate = $this->loadCandidateArray($candidateId);
+        $value = [
+            'candidate_id' => $candidateId,
+            'hours' => 1,
+            'minutes' => 0,
+            'seconds' => 0,
+            'bonus' => 0,
+            'currency_code' => 'KWD',
+        ];
+
+        $response = TransferCandidate::saveCandidateTransfer($candidate, $transfer, $value);
+
+        $this->assertSame('success', $response['operation']);
+        $this->assertEqualsWithDelta(2.100, $response['total'], 0.001);
+        $this->assertEqualsWithDelta(2.800, $response['company_total'], 0.001);
+
+        $saved = TransferCandidate::find()
+            ->where(['transfer_id' => $transfer->transfer_id, 'candidate_id' => $candidateId])
+            ->orderBy(['tc_id' => SORT_DESC])
+            ->one();
+
+        $this->assertNotNull($saved);
+        $this->assertSame($contract->contract_uuid, $saved->contract_uuid);
+        $this->assertEqualsWithDelta(2.100, (float)$saved->candidate_hourly_rate, 0.001);
+        $this->assertEqualsWithDelta(2.800, (float)$saved->company_hourly_rate, 0.001);
+    }
+
+    public function testManualFallbackZeroPayableKeepsZeroTotals()
+    {
+        $candidateId = 1;
+        $storeId = 31;
+        $companyId = 7;
+
+        $this->prepareManualFallbackScenario($candidateId, $storeId, $companyId, 1.400, 1.700);
+
+        $transfer = $this->createMayTransfer();
+        $candidate = $this->loadCandidateArray($candidateId);
+        $value = [
+            'candidate_id' => $candidateId,
+            'hours' => 0,
+            'minutes' => 0,
+            'seconds' => 0,
+            'bonus' => 0,
+            'currency_code' => 'KWD',
+        ];
+
+        $response = TransferCandidate::saveCandidateTransfer($candidate, $transfer, $value);
+
+        $this->assertSame('success', $response['operation']);
+        $this->assertSame(0, $response['total']);
+        $this->assertSame(0, $response['company_total']);
+        $this->assertSame(0, $response['transfer_cost']);
+    }
+
+    public function testManualFallbackErrorsWhenServerCandidateRateMissing()
+    {
+        $candidateId = 1;
+        $storeId = 31;
+        $companyId = 7;
+
+        $this->prepareManualFallbackScenario($candidateId, $storeId, $companyId, 0, 1.700);
+
+        $transfer = $this->createMayTransfer();
+        $candidate = $this->loadCandidateArray($candidateId);
+        $value = [
+            'candidate_id' => $candidateId,
+            'hours' => 1,
+            'minutes' => 0,
+            'seconds' => 0,
+            'bonus' => 0,
+            'currency_code' => 'KWD',
+        ];
+
+        $response = TransferCandidate::saveCandidateTransfer($candidate, $transfer, $value);
+
+        $this->assertSame('error', $response['operation']);
+        $this->assertStringContainsString('candidate hourly rate is unavailable', $response['message']);
+    }
+
+    public function testManualFallbackErrorsWhenServerCompanyRateMissing()
+    {
+        $candidateId = 1;
+        $storeId = 31;
+        $companyId = 7;
+
+        $this->prepareManualFallbackScenario($candidateId, $storeId, $companyId, 1.400, 0);
+        Company::updateAll(['company_hourly_rate' => 0], ['company_id' => 3]);
+
+        $transfer = $this->createMayTransfer();
+        $candidate = $this->loadCandidateArray($candidateId);
+        $value = [
+            'candidate_id' => $candidateId,
+            'hours' => 1,
+            'minutes' => 0,
+            'seconds' => 0,
+            'bonus' => 0,
+            'currency_code' => 'KWD',
+        ];
+
+        $response = TransferCandidate::saveCandidateTransfer($candidate, $transfer, $value);
+
+        $this->assertSame('error', $response['operation']);
+        $this->assertStringContainsString('company hourly rate is unavailable', $response['message']);
+    }
+
+    private function prepareManualFallbackScenario($candidateId, $storeId, $companyId, $candidateRate, $companyRate)
+    {
+        CandidateWorkHistory::deleteAll(['candidate_id' => $candidateId, 'store_id' => $storeId]);
+
+        $contractUuids = Contract::find()
+            ->select('contract_uuid')
+            ->where(['candidate_id' => $candidateId, 'store_id' => $storeId])
+            ->column();
+
+        if (!empty($contractUuids)) {
+            HourlyContract::deleteAll(['contract_uuid' => $contractUuids]);
+        }
+
+        Contract::deleteAll(['candidate_id' => $candidateId, 'store_id' => $storeId]);
+
+        Candidate::updateAll(['candidate_hourly_rate' => $candidateRate], ['candidate_id' => $candidateId]);
+        Company::updateAll(['company_hourly_rate' => $companyRate], ['company_id' => $companyId]);
+    }
+
+    private function createMayTransfer()
+    {
+        $transfer = new Transfer();
+        $transfer->company_id = 1;
+        $transfer->start_date = '2026-05-01';
+        $transfer->end_date = '2026-05-31';
+        $transfer->currency_code = 'KWD';
+        $transfer->transfer_status = Transfer::STATUS_INITIATED;
+        $transfer->transfer_cost = 0;
+        $transfer->save(false);
+
+        return $transfer;
+    }
+
+    private function loadCandidateArray($candidateId)
+    {
+        return Candidate::find()
+            ->with(['store', 'company'])
+            ->andWhere(['candidate_id' => $candidateId])
+            ->asArray()
+            ->one();
+    }
+
+    private function createOverlappingHourlyContract($candidateId, $storeId, $companyId, $startDate, $candidateRate, $companyRate)
+    {
+        $company = Company::findOne($companyId);
+
+        $contract = new Contract();
+        $contract->candidate_id = $candidateId;
+        $contract->store_id = $storeId;
+        $contract->company_id = $companyId;
+        $contract->parent_company_id = $company ? $company->parent_company_id : null;
+        $contract->type = Contract::TYPE_HOURLY;
+        $contract->start_date = $startDate;
+        $contract->end_date = null;
+        $contract->deleted = 0;
+        $contract->status = Contract::STATUS_ACTIVE;
+        $contract->created_by = 1;
+        $contract->currency_code = 'KWD';
+        $contract->save(false);
+
+        $hourlyContract = new HourlyContract();
+        $hourlyContract->contract_uuid = $contract->contract_uuid;
+        $hourlyContract->candidate_hourly_rate = $candidateRate;
+        $hourlyContract->company_hourly_rate = $companyRate;
+        $hourlyContract->save(false);
+
+        return $contract;
     }
 }
