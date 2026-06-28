@@ -219,7 +219,7 @@ class Candidate extends \common\models\Candidate {
 
             if (
                 $this->candidate_personal_photo
-                && self::isTemporaryPersonalPhotoUploadKey($this->candidate_personal_photo)
+                && $this->candidate_personal_photo != ($this->oldAttributes['candidate_personal_photo'] ?? null)
                 && !$this->updatePersonalPhoto()
             ) {
                 return false;
@@ -242,7 +242,6 @@ class Candidate extends \common\models\Candidate {
             if (
                 isset($this->oldAttributes['candidate_personal_photo']) &&
                 $this->candidate_personal_photo != $this->oldAttributes['candidate_personal_photo'] &&
-                self::isTemporaryPersonalPhotoUploadKey($this->candidate_personal_photo) &&
                 !$this->updatePersonalPhoto()
             ) {
                 return false;

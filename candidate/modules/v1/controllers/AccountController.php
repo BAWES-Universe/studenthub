@@ -357,7 +357,7 @@ class AccountController extends Controller
         $model = Candidate::findOne(Yii::$app->user->getId());
 
         if ($model->candidate_personal_photo) {
-            $model->deleteProfilePhotoFromCloudinary();
+            $model->deletePersonalPhotoStorageObject();
         }
         
         $model->candidate_personal_photo = null;

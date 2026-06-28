@@ -2555,11 +2555,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             return false;
         }
 
-        if (!self::isTemporaryPersonalPhotoUploadKey($this->candidate_personal_photo)) {
-            $this->scenario = 'changeProfilePhoto';
-            return $this->save();
-        }
-
         if (!$this->updatePersonalPhoto()) {
             return false;
         }
@@ -2796,28 +2791,23 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
     /**
      * Resolved public URL for Staff/candidate profile photo display.
+     * Fast path only: no S3 existence probes (safe for list serialization).
      *
      * @return string|null
      */
     public function getPersonalPhotoUrl(): ?string
     {
-        $stored = trim((string)$this->candidate_personal_photo);
+        $stored = ltrim(trim((string)$this->candidate_personal_photo), '/');
 
         if ($stored === '') {
             return null;
         }
 
-        foreach (self::personalPhotoS3KeysToProbe($stored) as $s3Key) {
-            if (Yii::$app->resourceManager->fileExists($s3Key)) {
-                return Yii::$app->resourceManager->getUrl($s3Key);
-            }
+        if (self::isPermanentPersonalPhotoKey($stored)) {
+            return Yii::$app->resourceManager->getUrl($stored);
         }
 
-        if (!self::isPermanentPersonalPhotoKey($stored)) {
-            return self::buildLegacyCloudinaryPersonalPhotoUrl($stored, false);
-        }
-
-        return null;
+        return self::buildLegacyCloudinaryPersonalPhotoUrl($stored, false);
     }
 
     /**
@@ -2827,24 +2817,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function getPersonalPhotoDataUriForIdCard(): ?string
     {
-        $stored = trim((string)$this->candidate_personal_photo);
-
-        if ($stored === '') {
-            return null;
-        }
-
-        $fetchUrl = null;
-
-        foreach (self::personalPhotoS3KeysToProbe($stored) as $s3Key) {
-            if (Yii::$app->resourceManager->fileExists($s3Key)) {
-                $fetchUrl = Yii::$app->resourceManager->getUrl($s3Key);
-                break;
-            }
-        }
-
-        if ($fetchUrl === null && !self::isPermanentPersonalPhotoKey($stored)) {
-            $fetchUrl = self::buildLegacyCloudinaryPersonalPhotoUrl($stored, true);
-        }
+        $fetchUrl = $this->resolvePersonalPhotoFetchUrlForIdCard();
 
         if ($fetchUrl === null) {
             return null;
@@ -2854,21 +2827,59 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     }
 
     /**
+     * Stricter fetch URL resolver for ID card generation (may probe S3 for bare filenames).
+     *
+     * @return string|null
+     */
+    protected function resolvePersonalPhotoFetchUrlForIdCard(): ?string
+    {
+        $stored = trim((string)$this->candidate_personal_photo);
+
+        if ($stored === '') {
+            return null;
+        }
+
+        $storedNorm = ltrim($stored, '/');
+
+        if (self::isPermanentPersonalPhotoKey($storedNorm)) {
+            return Yii::$app->resourceManager->getUrl($storedNorm);
+        }
+
+        foreach (self::personalPhotoS3KeysToProbe($stored) as $s3Key) {
+            if (Yii::$app->resourceManager->fileExists($s3Key)) {
+                return Yii::$app->resourceManager->getUrl($s3Key);
+            }
+        }
+
+        return self::buildLegacyCloudinaryPersonalPhotoUrl($stored, true);
+    }
+
+    /**
      * Copy a new profile photo from the temp bucket into permanent storage.
      *
      * @return bool
      */
     public function updatePersonalPhoto(): bool
     {
-        $submitted = trim((string)$this->candidate_personal_photo);
+        $submitted = ltrim(trim((string)$this->candidate_personal_photo), '/');
 
         if ($submitted === '') {
-            $this->addError('candidate_personal_photo', Yii::t('app', 'Your profile photo could not be uploaded. Please try again.'));
-            return false;
+            return true;
         }
 
         if (self::isPermanentPersonalPhotoKey($submitted)) {
-            return true;
+            $existing = ltrim(trim((string)($this->oldAttributes['candidate_personal_photo'] ?? '')), '/');
+
+            if ($existing !== '' && $submitted === $existing) {
+                $this->candidate_personal_photo = $existing;
+                return true;
+            }
+
+            $this->addError(
+                'candidate_personal_photo',
+                Yii::t('app', 'Your profile photo could not be uploaded. Please try again.')
+            );
+            return false;
         }
 
         if (!Yii::$app->temporaryBucketResourceManager->fileExists($submitted)) {
@@ -2926,6 +2937,49 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     }
 
     /**
+     * Best-effort delete of the stored profile photo object (S3 or legacy Cloudinary).
+     *
+     * @param string|null $storedValue
+     * @return void
+     */
+    public function deletePersonalPhotoStorageObject(?string $storedValue = null): void
+    {
+        $stored = ltrim(trim((string)($storedValue ?? $this->candidate_personal_photo)), '/');
+
+        if ($stored === '') {
+            return;
+        }
+
+        if (self::isPermanentPersonalPhotoKey($stored)) {
+            try {
+                Yii::$app->resourceManager->delete($stored);
+            } catch (\Throwable $e) {
+                Yii::warning([
+                    'action'       => 'Candidate::deletePersonalPhotoStorageObject',
+                    'candidate_id' => $this->candidate_id ?? null,
+                    'storage'      => 's3',
+                    'reason'       => self::classifyS3DeleteThrowable($e),
+                    'exception'    => get_class($e),
+                    'message'      => $e->getMessage(),
+                ], 'candidate.profile-photo');
+            }
+            return;
+        }
+
+        try {
+            $this->deleteLegacyCloudinaryPersonalPhotoByValue($stored);
+        } catch (\Throwable $e) {
+            Yii::warning([
+                'action'       => 'Candidate::deletePersonalPhotoStorageObject',
+                'candidate_id' => $this->candidate_id ?? null,
+                'storage'      => 'cloudinary',
+                'exception'    => get_class($e),
+                'message'      => $e->getMessage(),
+            ], 'candidate.profile-photo');
+        }
+    }
+
+    /**
      * Best-effort removal of the previous profile photo after a successful upload.
      *
      * @param string $newPermanentKey
@@ -2935,29 +2989,18 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         $oldStored = $this->oldAttributes['candidate_personal_photo'] ?? null;
 
-        if ($oldStored === null || $oldStored === '' || $oldStored === $newPermanentKey) {
+        if ($oldStored === null || $oldStored === '') {
             return;
         }
 
-        if (self::isPermanentPersonalPhotoKey($oldStored)) {
-            $oldS3Key = ltrim(trim((string)$oldStored), '/');
-            if ($oldS3Key !== '' && $oldS3Key !== $newPermanentKey) {
-                try {
-                    Yii::$app->resourceManager->delete($oldS3Key);
-                } catch (\Throwable $e) {
-                    Yii::warning([
-                        'action'       => 'Candidate::cleanupOldPersonalPhotoAfterUpload',
-                        'candidate_id' => $this->candidate_id ?? null,
-                        'reason'       => self::classifyS3DeleteThrowable($e),
-                        'exception'    => get_class($e),
-                        'message'      => $e->getMessage(),
-                    ], 'candidate.profile-photo');
-                }
-            }
+        $oldNorm = ltrim(trim((string)$oldStored), '/');
+        $newNorm = ltrim(trim($newPermanentKey), '/');
+
+        if ($oldNorm === '' || $oldNorm === $newNorm) {
             return;
         }
 
-        $this->deleteLegacyCloudinaryPersonalPhotoByValue((string)$oldStored);
+        $this->deletePersonalPhotoStorageObject($oldNorm);
     }
 
     /**

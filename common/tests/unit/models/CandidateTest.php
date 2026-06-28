@@ -523,17 +523,17 @@ class CandidateTest extends \Codeception\Test\Unit
         $candidate->candidate_personal_photo = 'candidate-profile-photos/unit-test.jpg';
 
         $resourceManager = new class extends \yii\base\Component {
-            public $existsFor = [];
+            public $fileExistsCalled = false;
             public function fileExists($filenameOrUrl)
             {
-                return in_array($filenameOrUrl, $this->existsFor, true);
+                $this->fileExistsCalled = true;
+                return false;
             }
             public function getUrl($name, $expires = NULL)
             {
                 return 'https://example.test/' . $name;
             }
         };
-        $resourceManager->existsFor = ['candidate-profile-photos/unit-test.jpg'];
 
         $original = Yii::$app->resourceManager;
         Yii::$app->set('resourceManager', $resourceManager);
@@ -543,6 +543,7 @@ class CandidateTest extends \Codeception\Test\Unit
                 'https://example.test/candidate-profile-photos/unit-test.jpg',
                 $candidate->getPersonalPhotoUrl()
             );
+            $this->assertFalse($resourceManager->fileExistsCalled);
         } finally {
             Yii::$app->set('resourceManager', $original);
         }
@@ -556,9 +557,11 @@ class CandidateTest extends \Codeception\Test\Unit
         $candidate->candidate_personal_photo = 'photos/legacy.jpg';
 
         $resourceManager = new class extends \yii\base\Component {
+            public $fileExistsCalled = false;
             public function fileExists($filenameOrUrl)
             {
-                return $filenameOrUrl === 'photos/legacy.jpg';
+                $this->fileExistsCalled = true;
+                return false;
             }
             public function getUrl($name, $expires = NULL)
             {
@@ -574,6 +577,162 @@ class CandidateTest extends \Codeception\Test\Unit
                 'https://example.test/photos/legacy.jpg',
                 $candidate->getPersonalPhotoUrl()
             );
+            $this->assertFalse($resourceManager->fileExistsCalled);
+        } finally {
+            Yii::$app->set('resourceManager', $original);
+        }
+    }
+
+    public function testGetPersonalPhotoUrlUsesCloudinaryForBareFilename()
+    {
+        $candidate = Candidate::findOne(['candidate_id' => 1]);
+        $this->assertNotNull($candidate);
+
+        $candidate->candidate_personal_photo = 'legacy-bare.jpg';
+
+        $resourceManager = new class extends \yii\base\Component {
+            public $fileExistsCalled = false;
+            public function fileExists($filenameOrUrl)
+            {
+                $this->fileExistsCalled = true;
+                return false;
+            }
+            public function getUrl($name, $expires = NULL)
+            {
+                return 'https://example.test/' . $name;
+            }
+        };
+
+        $cloudinary = new class extends \yii\base\Component {
+            public $cloud_name = 'test-cloud';
+            public function getUrl($publicId, $type = 'image')
+            {
+                return null;
+            }
+        };
+
+        $originalResource = Yii::$app->resourceManager;
+        $originalCloudinary = Yii::$app->cloudinaryManager;
+        Yii::$app->set('resourceManager', $resourceManager);
+        Yii::$app->set('cloudinaryManager', $cloudinary);
+
+        try {
+            $url = $candidate->getPersonalPhotoUrl();
+            $this->assertNotNull($url);
+            $this->assertStringContainsString('res.cloudinary.com/test-cloud/image/upload/', $url);
+            $this->assertStringContainsString('legacy-bare.jpg', $url);
+            $this->assertFalse($resourceManager->fileExistsCalled);
+        } finally {
+            Yii::$app->set('resourceManager', $originalResource);
+            Yii::$app->set('cloudinaryManager', $originalCloudinary);
+        }
+    }
+
+    public function testUpdatePersonalPhotoRejectsForeignPermanentKey()
+    {
+        $candidate = Candidate::findOne(['candidate_id' => 1]);
+        $this->assertNotNull($candidate);
+
+        $candidate->setOldAttribute('candidate_personal_photo', 'photos/existing.jpg');
+        $candidate->candidate_personal_photo = 'candidate-profile-photos/other-user.jpg';
+
+        $this->assertFalse($candidate->updatePersonalPhoto());
+        $this->assertArrayHasKey('candidate_personal_photo', $candidate->getErrors());
+    }
+
+    public function testUpdatePersonalPhotoAllowsUnchangedPermanentKey()
+    {
+        $candidate = Candidate::findOne(['candidate_id' => 1]);
+        $this->assertNotNull($candidate);
+
+        $candidate->setOldAttribute('candidate_personal_photo', 'photos/existing.jpg');
+        $candidate->candidate_personal_photo = 'photos/existing.jpg';
+
+        $this->assertTrue($candidate->updatePersonalPhoto());
+        $this->assertSame('photos/existing.jpg', $candidate->candidate_personal_photo);
+    }
+
+    public function testUpdatePersonalPhotoCopiesTempKeyToPermanentPrefix()
+    {
+        $candidate = Candidate::findOne(['candidate_id' => 1]);
+        $this->assertNotNull($candidate);
+
+        $candidate->setOldAttribute('candidate_personal_photo', 'photos/old.jpg');
+        $candidate->candidate_personal_photo = 'temp-upload.jpg';
+
+        $tempManager = new class extends \yii\base\Component {
+            public $bucket = 'temp-bucket';
+            public function fileExists($filenameOrUrl)
+            {
+                return $filenameOrUrl === 'temp-upload.jpg';
+            }
+        };
+
+        $resourceManager = new class extends \yii\base\Component {
+            public $copied = [];
+            public $deleted = [];
+            public function copy($oldFile, $newFile, $sourceBucket = '', $options = [])
+            {
+                $this->copied[] = compact('oldFile', 'newFile', 'sourceBucket');
+            }
+            public function fileExists($filenameOrUrl)
+            {
+                return true;
+            }
+            public function delete($name)
+            {
+                $this->deleted[] = $name;
+            }
+        };
+
+        $originalTemp = Yii::$app->temporaryBucketResourceManager;
+        $originalResource = Yii::$app->resourceManager;
+        Yii::$app->set('temporaryBucketResourceManager', $tempManager);
+        Yii::$app->set('resourceManager', $resourceManager);
+
+        try {
+            $this->assertTrue($candidate->updatePersonalPhoto());
+            $this->assertSame(
+                'candidate-profile-photos/temp-upload.jpg',
+                $candidate->candidate_personal_photo
+            );
+            $this->assertCount(1, $resourceManager->copied);
+            $this->assertSame('temp-upload.jpg', $resourceManager->copied[0]['oldFile']);
+            $this->assertSame(
+                'candidate-profile-photos/temp-upload.jpg',
+                $resourceManager->copied[0]['newFile']
+            );
+            $this->assertSame('temp-bucket', $resourceManager->copied[0]['sourceBucket']);
+            $this->assertContains('photos/old.jpg', $resourceManager->deleted);
+        } finally {
+            Yii::$app->set('temporaryBucketResourceManager', $originalTemp);
+            Yii::$app->set('resourceManager', $originalResource);
+        }
+    }
+
+    public function testDeletePersonalPhotoStorageObjectDeletesS3Key()
+    {
+        $candidate = Candidate::findOne(['candidate_id' => 1]);
+        $this->assertNotNull($candidate);
+        $candidate->candidate_id = 1;
+
+        $resourceManager = new class extends \yii\base\Component {
+            public $deleted = [];
+            public function delete($name)
+            {
+                $this->deleted[] = $name;
+            }
+        };
+
+        $original = Yii::$app->resourceManager;
+        Yii::$app->set('resourceManager', $resourceManager);
+
+        try {
+            $candidate->deletePersonalPhotoStorageObject('candidate-profile-photos/remove-me.jpg');
+            $this->assertSame(['candidate-profile-photos/remove-me.jpg'], $resourceManager->deleted);
+
+            $candidate->deletePersonalPhotoStorageObject('photos/legacy-remove.jpg');
+            $this->assertContains('photos/legacy-remove.jpg', $resourceManager->deleted);
         } finally {
             Yii::$app->set('resourceManager', $original);
         }
