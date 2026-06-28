@@ -31,6 +31,10 @@ class Candidate extends \common\models\Candidate {
             return strtolower($model->candidate_name);
         };
 
+        $fields['candidate_personal_photo_url'] = function ($model) {
+            return $model->getPersonalPhotoUrl();
+        };
+
         return $fields;
     }
 
@@ -213,7 +217,11 @@ class Candidate extends \common\models\Candidate {
 
         if($insert) {
 
-            if ($this->candidate_personal_photo && !$this->changeProfilePhoto()) {
+            if (
+                $this->candidate_personal_photo
+                && $this->candidate_personal_photo != ($this->oldAttributes['candidate_personal_photo'] ?? null)
+                && !$this->updatePersonalPhoto()
+            ) {
                 return false;
             }
 
@@ -234,7 +242,7 @@ class Candidate extends \common\models\Candidate {
             if (
                 isset($this->oldAttributes['candidate_personal_photo']) &&
                 $this->candidate_personal_photo != $this->oldAttributes['candidate_personal_photo'] &&
-                !$this->changeProfilePhoto()
+                !$this->updatePersonalPhoto()
             ) {
                 return false;
             }
@@ -393,100 +401,6 @@ class Candidate extends \common\models\Candidate {
         }
 
         return true;
-    }
-
-    /**
-     * update profile photo from temp AWS S3 repo object name
-     * @return bool|string
-     */
-    public function changeProfilePhoto()
-    {
-        try {
-            $url = Yii::$app->temporaryBucketResourceManager->getUrl($this->candidate_personal_photo);
-
-            return $this->setProfileByUrl($url);
-
-        } catch (\Exception $e) {
-
-            Yii::error($e->getMessage(), 'candidate');
-
-            $this->addError('candidate_personal_photo', Yii::t('app', 'Image not available to save.'));
-            return false;
-        }
-    }
-
-    /**
-     * Set profile photo by url
-     * @param string $url
-     */
-    public function setProfileByUrl($url) {
-
-        $filename = Yii::$app->security->generateRandomString();
-
-        // deleting old pic
-
-        if (!empty($this->oldAttributes['candidate_personal_photo'])) {
-            $this->deleteProfilePhotoFromCloudinary();
-        }
-
-        try {
-            $path =  (YII_ENV == 'prod') ?  "candidate-photo/" : "dev/candidate-photo/";
-
-            $result = Yii::$app->cloudinaryManager->upload(
-                $url, [
-                    'public_id' => $path . $filename,
-                ]
-            );
-
-            if ($result) {
-                return $this->candidate_personal_photo = basename($result['url']);
-
-            }
-
-        } catch (\Cloudinary\Exception\Error $e) {
-
-            Yii::error($e->getMessage(), 'candidate');
-
-            $this->addError('candidate_personal_photo', Yii::t('app', 'Please try again.'));
-
-            return false;
-
-        } catch (\Exception $e) {
-
-            Yii::error($e->getMessage(), 'candidate');
-
-            $this->addError('candidate_personal_photo', Yii::t('app', 'Image not available to save.'));
-
-            return false;
-        }
-    }
-
-    /**
-     * delete old profile photo from cloudinary
-     * @return boolean
-     */
-    public function deleteProfilePhotoFromCloudinary() {
-
-        try {
-            $path = (YII_ENV == 'prod') ? "candidate-photo/" : "dev/candidate-photo/";
-            Yii::$app->cloudinaryManager->delete( $path . $this->oldAttributes['candidate_personal_photo']);
-
-        } catch (\Cloudinary\Exception\Error $e) {
-
-            Yii::error($e->getMessage(), 'candidate');
-
-            //$this->addError('profile_photo', Yii::t('app', 'Please try again.'));
-
-            return false;
-
-        } catch (\Exception $e) {
-
-            Yii::error($e->getMessage(), 'candidate');
-
-            //$this->addError('profile_photo', Yii::t('app', 'Image not available to save.'));
-
-            return false;
-        }
     }
 
     /**

@@ -357,7 +357,7 @@ class AccountController extends Controller
         $model = Candidate::findOne(Yii::$app->user->getId());
 
         if ($model->candidate_personal_photo) {
-            $model->deleteProfilePhotoFromCloudinary();
+            $model->deletePersonalPhotoStorageObject();
         }
         
         $model->candidate_personal_photo = null;
@@ -942,6 +942,7 @@ class AccountController extends Controller
         return [
             'operation' => 'success',
             'candidate_personal_photo' => $model->candidate_personal_photo,
+            'candidate_personal_photo_url' => $model->getPersonalPhotoUrl(),
             'message' => Yii::t('candidate', 'Profile Photo Uploaded Successfully')
         ];
     }
