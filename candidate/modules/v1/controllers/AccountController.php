@@ -942,6 +942,7 @@ class AccountController extends Controller
         return [
             'operation' => 'success',
             'candidate_personal_photo' => $model->candidate_personal_photo,
+            'candidate_personal_photo_url' => $model->getPersonalPhotoUrl(),
             'message' => Yii::t('candidate', 'Profile Photo Uploaded Successfully')
         ];
     }

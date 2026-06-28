@@ -456,4 +456,126 @@ class CandidateTest extends \Codeception\Test\Unit
             expect('after trim str 5',(strlen($Candidate7Data->bank_account_name) == 5))->true();
         //});
     }*/
+
+    public function testPersonalPhotoPermanentKeyDetection()
+    {
+        $this->assertTrue(
+            Candidate::isPermanentPersonalPhotoKey('candidate-profile-photos/abc.jpg')
+        );
+        $this->assertTrue(
+            Candidate::isPermanentPersonalPhotoKey('photos/legacy.jpg')
+        );
+        $this->assertFalse(
+            Candidate::isPermanentPersonalPhotoKey('abc.jpg')
+        );
+        $this->assertFalse(
+            Candidate::isTemporaryPersonalPhotoUploadKey('')
+        );
+        $this->assertTrue(
+            Candidate::isTemporaryPersonalPhotoUploadKey('temp-upload.jpg')
+        );
+        $this->assertFalse(
+            Candidate::isTemporaryPersonalPhotoUploadKey('photos/legacy.jpg')
+        );
+    }
+
+    public function testNormalizePersonalPhotoPermanentS3Key()
+    {
+        $this->assertSame('', Candidate::normalizePersonalPhotoPermanentS3Key(''));
+        $this->assertSame(
+            'candidate-profile-photos/sample.jpg',
+            Candidate::normalizePersonalPhotoPermanentS3Key('sample.jpg')
+        );
+        $this->assertSame(
+            'candidate-profile-photos/sample.jpg',
+            Candidate::normalizePersonalPhotoPermanentS3Key('candidate-profile-photos/sample.jpg')
+        );
+        $this->assertSame(
+            'photos/legacy.jpg',
+            Candidate::normalizePersonalPhotoPermanentS3Key('photos/legacy.jpg')
+        );
+    }
+
+    public function testPersonalPhotoS3KeysToProbe()
+    {
+        $this->assertSame(
+            ['candidate-profile-photos/new.jpg'],
+            Candidate::personalPhotoS3KeysToProbe('candidate-profile-photos/new.jpg')
+        );
+        $this->assertSame(
+            ['photos/old.jpg'],
+            Candidate::personalPhotoS3KeysToProbe('photos/old.jpg')
+        );
+        $this->assertSame(
+            [
+                'candidate-profile-photos/bare.jpg',
+                'photos/bare.jpg',
+            ],
+            Candidate::personalPhotoS3KeysToProbe('bare.jpg')
+        );
+    }
+
+    public function testGetPersonalPhotoUrlUsesPermanentS3Key()
+    {
+        $candidate = Candidate::findOne(['candidate_id' => 1]);
+        $this->assertNotNull($candidate);
+
+        $candidate->candidate_personal_photo = 'candidate-profile-photos/unit-test.jpg';
+
+        $resourceManager = new class extends \yii\base\Component {
+            public $existsFor = [];
+            public function fileExists($filenameOrUrl)
+            {
+                return in_array($filenameOrUrl, $this->existsFor, true);
+            }
+            public function getUrl($name, $expires = NULL)
+            {
+                return 'https://example.test/' . $name;
+            }
+        };
+        $resourceManager->existsFor = ['candidate-profile-photos/unit-test.jpg'];
+
+        $original = Yii::$app->resourceManager;
+        Yii::$app->set('resourceManager', $resourceManager);
+
+        try {
+            $this->assertSame(
+                'https://example.test/candidate-profile-photos/unit-test.jpg',
+                $candidate->getPersonalPhotoUrl()
+            );
+        } finally {
+            Yii::$app->set('resourceManager', $original);
+        }
+    }
+
+    public function testGetPersonalPhotoUrlFallsBackToLegacyPhotosPrefix()
+    {
+        $candidate = Candidate::findOne(['candidate_id' => 1]);
+        $this->assertNotNull($candidate);
+
+        $candidate->candidate_personal_photo = 'photos/legacy.jpg';
+
+        $resourceManager = new class extends \yii\base\Component {
+            public function fileExists($filenameOrUrl)
+            {
+                return $filenameOrUrl === 'photos/legacy.jpg';
+            }
+            public function getUrl($name, $expires = NULL)
+            {
+                return 'https://example.test/' . $name;
+            }
+        };
+
+        $original = Yii::$app->resourceManager;
+        Yii::$app->set('resourceManager', $resourceManager);
+
+        try {
+            $this->assertSame(
+                'https://example.test/photos/legacy.jpg',
+                $candidate->getPersonalPhotoUrl()
+            );
+        } finally {
+            Yii::$app->set('resourceManager', $original);
+        }
+    }
 }

@@ -2,9 +2,7 @@
 mb_internal_encoding("UTF-8");
 
 $nameSections = mb_split(' ', $model->candidate->candidate_name_ar);
-$path = (YII_ENV == 'prod') ?  "candidate-photo/" : "dev/candidate-photo/";
-
-$candidate_personal_photo = "https://res.cloudinary.com/studenthub/image/upload/w_319,h_319,c_thumb,g_face/v1596453482/" . $path . $model->candidate->candidate_personal_photo;
+$photoSrc = $model->candidate->getPersonalPhotoDataUriForIdCard();
 
 // Base URL for assets (important for Chromium)
 $baseUrl =  Yii::getAlias("@web");
@@ -228,8 +226,8 @@ $baseUrl =  Yii::getAlias("@web");
       <div class="top-part">
         <span class="code"><?= $model->candidate->employeeId ?></span>
         <div class="image">
-          <?php if ($model->candidate->candidate_personal_photo) { ?>
-            <img onerror="this.src='../../../images/no_image.png';" src="<?= $candidate_personal_photo; ?>" style="width: 100%; min-height: 100%">
+          <?php if ($photoSrc) { ?>
+            <img src="<?= $photoSrc; ?>" style="width: 100%; min-height: 100%">
           <?php } else { ?>
             <?= \yii\helpers\Html::img('@web/images/no_image.png', ['style' => 'width: 100%;min-height: : 100%']); ?>
           <?php } ?>
