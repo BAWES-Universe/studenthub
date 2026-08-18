@@ -457,7 +457,7 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
         $rows = CandidateWorkHistory::getDb()->cache(function($db) use($months, $company_id) {
             return CandidateWorkHistory::find()
                 ->andWhere(['parent_company_id' => $company_id])
-                ->select ('end_date, COUNT(*) as total')
+                ->select ('MIN(end_date) as end_date, COUNT(*) as total')
                 ->andWhere(new Expression("DATE(end_date) >= (NOW() - INTERVAL ".$months." MONTH)"))
                 ->groupBy (new Expression('MONTH(end_date), YEAR(end_date)'))
                 //->orderBy('end_date')
