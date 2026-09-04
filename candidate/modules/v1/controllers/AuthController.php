@@ -74,6 +74,7 @@ class AuthController extends Controller
             'is-email-verified',
             'name-by-civil-id',
             'login-auth0',
+            'login-by-universe',
             "locate",
             "login-two-step"
         ];
@@ -321,6 +322,139 @@ class AuthController extends Controller
         }*/
 
         return $this->_loginResponse($candidate);
+    }
+
+    /**
+     * Login with a "Continue with Universe" (Authentik OIDC) authorization code.
+     *
+     * SHU-29: the SPA redirects the user to Authentik (auth.bawes.net) and
+     * receives a one-time authorization code back on its /auth/callback route.
+     * The SPA POSTs that code here; this server exchanges it at Authentik's
+     * token endpoint and validates the returned id_token (RS256 signature via
+     * JWKS, aud, iss, exp/iat). The verified `sub` claim is the ONLY identity
+     * input trusted — it is the user's email (Universe provider sub_mode =
+     * user_email), never anything supplied by the browser.
+     *
+     * Mirrors actionLoginByGoogle/actionLoginAuth0: an email verified by the
+     * IdP is treated as verified here (new accounts are created verified;
+     * existing abandoned-signup accounts are upgraded to verified), then a
+     * normal candidate bearer token is issued via _loginResponse().
+     *
+     * @return array
+     */
+    public function actionLoginByUniverse()
+    {
+        $lang = Yii::$app->request->headers->get('language');
+
+        $code = Yii::$app->request->getBodyParam('code');
+        $redirectUri = Yii::$app->request->getBodyParam('redirect_uri');
+        $state = Yii::$app->request->getBodyParam('state');
+        $utm_uuid = Yii::$app->request->getBodyParam("utm_uuid");
+
+        if (empty($code)) {
+            return [
+                "operation" => "error",
+                "errorType" => "invalid-code",
+                "message" => Yii::t('candidate', "Missing authorization code."),
+            ];
+        }
+
+        try {
+            $claims = Yii::$app->authentik->authenticate($code, $redirectUri);
+        } catch (\Throwable $e) {
+            // Do not leak provider details to the client; log server-side.
+            Yii::error("[Universe Login Failed] " . $e->getMessage(), __METHOD__);
+
+            return [
+                "operation" => "error",
+                "errorType" => "invalid-code",
+                "message" => Yii::t('candidate', "Sign-in could not be completed. Please try again."),
+            ];
+        }
+
+        // The verified subject (email) is the only identity input we trust.
+        $email = isset($claims['sub']) ? (string)$claims['sub'] : '';
+
+        if ($email === '' || strpos($email, '@') === false) {
+            return [
+                "operation" => "error",
+                "errorType" => "invalid-code",
+                "message" => Yii::t('candidate', "Sign-in could not be completed. Please try again."),
+            ];
+        }
+
+        $candidate = Candidate::find()
+            ->andWhere(['candidate_email' => $email, "deleted" => false])
+            ->one();
+
+        if (!$candidate) {
+            $candidate = new Candidate();
+            $candidate->scenario = "signupAuth0";
+
+            $name = isset($claims['name']) ? (string)$claims['name'] : '';
+            if ($name === '' && isset($claims['given_name'])) {
+                $name = (string)$claims['given_name'];
+            }
+            if ($name === '') {
+                $name = strstr($email, '@', true) ?: $email;
+            }
+
+            if ($lang == 'ar') {
+                $candidate->candidate_name_ar = $name;
+                $candidate->candidate_name = null;
+            } else {
+                $candidate->candidate_name = $name;
+                $candidate->candidate_name_ar = null;
+            }
+
+            $candidate->candidate_email = $email;
+            $candidate->candidate_status = \candidate\models\Candidate::STATUS_ACTIVE;
+            $candidate->approved = true;
+            $candidate->candidate_email_verification = Candidate::EMAIL_VERIFIED;
+            $candidate->utm_uuid = !empty($utm_uuid) ? $utm_uuid : null;
+
+            // Accounts created via Universe have no password: mint a random
+            // unusable one so the required-rule passes but password login can
+            // never succeed on an account that was never given a password.
+            $candidate->candidate_password_hash = Yii::$app->security->generateRandomString(32);
+
+            if (!$candidate->signup()) {
+                Yii::error("[Universe Signup Failed] Email: " . $candidate->candidate_email . " " . json_encode($candidate->errors), __METHOD__);
+
+                return [
+                    "operation" => "error",
+                    "message" => Yii::t('candidate', "We've faced a problem creating your account, please contact us for assistance."),
+                ];
+            }
+        }
+
+        // Mark email verified for anyone who abandoned an earlier email-verification
+        // signup — the IdP has already verified this mailbox (same as login-by-google).
+        if ($candidate->candidate_email_verification != Candidate::EMAIL_VERIFIED) {
+            $candidate->candidate_email_verification = Candidate::EMAIL_VERIFIED;
+
+            if (!$candidate->save(false)) {
+                return [
+                    "operation" => "error",
+                    "message" => $candidate->errors,
+                ];
+            }
+        }
+
+        // No 2-step on IdP auth (same as google/apple).
+        $accessToken = $candidate->getAccessToken(
+            CandidateToken::STATUS_ACTIVE
+        );
+
+        $response = $this->_loginResponse($candidate, $accessToken);
+
+        // Echo the OIDC state back so the SPA can confirm its own CSRF check;
+        // the SPA owns state generation/verification (per SHU-29 design contract).
+        if ($state !== null) {
+            $response['state'] = $state;
+        }
+
+        return $response;
     }
 
     /**

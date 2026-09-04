@@ -107,6 +107,7 @@ return [
                         'POST login-by-key' => 'login-by-key',
                         'POST verify-email' => 'verify-email',
                         'POST login-auth0' => 'login-auth0',
+                        'POST login-by-universe' => 'login-by-universe',
                         'PATCH update-password' => 'update-password',
                         // OPTIONS VERBS
                         'OPTIONS name-by-civil-id' => 'options',
@@ -124,6 +125,7 @@ return [
                         'OPTIONS is-email-verified' => 'options',
                         'OPTIONS update-email' => 'options',        
                         'OPTIONS login-auth0' => 'options',
+                        'OPTIONS login-by-universe' => 'options',
                         'OPTIONS resend-verification-email' => 'options',
                         'OPTIONS verify-email' => 'options'
                     ]

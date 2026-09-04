@@ -76,6 +76,14 @@ return [
         'auth0' => [
             'class' => 'common\components\Auth0',
         ],
+        'authentik' => [
+            'class' => 'common\components\Authentik',
+            'issuer' => getenv('AUTHENTIK_ISSUER_URL') ?: 'https://auth.bawes.net',
+            'clientId' => getenv('AUTHENTIK_CLIENT_ID') ?: '',
+            'clientSecret' => getenv('AUTHENTIK_CLIENT_SECRET') ?: '',
+            'redirectUri' => getenv('AUTHENTIK_REDIRECT_URI') ?: '',
+            'jwksUrl' => getenv('AUTHENTIK_JWKS_URL') ?: '',
+        ],
         'config' => [
             'class' => 'common\components\Config',
         ],
