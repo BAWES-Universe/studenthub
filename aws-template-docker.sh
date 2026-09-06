@@ -19,10 +19,16 @@ sudo mkdir -p /var/www/html
 sudo chmod 2775 /var/www
 cd /var/www/html
 
-echo "github private key" > ~/.ssh/github
-chmod go-rw ~/.ssh/github
-echo "github public key" > ~/.ssh/github.pub
-sudo chmod a+r ~/.ssh/github
+if [ -z "${GITHUB_DEPLOY_KEY_PATH:-}" ]; then
+  echo "Set GITHUB_DEPLOY_KEY_PATH to a readable deploy key file before cloning private repositories." >&2
+  exit 1
+fi
+
+mkdir -p ~/.ssh
+install -m 600 "$GITHUB_DEPLOY_KEY_PATH" ~/.ssh/github
+if [ -n "${GITHUB_DEPLOY_PUBLIC_KEY_PATH:-}" ]; then
+  install -m 644 "$GITHUB_DEPLOY_PUBLIC_KEY_PATH" ~/.ssh/github.pub
+fi
 ssh-add ~/.ssh/github
 ssh-keyscan github.com >> ~/.ssh/known_hosts
 apt install -y git
@@ -50,10 +56,14 @@ docker-compose -f docker-compose-prod.yml -p studenthub-prod-server up -d
 #rm -rf awscliv2.zip aws
 
 # Authenticate Docker to Amazon ECR
-#aws ecr get-login-password --region eu-west-2 | sudo docker login --username AWS --password-stdin 438663597141.dkr.ecr.eu-west-2.amazonaws.com
+#AWS_ECR_REGION="${AWS_ECR_REGION:-eu-west-2}"
+#AWS_ECR_REGISTRY="${AWS_ECR_ACCOUNT_ID}.dkr.ecr.${AWS_ECR_REGION}.amazonaws.com"
+#AWS_ECR_IMAGE="${AWS_ECR_IMAGE:-studenthub/backend-prod}"
+#AWS_ECR_TAG="${AWS_ECR_TAG:-latest}"
+#aws ecr get-login-password --region "$AWS_ECR_REGION" | sudo docker login --username AWS --password-stdin "$AWS_ECR_REGISTRY"
 
 # Pull the Docker image from ECR
-#sudo docker pull 438663597141.dkr.ecr.eu-west-2.amazonaws.com/studenthub/backend-prod
+#sudo docker pull "$AWS_ECR_REGISTRY/$AWS_ECR_IMAGE:$AWS_ECR_TAG"
 
 # Run the Docker container
-#sudo docker run -d -p 80:80 --name studenthub-backend-prod 438663597141.dkr.ecr.eu-west-2.amazonaws.com/studenthub/backend-prod
+#sudo docker run -d -p 80:80 --name studenthub-backend-prod "$AWS_ECR_REGISTRY/$AWS_ECR_IMAGE:$AWS_ECR_TAG"
