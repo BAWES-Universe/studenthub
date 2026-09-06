@@ -784,7 +784,7 @@ class CompanyController extends Controller
         foreach(range(1,12) as $key => $value) {
             $value = str_pad($value,2,"0", STR_PAD_LEFT);
             // request
-            $q = 'SELECT count(*) as total, MONTH(request_created_datetime) as month, YEAR(request_created_datetime) as year, monthname(str_to_date(MONTH(request_created_datetime),"%m")) as monthName FROM `request` WHERE';
+            $q = 'SELECT count(*) as total FROM `request` WHERE';
             if ($company_id) {
                 $q .= ' `company_id`=' . $company_id . ' AND ';
             }
