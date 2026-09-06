@@ -83,8 +83,8 @@ return [
             'class' => 'common\components\MediaConvert',
             'region' => 'eu-west-2', // based in London
             'endpoint' => 'https://ey3xqwxpb.mediaconvert.eu-west-2.amazonaws.com',
-            'key' => 'AKIAWMITDJRKWKGYOFLT',
-            'secret' => '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',
+            'key' => getenv('AWS_MEDIACONVERT_ACCESS_KEY_ID') ?: null,
+            'secret' => getenv('AWS_MEDIACONVERT_SECRET_ACCESS_KEY') ?: null,
             'role' => 'arn:aws:iam::438663597141:role/MediaConvertPermissions',
             'jobQueue' =>  "arn:aws:mediaconvert:eu-west-2:438663597141:queues/Default"
         ],
