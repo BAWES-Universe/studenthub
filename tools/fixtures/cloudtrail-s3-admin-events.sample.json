@@ -1,0 +1,65 @@
+{
+  "Records": [
+    {
+      "eventTime": "2026-04-18T09:13:12Z",
+      "eventName": "PutBucketLifecycleConfiguration",
+      "awsRegion": "eu-west-2",
+      "sourceIPAddress": "203.0.113.10",
+      "userAgent": "aws-cli/2.15.0",
+      "userIdentity": {
+        "type": "IAMUser",
+        "userName": "railway-s3-access",
+        "accessKeyId": "KEY_SUFFIX_ODY2"
+      },
+      "requestParameters": {
+        "bucketName": "studenthub-uploads"
+      }
+    },
+    {
+      "eventTime": "2026-04-18T10:44:51Z",
+      "eventName": "DeleteBucketCors",
+      "awsRegion": "eu-west-2",
+      "sourceIPAddress": "198.51.100.23",
+      "userAgent": "n8n",
+      "errorCode": "AccessDenied",
+      "userIdentity": {
+        "type": "IAMUser",
+        "userName": "n8n-s3-access",
+        "accessKeyId": "KEY_SUFFIX_N8N1"
+      },
+      "requestParameters": {
+        "bucketName": "studenthub-public-anyone-can-upload-24hr-expiry"
+      }
+    },
+    {
+      "eventTime": "2026-04-18T11:00:00Z",
+      "eventName": "PutObject",
+      "awsRegion": "eu-west-2",
+      "sourceIPAddress": "203.0.113.10",
+      "userAgent": "aws-sdk-php",
+      "userIdentity": {
+        "type": "IAMUser",
+        "userName": "railway-s3-access",
+        "accessKeyId": "KEY_SUFFIX_ODY2"
+      },
+      "requestParameters": {
+        "bucketName": "studenthub-uploads"
+      }
+    },
+    {
+      "eventTime": "2026-04-18T12:00:00Z",
+      "eventName": "PutBucketPolicy",
+      "awsRegion": "eu-west-2",
+      "sourceIPAddress": "192.0.2.8",
+      "userAgent": "aws-cli/2.15.0",
+      "userIdentity": {
+        "type": "IAMUser",
+        "userName": "railway-s3-access",
+        "accessKeyId": "KEY_SUFFIX_ODY2"
+      },
+      "requestParameters": {
+        "bucketName": "unrelated-audit-bucket"
+      }
+    }
+  ]
+}
