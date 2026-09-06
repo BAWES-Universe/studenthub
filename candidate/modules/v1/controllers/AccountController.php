@@ -357,7 +357,7 @@ class AccountController extends Controller
         $model = Candidate::findOne(Yii::$app->user->getId());
 
         if ($model->candidate_personal_photo) {
-            $model->deleteProfilePhotoFromCloudinary();
+            $model->deletePersonalPhotoStorageObject();
         }
         
         $model->candidate_personal_photo = null;
@@ -380,22 +380,60 @@ class AccountController extends Controller
      * Remove civil photo back
      */
     public function actionRemoveCivilPhotoBack() {
-        
+
         $model = Candidate::findOne(Yii::$app->user->getId());
-                
-        if ($model->candidate_civil_photo_back) {
-            $model->deleteFile('civil-id', 'back');
+
+        if (!$model) {
+            throw new \yii\web\HttpException(404, Yii::t('candidate', 'The requested Item could not be found.'));
         }
-        
+
+        $oldFileName = $model->candidate_civil_photo_back;
+
         $model->candidate_civil_photo_back = null;
-        
+        $model->candidate_civil_need_verification = true;
         $model->scenario = 'updateCivilPhotoBack';
 
-        if (!$model->save(false)) {
+        try {
+            if (!$model->save(false)) {
+                return [
+                    'operation' => 'error',
+                    'message' => $model->getErrors(),
+                ];
+            }
+        } catch (\Throwable $e) {
+            Yii::error([
+                'action'       => 'actionRemoveCivilPhotoBack',
+                'candidate_id' => $model->candidate_id,
+                'side'         => 'back',
+                'exception'    => get_class($e),
+                'message'      => $e->getMessage(),
+            ], 'candidate.civil-id');
+
             return [
                 'operation' => 'error',
-                'message' => $model->getErrors()
+                'message' => Yii::t('candidate', 'Could not remove civil photo back.'),
             ];
+        }
+
+        // DB committed first — only then best-effort remove the orphan object.
+        if ($oldFileName !== null && $oldFileName !== '') {
+            $s3Key = Candidate::normalizeCivilIdPermanentS3Key($oldFileName);
+            if ($s3Key !== '') {
+                try {
+                    Yii::$app->resourceManager->delete($s3Key);
+                } catch (\Throwable $e) {
+                    Yii::warning([
+                        'action'       => 'actionRemoveCivilPhotoBack',
+                        'candidate_id' => $model->candidate_id,
+                        'side'         => 'back',
+                        'filename'     => $oldFileName,
+                        's3_key'       => $s3Key,
+                        'reason'       => Candidate::classifyS3DeleteThrowable($e),
+                        'exception'    => get_class($e),
+                        'message'      => $e->getMessage(),
+                    ], 'candidate.civil-id');
+                }
+            }
         }
 
         return [
@@ -407,21 +445,60 @@ class AccountController extends Controller
      * Remove civil photo front
      */
     public function actionRemoveCivilPhotoFront() {
+
         $model = Candidate::findOne(Yii::$app->user->getId());
 
-        if ($model->candidate_civil_photo_front) {
-            $model->deleteFile('civil-id', 'front');
+        if (!$model) {
+            throw new \yii\web\HttpException(404, Yii::t('candidate', 'The requested Item could not be found.'));
         }
-        
+
+        $oldFileName = $model->candidate_civil_photo_front;
+
         $model->candidate_civil_photo_front = null;
-        
+        $model->candidate_civil_need_verification = true;
         $model->scenario = 'updateCivilPhotoFront';
 
-        if (!$model->save(false)) {
+        try {
+            if (!$model->save(false)) {
+                return [
+                    'operation' => 'error',
+                    'message' => $model->getErrors(),
+                ];
+            }
+        } catch (\Throwable $e) {
+            Yii::error([
+                'action'       => 'actionRemoveCivilPhotoFront',
+                'candidate_id' => $model->candidate_id,
+                'side'         => 'front',
+                'exception'    => get_class($e),
+                'message'      => $e->getMessage(),
+            ], 'candidate.civil-id');
+
             return [
                 'operation' => 'error',
-                'message' => $model->getErrors()
+                'message' => Yii::t('candidate', 'Could not remove civil photo front.'),
             ];
+        }
+
+        // DB committed first — only then best-effort remove the orphan object.
+        if ($oldFileName !== null && $oldFileName !== '') {
+            $s3Key = Candidate::normalizeCivilIdPermanentS3Key($oldFileName);
+            if ($s3Key !== '') {
+                try {
+                    Yii::$app->resourceManager->delete($s3Key);
+                } catch (\Throwable $e) {
+                    Yii::warning([
+                        'action'       => 'actionRemoveCivilPhotoFront',
+                        'candidate_id' => $model->candidate_id,
+                        'side'         => 'front',
+                        'filename'     => $oldFileName,
+                        's3_key'       => $s3Key,
+                        'reason'       => Candidate::classifyS3DeleteThrowable($e),
+                        'exception'    => get_class($e),
+                        'message'      => $e->getMessage(),
+                    ], 'candidate.civil-id');
+                }
+            }
         }
 
         return [
@@ -865,6 +942,7 @@ class AccountController extends Controller
         return [
             'operation' => 'success',
             'candidate_personal_photo' => $model->candidate_personal_photo,
+            'candidate_personal_photo_url' => $model->getPersonalPhotoUrl(),
             'message' => Yii::t('candidate', 'Profile Photo Uploaded Successfully')
         ];
     }
@@ -1395,8 +1473,22 @@ class AccountController extends Controller
         
         $candidate_civil_expiry_date = Yii::$app->request->getBodyParam('civil_expiry_date');
 
-        if($candidate_civil_expiry_date)
-            $candidate->candidate_civil_expiry_date = date('Y-m-d', strtotime($candidate_civil_expiry_date));
+        if (!is_string($candidate_civil_expiry_date) || trim($candidate_civil_expiry_date) === '') {
+            return [
+                'operation' => 'error',
+                'message' => Yii::t('candidate', 'Civil ID expiry date is required.'),
+            ];
+        }
+
+        $expiryDt = $this->parseStrictCivilExpiryDateUtc(trim($candidate_civil_expiry_date));
+        if ($expiryDt === null) {
+            return [
+                'operation' => 'error',
+                'message' => Yii::t('candidate', 'Civil ID expiry date is invalid.'),
+            ];
+        }
+
+        $candidate->candidate_civil_expiry_date = $expiryDt->format('Y-m-d');
 
         $candidate->candidate_civil_need_verification = true;
 
@@ -1431,30 +1523,64 @@ class AccountController extends Controller
         }
 
         $candidate_civil_id = Yii::$app->request->getBodyParam('civil_id');
-
         $candidate_civil_expiry_date = Yii::$app->request->getBodyParam('civil_expiry_date');
 
-        $candidate->candidate_civil_id = $candidate_civil_id;
+        // Input validation: never raw 500 for invalid client payloads.
+        if (!is_string($candidate_civil_id) || trim($candidate_civil_id) === '') {
+            return [
+                'operation' => 'error',
+                'message' => Yii::t('candidate', 'Civil ID is required.'),
+            ];
+        }
 
-        if($candidate_civil_expiry_date)
-            $candidate->candidate_civil_expiry_date = date('Y-m-d', strtotime($candidate_civil_expiry_date));
+        if (!is_string($candidate_civil_expiry_date) || trim($candidate_civil_expiry_date) === '') {
+            return [
+                'operation' => 'error',
+                'message' => Yii::t('candidate', 'Civil ID expiry date is required.'),
+            ];
+        }
 
+        $expiryDt = $this->parseStrictCivilExpiryDateUtc(trim($candidate_civil_expiry_date));
+        if ($expiryDt === null) {
+            return [
+                'operation' => 'error',
+                'message' => Yii::t('candidate', 'Civil ID expiry date is invalid.'),
+            ];
+        }
+
+        $candidate->candidate_civil_id = trim($candidate_civil_id);
+        $candidate->candidate_civil_expiry_date = $expiryDt->format('Y-m-d');
         $candidate->candidate_civil_need_verification = true;
+        $candidate->scenario = 'updateCivilExpiryDateAndCivilID';
 
-        $candidate->scenario = "updateCivilExpiryDateAndCivilID";
+        try {
 
-        if (!$candidate->save()) {
+            if (!$candidate->save()) {
+                return [
+                    'operation' => 'error',
+                    'message' => $candidate->errors,
+                ];
+            }
+
+        } catch (\Throwable $e) {
+
+            Yii::error([
+                'action'       => 'actionUpdateCivilIdExpiryDate',
+                'candidate_id' => $candidate->candidate_id,
+                'exception'    => get_class($e),
+                'message'      => $e->getMessage(),
+            ], 'candidate.civil-id');
 
             return [
-                "operation" => "error",
-                "message" => $candidate->errors
+                'operation' => 'error',
+                'message' => Yii::t('candidate', 'Could not update civil id and expiry date.'),
             ];
         }
 
         return [
-            "operation" => "success",
-            "candidate_civil_expiry_date" => $candidate->candidate_civil_expiry_date,
-            "message" => Yii::t('candidate', "Civil ID And Expiry Date Updated Successfully"),
+            'operation' => 'success',
+            'candidate_civil_expiry_date' => $candidate->candidate_civil_expiry_date,
+            'message' => Yii::t('candidate', 'Civil ID And Expiry Date Updated Successfully'),
         ];
     }
     
@@ -1784,5 +1910,58 @@ class AccountController extends Controller
         if ($password) {
             return Yii::$app->user->identity->validatePassword($password);
         }
+    }
+
+    /**
+     * Parse civil expiry from strict formats only (UTC Zulu or calendar date).
+     * Rejects relative phrases and silently-normalized invalid calendar dates.
+     *
+     * Accepted patterns:
+     * - Y-m-d\\TH:i:s.u\\Z (fractional seconds padded to 6 µs digits)
+     * - Y-m-d\\TH:i:s\\Z
+     * - Y-m-d
+     *
+     * @param string $raw
+     * @return \DateTimeImmutable|null
+     */
+    private function parseStrictCivilExpiryDateUtc(string $raw): ?\DateTimeImmutable
+    {
+        $utc = new \DateTimeZone('UTC');
+
+        // Pad fractional seconds to 6 digits so PHP's `u` token parses ISO milliseconds.
+        $normalized = preg_replace_callback(
+            '/^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})\.(\d+)Z$/',
+            static function ($m) {
+                $digits = substr($m[2], 0, 6);
+                $digits = str_pad($digits, 6, '0', STR_PAD_RIGHT);
+
+                return $m[1] . '.' . $digits . 'Z';
+            },
+            $raw
+        );
+
+        $variants = [$normalized];
+        if ($normalized !== $raw) {
+            $variants[] = $raw;
+        }
+
+        // Leading ! rejects trailing junk and bogus partial parses.
+        $formats = ['!Y-m-d\TH:i:s.u\Z', '!Y-m-d\TH:i:s\Z', '!Y-m-d'];
+
+        foreach ($variants as $candidateStr) {
+            foreach ($formats as $format) {
+                $dt = \DateTimeImmutable::createFromFormat($format, $candidateStr, $utc);
+                $errors = \DateTimeImmutable::getLastErrors();
+
+                if ($dt !== false && (
+                    $errors === false
+                    || ($errors['warning_count'] === 0 && $errors['error_count'] === 0)
+                )) {
+                    return $dt;
+                }
+            }
+        }
+
+        return null;
     }
 }

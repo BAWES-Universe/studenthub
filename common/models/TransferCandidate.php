@@ -1082,16 +1082,76 @@ class TransferCandidate extends \yii\db\ActiveRecord
                 ];
             }
 
-            // Only allow fallback if candidate_hourly_rate is provided in payload.
             if (!array_key_exists('candidate_hourly_rate', $value) || $value['candidate_hourly_rate'] === null || $value['candidate_hourly_rate'] === '') {
-                $candidateName = $candidate['candidate_name'] ?? 'Unknown';
-                $candidateId = $candidate['candidate_id'] ?? 'Unknown';
-                $storeName = isset($candidate['store']) && isset($candidate['store']['store_name'])
-                    ? $candidate['store']['store_name']
-                    : 'Unknown';
+                $candidateServerRate = $candidate['candidate_hourly_rate'] ?? null;
+                if (is_numeric($candidateServerRate) && (float)$candidateServerRate > 0) {
+                    $value['candidate_hourly_rate'] = (float)$candidateServerRate;
+                }
+            }
 
+            if (!array_key_exists('company_hourly_rate', $value) || $value['company_hourly_rate'] === null || $value['company_hourly_rate'] === '') {
+                $companyServerRate = $company['company_hourly_rate'] ?? null;
+                if (!is_numeric($companyServerRate) || (float)$companyServerRate <= 0) {
+                    if (!empty($company['parent_company_id'])) {
+                        $parent = Company::findOne(['company_id' => $company['parent_company_id']]);
+                        if ($parent && is_numeric($parent->company_hourly_rate) && (float)$parent->company_hourly_rate > 0) {
+                            $companyServerRate = $parent->company_hourly_rate;
+                        }
+                    }
+                }
+                if (is_numeric($companyServerRate) && (float)$companyServerRate > 0) {
+                    $value['company_hourly_rate'] = (float)$companyServerRate;
+                }
+            }
+
+            $candidateName = $candidate['candidate_name'] ?? 'Unknown';
+            $candidateId = $candidate['candidate_id'] ?? 'Unknown';
+            $storeName = isset($candidate['store']) && isset($candidate['store']['store_name'])
+                ? $candidate['store']['store_name']
+                : 'Unknown';
+
+            if (!array_key_exists('candidate_hourly_rate', $value) || $value['candidate_hourly_rate'] === null || $value['candidate_hourly_rate'] === ''
+                || !is_numeric($value['candidate_hourly_rate']) || (float)$value['candidate_hourly_rate'] <= 0) {
                 $message = sprintf(
-                    "Cannot create transfer for candidate '%s' (ID: %s) at store '%s'. No non-deleted contract overlaps transfer period and candidate_hourly_rate is missing from payload.",
+                    "Cannot create transfer for candidate '%s' (ID: %s) at store '%s'. No non-deleted contract overlaps transfer period and candidate hourly rate is unavailable.",
+                    $candidateName,
+                    $candidateId,
+                    $storeName
+                );
+
+                return [
+                    "operation" => "error",
+                    "message" => $message,
+                    "candidate_id" => $candidateId,
+                    "candidate_name" => $candidateName,
+                    "store_id" => $candidate['store_id'] ?? null
+                ];
+            }
+
+            if (!array_key_exists('company_hourly_rate', $value) || $value['company_hourly_rate'] === null || $value['company_hourly_rate'] === ''
+                || !is_numeric($value['company_hourly_rate']) || (float)$value['company_hourly_rate'] <= 0) {
+                $message = sprintf(
+                    "Cannot create transfer for candidate '%s' (ID: %s) at store '%s'. No non-deleted contract overlaps transfer period and company hourly rate is unavailable.",
+                    $candidateName,
+                    $candidateId,
+                    $storeName
+                );
+
+                return [
+                    "operation" => "error",
+                    "message" => $message,
+                    "candidate_id" => $candidateId,
+                    "candidate_name" => $candidateName,
+                    "store_id" => $candidate['store_id'] ?? null
+                ];
+            }
+
+            $rateCandidate = (float)$value['candidate_hourly_rate'];
+            $rateCompany = (float)$value['company_hourly_rate'];
+
+            if ($rateCompany < $rateCandidate) {
+                $message = sprintf(
+                    "Cannot create transfer for candidate '%s' (ID: %s) at store '%s'. Company hourly rate must be greater than or equal to candidate hourly rate.",
                     $candidateName,
                     $candidateId,
                     $storeName
@@ -1107,10 +1167,6 @@ class TransferCandidate extends \yii\db\ActiveRecord
             }
 
             $hoursFloat = $hours + ($minutes / 60) + ($seconds / 3600);
-            $rateCandidate = (float)$value['candidate_hourly_rate'];
-            $rateCompany = isset($value['company_hourly_rate']) && $value['company_hourly_rate'] !== null && $value['company_hourly_rate'] !== ''
-                ? (float)$value['company_hourly_rate']
-                : $rateCandidate;
 
             $baseCandidate = $hoursFloat * $rateCandidate;
             $baseCompany = $hoursFloat * $rateCompany;
