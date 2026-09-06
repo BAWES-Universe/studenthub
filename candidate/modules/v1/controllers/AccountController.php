@@ -1379,7 +1379,12 @@ class AccountController extends Controller
             ];
         }
         
-        $model->updateCivilId('back');
+        if (!$model->updateCivilId('back')) {
+            return [
+                'operation' => 'error',
+                'message' => $model->getErrors()
+            ];
+        }
 
         //reset to remove old id's data
         $model->candidate_civil_expiry_date = null;
@@ -1392,6 +1397,8 @@ class AccountController extends Controller
             ];
         }
 
+        $oldCivilIdCleanupComplete = $model->deletePendingCivilIdFiles('back');
+
         return [
             'operation' => 'success',
             "candidate_civil_photo_back" => $model->candidate_civil_photo_back,
@@ -1400,6 +1407,7 @@ class AccountController extends Controller
             "candidate_civil_id" => $model->candidate_civil_id,
             'civilExpired' => $model->candidate_civil_expiry_date && (strtotime($model->candidate_civil_expiry_date) <
                     strtotime(date('Y-m-d'))),
+            'civil_photo_cleanup_pending' => !$oldCivilIdCleanupComplete,
 
             'message' => Yii::t('candidate', 'Civil Photo Back Uploaded Successfully')
         ];
@@ -1431,7 +1439,12 @@ class AccountController extends Controller
             ];
         }
         
-        $model->updateCivilId('front');
+        if (!$model->updateCivilId('front')) {
+            return [
+                'operation' => 'error',
+                'message' => $model->getErrors()
+            ];
+        }
 
         //reset to remove old id's data
         $model->candidate_civil_expiry_date = null;
@@ -1444,6 +1457,8 @@ class AccountController extends Controller
             ];
         }
 
+        $oldCivilIdCleanupComplete = $model->deletePendingCivilIdFiles('front');
+
         return [
             'operation' => 'success',
 
@@ -1453,6 +1468,7 @@ class AccountController extends Controller
             "candidate_civil_id" => $model->candidate_civil_id,
             'civilExpired' => $model->candidate_civil_expiry_date && (strtotime($model->candidate_civil_expiry_date) <
                     strtotime(date('Y-m-d'))),
+            'civil_photo_cleanup_pending' => !$oldCivilIdCleanupComplete,
 
             'message' => Yii::t('candidate', 'Civil Photo Front Uploaded Successfully')
         ];
@@ -1525,22 +1541,30 @@ class AccountController extends Controller
         $candidate_civil_id = Yii::$app->request->getBodyParam('civil_id');
         $candidate_civil_expiry_date = Yii::$app->request->getBodyParam('civil_expiry_date');
 
-        // Input validation: never raw 500 for invalid client payloads.
-        if (!is_string($candidate_civil_id) || trim($candidate_civil_id) === '') {
+        if (!is_scalar($candidate_civil_id) || trim((string) $candidate_civil_id) === '') {
             return [
                 'operation' => 'error',
                 'message' => Yii::t('candidate', 'Civil ID is required.'),
             ];
         }
 
-        if (!is_string($candidate_civil_expiry_date) || trim($candidate_civil_expiry_date) === '') {
+        $candidate_civil_id = trim((string) $candidate_civil_id);
+
+        if (!preg_match('/^\d{12}$/', $candidate_civil_id)) {
+            return [
+                'operation' => 'error',
+                'message' => Yii::t('candidate', 'Civil ID must be 12 digit number.'),
+            ];
+        }
+
+        if (!is_scalar($candidate_civil_expiry_date) || trim((string) $candidate_civil_expiry_date) === '') {
             return [
                 'operation' => 'error',
                 'message' => Yii::t('candidate', 'Civil ID expiry date is required.'),
             ];
         }
 
-        $expiryDt = $this->parseStrictCivilExpiryDateUtc(trim($candidate_civil_expiry_date));
+        $expiryDt = $this->parseStrictCivilExpiryDateUtc(trim((string) $candidate_civil_expiry_date));
         if ($expiryDt === null) {
             return [
                 'operation' => 'error',
@@ -1554,16 +1578,13 @@ class AccountController extends Controller
         $candidate->scenario = 'updateCivilExpiryDateAndCivilID';
 
         try {
-
             if (!$candidate->save()) {
                 return [
                     'operation' => 'error',
-                    'message' => $candidate->errors,
+                    'message' => $candidate->getErrors(),
                 ];
             }
-
         } catch (\Throwable $e) {
-
             Yii::error([
                 'action'       => 'actionUpdateCivilIdExpiryDate',
                 'candidate_id' => $candidate->candidate_id,
