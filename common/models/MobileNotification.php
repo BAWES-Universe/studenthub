@@ -1,7 +1,7 @@
 <?php
 namespace common\models;
 
-use Yii; 
+use Yii;
 
 
 /**
@@ -9,9 +9,9 @@ use Yii;
  * @author krushn
  */
 class MobileNotification {
-    
+
     /**
-     * 
+     *
      * @param string $headings
      * @param string $subtitle
      * @param string $content
@@ -26,23 +26,27 @@ class MobileNotification {
      */
     public static function notifyCandidate($heading, $data, $filters, $subtitle = '', $content = '')
     {
-        if(!isset(Yii::$app->params['oneSignalCandidateAPPID'])) {
-            return false; 
+        if (
+            empty(Yii::$app->params['inCodeception']) &&
+            (empty(Yii::$app->params['oneSignalCandidateAPPID']) || empty(Yii::$app->params['oneSignalCandidateAPIKey']))
+        ) {
+            Yii::warning('OneSignal candidate notification skipped because app id or API key is not configured.');
+            return false;
         }
-        
-        self::sendNotification(
-            Yii::$app->params['oneSignalCandidateAPPID'], 
+
+        return self::sendNotification(
+            Yii::$app->params['oneSignalCandidateAPPID'],
             Yii::$app->params['oneSignalCandidateAPIKey'],
-            $heading, 
-            $data, 
-            $filters, 
-            $subtitle, 
+            $heading,
+            $data,
+            $filters,
+            $subtitle,
             $content
         );
     }
-    
+
     /**
-     * 
+     *
      * @param string $headings
      * @param string $subtitle
      * @param string $content
@@ -56,10 +60,15 @@ class MobileNotification {
      * ] $filters;
      */
     public static function sendNotification($appId, $apiKey, $heading, $data, $filters, $subtitle = '', $content = '')
-    {   
+    {
         if(!empty(Yii::$app->params['inCodeception']))
             return true;
-            
+
+        if (empty($appId) || empty($apiKey)) {
+            Yii::warning('OneSignal notification skipped because app id or API key is not configured.');
+            return false;
+        }
+
     	$fields = [
             'app_id' => $appId,
             'filters' => $filters,
@@ -87,14 +96,27 @@ class MobileNotification {
         curl_setopt($ch, CURLOPT_HEADER, FALSE);
         curl_setopt($ch, CURLOPT_POST, TRUE);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, TRUE);
 
-        curl_exec($ch);
+        $response = curl_exec($ch);
+        if ($response === false) {
+            Yii::warning('OneSignal notification request failed: ' . curl_error($ch));
+            curl_close($ch);
+            return false;
+        }
+        $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($status < 200 || $status >= 300) {
+            Yii::warning('OneSignal notification request returned HTTP ' . $status . ': ' . $response);
+            curl_close($ch);
+            return false;
+        }
         curl_close($ch);
 
         /*print("\n\nJSON received:\n");
     	print_r($response);
     	print("\n");*/
+        return true;
     }
 }
-        
