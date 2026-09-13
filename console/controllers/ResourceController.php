@@ -199,20 +199,22 @@ class ResourceController extends \yii\console\Controller {
 
             // Step 1: Probe canonical location in permanent bucket
             try {
-                if (Yii::$app->resourceManager->fileExists($canonicalKey)) {
+                if ($this->probeS3FileExists(Yii::$app->resourceManager, $canonicalKey)) {
                     $status         = 'OK_CANONICAL';
                     $actionTaken    = 'Present at canonical path; no action required';
                     $sourceLocation = "s3://{$permBucket}/{$canonicalKey}";
                     $stats['ok_canonical']++;
                 }
             } catch (\Throwable $e) {
-                // S3 check error
+                $status         = 'ERROR';
+                $actionTaken    = 'Network error probing canonical location: ' . $e->getMessage();
+                $stats['errors']++;
             }
 
             // Step 2: Probe legacy prefix in permanent bucket
             if ($status === null) {
                 try {
-                    if (Yii::$app->resourceManager->fileExists($legacyKey)) {
+                    if ($this->probeS3FileExists(Yii::$app->resourceManager, $legacyKey)) {
                         $sourceLocation = "s3://{$permBucket}/{$legacyKey}";
                         if ($isDryRun) {
                             $status      = 'RECOVERED_LEGACY';
@@ -226,7 +228,7 @@ class ResourceController extends \yii\console\Controller {
                     }
                 } catch (\Throwable $e) {
                     $status      = 'ERROR';
-                    $actionTaken = "Error copying legacy object: " . $e->getMessage();
+                    $actionTaken = "Error probing/copying legacy object: " . $e->getMessage();
                     $stats['errors']++;
                 }
             }
@@ -238,12 +240,15 @@ class ResourceController extends \yii\console\Controller {
 
                 foreach ($tempProbes as $probeKey) {
                     try {
-                        if (Yii::$app->temporaryBucketResourceManager->fileExists($probeKey)) {
+                        if ($this->probeS3FileExists(Yii::$app->temporaryBucketResourceManager, $probeKey)) {
                             $foundTempKey = $probeKey;
                             break;
                         }
                     } catch (\Throwable $e) {
-                        // S3 temp probe error
+                        $status      = 'ERROR';
+                        $actionTaken = "Error probing temp bucket: " . $e->getMessage();
+                        $stats['errors']++;
+                        break;
                     }
                 }
 
@@ -373,7 +378,61 @@ class ResourceController extends \yii\console\Controller {
             Console::output("Re-upload candidates list written to: {$reuploadPath}");
         }
 
+        // Export JSON report if requested via --outputJson (-j)
+        if (!empty($this->outputJson)) {
+            $jsonPath = (is_string($this->outputJson) && $this->outputJson !== '1')
+                ? $this->outputJson
+                : Yii::getAlias('@console/runtime/civil_id_audit_report.json');
+            $jsonDir = dirname($jsonPath);
+            if (!is_dir($jsonDir)) {
+                @mkdir($jsonDir, 0777, true);
+            }
+
+            $jsonData = [
+                'metadata' => [
+                    'generated_at'  => date('c'),
+                    'is_dry_run'    => (bool)$isDryRun,
+                    'total_checked' => $total,
+                ],
+                'statistics' => $stats,
+                'records'    => $report,
+            ];
+
+            file_put_contents($jsonPath, json_encode($jsonData, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+            Console::output("Full audit report JSON written to: {$jsonPath}");
+        }
+
         return 0;
+    }
+
+    /**
+     * Safely checks whether an S3 object exists, retrying on transient network/connection failures.
+     * Differentiates genuinely missing files (404/403) from network/connection errors.
+     *
+     * @param mixed $resourceManager
+     * @param string $key
+     * @param int $maxRetries
+     * @return bool True if file exists, false if genuinely not found
+     * @throws \Throwable If a network/connection error persists after retries
+     */
+    protected function probeS3FileExists($resourceManager, $key, $maxRetries = 2)
+    {
+        $attempt = 0;
+        while (true) {
+            $attempt++;
+            try {
+                // If resourceManager supports the 2nd throwOnNetworkError argument
+                return $resourceManager->fileExists($key, true);
+            } catch (\GuzzleHttp\Exception\ClientException $e) {
+                // 404 Not Found or 403 Forbidden: genuinely does not exist or inaccessible
+                return false;
+            } catch (\Throwable $e) {
+                if ($attempt >= $maxRetries) {
+                    throw $e;
+                }
+                usleep(200000); // 200ms backoff
+            }
+        }
     }
 }
 
