@@ -48,6 +48,16 @@ return [
                         'OPTIONS' => 'options',
                     ]
                 ],
+                [ // TempUploadController - Staff-only authenticated presign. Do not add to AwsController.
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/temp-upload',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'POST url' => 'url',
+                        // OPTIONS VERBS
+                        'OPTIONS url' => 'options',
+                    ]
+                ],
                 [ // CronLogController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/cron-log',
