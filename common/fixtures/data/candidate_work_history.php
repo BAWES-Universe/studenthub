@@ -451,4 +451,13 @@ return [
         'end_date' => null,
         'candidate_hourly_rate' => 1.11,
     ],
+    'candidate_work_history50' => [
+        'candidate_id' => '1',
+        'store_id' => '31',
+        'company_id' => '7',
+        'parent_company_id' => '7',
+        'start_date' => '2026-08-01',
+        'end_date' => '2026-08-31',
+        'candidate_hourly_rate' => 1.01,
+    ],
 ];
