@@ -169,9 +169,10 @@ class S3ResourceManager extends Component
      * Checks whether a file exists or not. This method only works for public resources, private resources will throw
      * a 403 error exception.
      * @param string $filenameOrUrl the name or url of the file
+     * @param bool $throwOnNetworkError whether to throw exception on transient network/connection error
      * @return boolean
      */
-    public function fileExists($filenameOrUrl)
+    public function fileExists($filenameOrUrl, $throwOnNetworkError = false)
     {
         $isUrl = false;
         if (strpos($filenameOrUrl, 'http') !== false) {
@@ -181,10 +182,17 @@ class S3ResourceManager extends Component
         $http = new \GuzzleHttp\Client(['base_uri' => $isUrl ? $filenameOrUrl : $this->getUrl($filenameOrUrl)]);
         try {
             $response = $http->request('HEAD');
+            return $response->getStatusCode() == 200;
+        } catch (\GuzzleHttp\Exception\ClientException $e) {
+            // 404 Not Found or 403 Forbidden: file genuinely does not exist or cannot be accessed
+            return false;
         } catch (\Exception $e) {
+            if ($throwOnNetworkError) {
+                throw $e;
+            }
+            \Yii::warning("S3 fileExists encountered network error for {$filenameOrUrl}: " . $e->getMessage(), __METHOD__);
             return false;
         }
-        return $response->getStatusCode() == 200;
     }
 
     /**
