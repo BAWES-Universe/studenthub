@@ -143,11 +143,11 @@ return [
         'eventManager' => [
             'class' => 'common\components\EventManager',
             //todo: commenting down as it's slowing down all apis
-            //"sqsRagion" => "eu-west-2",
-            //"sqsKey" => "",
-            //"sqsSecret" => "",
-            //"sqsQueue" => "438663597141/Studenthub",
-            //"sqsEndpoint" => "http://ec2-18-130-75-235.eu-west-2.compute.amazonaws.com:3001"
+            //"sqsRagion" => getenv('AWS_SQS_REGION') ?: "eu-west-2",
+            //"sqsKey" => getenv('AWS_SQS_ACCESS_KEY_ID') ?: "",
+            //"sqsSecret" => getenv('AWS_SQS_SECRET_ACCESS_KEY') ?: "",
+            //"sqsQueue" => getenv('AWS_SQS_QUEUE') ?: "438663597141/Studenthub",
+            //"sqsEndpoint" => getenv('AWS_SQS_ENDPOINT') ?: null
         ],
         'xero' => [
             'class' => 'common\components\Xero',
