@@ -1,0 +1,111 @@
+{
+  "buckets": [
+    {
+      "name": "studenthub-uploads",
+      "versioning": { "Status": "Suspended" },
+      "publicAccessBlock": {
+        "BlockPublicAcls": true,
+        "IgnorePublicAcls": true,
+        "BlockPublicPolicy": true,
+        "RestrictPublicBuckets": true
+      },
+      "ownershipControls": {
+        "Rules": [{ "ObjectOwnership": "ObjectWriter" }]
+      },
+      "logging": {},
+      "lifecycle": {
+        "Rules": [
+          {
+            "ID": "PressureDelete3Days",
+            "Status": "Enabled",
+            "Expiration": { "Days": 3 }
+          }
+        ]
+      },
+      "cors": {
+        "CORSRules": [
+          {
+            "AllowedOrigins": ["https://candidate.studenthub.co"],
+            "AllowedMethods": ["GET", "PUT"],
+            "AllowedHeaders": ["*"]
+          }
+        ]
+      },
+      "acl": {
+        "Grants": []
+      },
+      "policy": {
+        "Statement": [
+          {
+            "Sid": "SyntheticAccountReference",
+            "Principal": { "AWS": "arn:aws:iam::123456789012:role/studenthub" },
+            "Action": "s3:GetObject"
+          }
+        ]
+      },
+      "tags": {
+        "owner": "platform",
+        "service": "studenthub"
+      }
+    },
+    {
+      "name": "studenthub-public-anyone-can-upload-24hr-expiry",
+      "versioning": { "Status": "Suspended" },
+      "publicAccessBlock": {
+        "BlockPublicAcls": true,
+        "IgnorePublicAcls": true,
+        "BlockPublicPolicy": true,
+        "RestrictPublicBuckets": true
+      },
+      "ownershipControls": {
+        "Rules": [{ "ObjectOwnership": "BucketOwnerEnforced" }]
+      },
+      "logging": { "LoggingEnabled": { "TargetBucket": "studenthub-access-logs" } },
+      "lifecycle": {
+        "Rules": [
+          {
+            "ID": "ExpireTempUploads",
+            "Status": "Enabled",
+            "Expiration": { "Days": 1 }
+          }
+        ]
+      },
+      "cors": {
+        "CORSRules": [
+          {
+            "AllowedOrigins": ["*"],
+            "AllowedMethods": ["PUT", "POST"],
+            "AllowedHeaders": ["*"]
+          }
+        ]
+      },
+      "tags": {
+        "owner": "platform",
+        "service": "candidate-uploads",
+        "environment": "temporary"
+      }
+    },
+    {
+      "name": "studenthub-access-logs",
+      "versioning": { "Status": "Enabled" },
+      "publicAccessBlock": {
+        "BlockPublicAcls": true,
+        "IgnorePublicAcls": true,
+        "BlockPublicPolicy": true,
+        "RestrictPublicBuckets": true
+      },
+      "ownershipControls": {
+        "Rules": [{ "ObjectOwnership": "BucketOwnerEnforced" }]
+      },
+      "logging": { "LoggingEnabled": { "TargetBucket": "studenthub-access-logs" } },
+      "lifecycle": { "Rules": [] },
+      "cors": { "CORSRules": [] },
+      "tags": {
+        "owner": "platform",
+        "service": "security-logs",
+        "environment": "prod",
+        "lastReviewedBy": "AKIAIOSFODNN7EXAMPLE"
+      }
+    }
+  ]
+}
