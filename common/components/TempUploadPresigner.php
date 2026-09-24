@@ -186,6 +186,11 @@ class TempUploadPresigner
             throw new TempUploadConfigurationException('Temporary upload signer is not configured.');
         }
 
+        // Reject a secret, or any other non-access-key, before the SDK can
+        // place it in X-Amz-Credential. The client still receives the
+        // existing sanitized 503 and never sees the configured values.
+        $this->assertSignerAccessKeyId($this->accessKey, $this->secretKey);
+
         $declaredContentType = $this->normalizeDeclaredContentType($contentType);
         $validatedFileSize = $this->validateFileSize($fileSize);
         $objectKey = $this->generateObjectKey($filename, $declaredContentType);
@@ -262,6 +267,23 @@ class TempUploadPresigner
         }
 
         return $stem . '-' . time() . '-' . bin2hex(random_bytes(8)) . '.' . $extension;
+    }
+
+    /**
+     * IAM access key IDs for this signer are AKIA plus 16 uppercase
+     * alphanumeric characters. A secret copied into the key variable fails
+     * this check, including when both variables hold the same value.
+     *
+     * @param string $accessKey
+     * @param string $secretKey
+     * @return void
+     * @throws TempUploadConfigurationException
+     */
+    private function assertSignerAccessKeyId($accessKey, $secretKey)
+    {
+        if ($accessKey === $secretKey || !preg_match('/\AAKIA[A-Z0-9]{16}\z/', $accessKey)) {
+            throw new TempUploadConfigurationException('Temporary upload signer is not configured.');
+        }
     }
 
     /**

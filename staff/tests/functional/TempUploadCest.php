@@ -17,7 +17,7 @@ use PHPUnit\Framework\Assert;
  */
 class TempUploadCest
 {
-    const FAKE_KEY = 'TESTTEMPUPLOADKEYID0001';
+    const FAKE_KEY = 'AKIATEMPUPLOADTEST01';
     const FAKE_SECRET = 'fake-temp-upload-secret-for-tests-only';
     const CE37_SENTINEL_KEY = 'CE37-SENTINEL-MUST-NOT-BE-USED';
     const CE37_SENTINEL_SECRET = 'CE37-SECRET-SENTINEL-MUST-NOT-BE-USED';
@@ -147,6 +147,22 @@ class TempUploadCest
         Assert::assertStringNotContainsString('AWS_TEMP_BUCKET_SECRET', $body);
         Assert::assertStringNotContainsString('AWS_TEMP_UPLOAD_SIGNER_SECRET', $body);
         Assert::assertStringNotContainsString('upload_url', $body);
+        Assert::assertStringContainsString('unavailable', strtolower($body));
+    }
+
+    public function trySecretDuplicatedIntoBothSignerFieldsFailsClosed(FunctionalTester $I)
+    {
+        $secret = 'synthetic-secret-shaped-value-not-an-access-key-0001';
+        $this->clearEnvSources(self::ENV_NAMES);
+        $this->setEnvSource('AWS_TEMP_UPLOAD_SIGNER_KEY', $secret);
+        $this->setEnvSource('AWS_TEMP_UPLOAD_SIGNER_SECRET', $secret);
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
+        $I->sendPOST('v1/temp-upload/url', $this->validPayload());
+        $I->seeResponseCodeIs(503);
+        $body = $I->grabResponse();
+        Assert::assertStringNotContainsString($secret, $body);
+        Assert::assertStringNotContainsString('upload_url', $body);
+        Assert::assertStringNotContainsString('X-Amz-Credential', $body);
         Assert::assertStringContainsString('unavailable', strtolower($body));
     }
 

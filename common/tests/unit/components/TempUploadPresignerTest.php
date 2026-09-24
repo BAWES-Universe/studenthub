@@ -14,7 +14,7 @@ use common\components\TempUploadValidationException;
  */
 class TempUploadPresignerTest extends \PHPUnit\Framework\TestCase
 {
-    const FAKE_KEY = 'TESTTEMPUPLOADKEYID0001';
+    const FAKE_KEY = 'AKIATEMPUPLOADTEST01';
     const FAKE_SECRET = 'fake-temp-upload-secret-for-tests-only';
     const CE37_SENTINEL_KEY = 'CE37-SENTINEL-MUST-NOT-BE-USED';
     const CE37_SENTINEL_SECRET = 'CE37-SECRET-SENTINEL-MUST-NOT-BE-USED';
@@ -72,6 +72,54 @@ class TempUploadPresignerTest extends \PHPUnit\Framework\TestCase
         $this->assertStringContainsString($result['key'], $result['public_url']);
         $this->assertStringStartsWith('https://', $result['upload_url']);
         $this->assertArrayNotHasKey('key_supplied_by_client', $result);
+        $this->assertMatchesRegularExpression(
+            '/X-Amz-Credential=' . preg_quote(self::FAKE_KEY, '/') . '%2F/',
+            $result['upload_url']
+        );
+        $this->assertStringNotContainsString(self::FAKE_SECRET, $result['upload_url']);
+        $this->assertStringNotContainsString(self::FAKE_SECRET, $result['public_url']);
+    }
+
+    public function testSecretDuplicatedIntoBothSignerFieldsFailsBeforeSigning()
+    {
+        $secret = 'synthetic-secret-shaped-value-not-an-access-key-0001';
+        $presigner = new TempUploadPresigner($secret, $secret);
+
+        try {
+            $presigner->presign('photo.png', 'image/png', 128);
+            $this->fail('A secret duplicated into the access key must not be signed.');
+        } catch (TempUploadConfigurationException $e) {
+            $this->assertSame('Temporary upload signer is not configured.', $e->getMessage());
+            $this->assertStringNotContainsString($secret, $e->getMessage());
+        }
+    }
+
+    public function testIdenticalAccessKeyAndSecretFailsBeforeSigning()
+    {
+        $presigner = new TempUploadPresigner(self::FAKE_KEY, self::FAKE_KEY);
+
+        try {
+            $presigner->presign('photo.png', 'image/png', 128);
+            $this->fail('The access key must not be reused as the secret.');
+        } catch (TempUploadConfigurationException $e) {
+            $this->assertSame('Temporary upload signer is not configured.', $e->getMessage());
+            $this->assertStringNotContainsString(self::FAKE_KEY, $e->getMessage());
+        }
+    }
+
+    public function testSecretShapedAccessKeyFailsBeforeSigning()
+    {
+        $secretShapedKey = 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY';
+        $presigner = new TempUploadPresigner($secretShapedKey, self::FAKE_SECRET);
+
+        try {
+            $presigner->presign('photo.png', 'image/png', 128);
+            $this->fail('A secret-shaped access key must not be signed.');
+        } catch (TempUploadConfigurationException $e) {
+            $this->assertSame('Temporary upload signer is not configured.', $e->getMessage());
+            $this->assertStringNotContainsString($secretShapedKey, $e->getMessage());
+            $this->assertStringNotContainsString(self::FAKE_SECRET, $e->getMessage());
+        }
     }
 
     public function testMissingSignerFailsClosedAndDoesNotUseCe37Params()
