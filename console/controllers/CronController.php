@@ -159,12 +159,16 @@ class CronController extends \yii\console\Controller {
                 $response = Yii::$app->idExpiryDateExtractor
                     ->extractExpiryDate("photos/" . $candidate->candidate_civil_photo_front);
 
-                if ($response['operation'] == "success" ) {
+                if ($response['operation'] == "success" && !empty($response['matches'])) {
 
                     $date = array_pop($response['matches']);
 
-                    $dateTime = $date? strtotime(str_replace("/", "-", $date)): time();
+                    $dateTime = strtotime(str_replace("/", "-", $date));
                     //$date = end($response['matches']);
+
+                    if (!$dateTime) {
+                        continue;
+                    }
 
                     /*if($candidate->candidate_civil_expiry_date &&
                         $dateTime <= strtotime($candidate->candidate_civil_expiry_date)) {
