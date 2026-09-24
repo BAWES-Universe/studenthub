@@ -166,25 +166,64 @@ class S3ResourceManager extends Component
     }
 
     /**
-     * Checks whether a file exists or not. This method only works for public resources, private resources will throw
-     * a 403 error exception.
+     * Returns the bucket/key pair for a stored object reference.
+     * Supports raw keys and S3 object URLs.
+     * @param string $filenameOrUrl
+     * @return array
+     */
+    protected function resolveObjectLocation($filenameOrUrl)
+    {
+        $bucket = $this->bucket;
+        $key = ltrim((string) $filenameOrUrl, '/');
+
+        if (strpos((string) $filenameOrUrl, 'http') !== false) {
+            $parts = parse_url($filenameOrUrl);
+            $key = isset($parts['path']) ? ltrim($parts['path'], '/') : '';
+
+            if (!empty($parts['host']) && preg_match('/^([^.]+)\.s3[.-]/', $parts['host'], $matches)) {
+                $bucket = $matches[1];
+            } elseif (!empty($parts['host']) && preg_match('/^s3[.-]/', $parts['host']) && $key !== '') {
+                $segments = explode('/', $key, 2);
+                $bucket = $segments[0] ?: $bucket;
+                $key = $segments[1] ?? '';
+            }
+
+            $key = rawurldecode($key);
+        }
+
+        return [$bucket, $key];
+    }
+
+    /**
+     * Returns S3 object metadata.
+     * @param string $filenameOrUrl
+     * @return \Aws\Result
+     */
+    public function headObject($filenameOrUrl)
+    {
+        [$bucket, $key] = $this->resolveObjectLocation($filenameOrUrl);
+
+        return $this->getClient()->headObject([
+            'Bucket' => $bucket,
+            'Key' => $key,
+        ]);
+    }
+
+    /**
+     * Checks whether a file exists or not using S3 metadata.
      * @param string $filenameOrUrl the name or url of the file
      * @return boolean
      */
     public function fileExists($filenameOrUrl)
     {
-        $isUrl = false;
-        if (strpos($filenameOrUrl, 'http') !== false) {
-            $isUrl = true;
-        }
-
-        $http = new \GuzzleHttp\Client(['base_uri' => $isUrl ? $filenameOrUrl : $this->getUrl($filenameOrUrl)]);
         try {
-            $response = $http->request('HEAD');
+            $this->headObject($filenameOrUrl);
+            return true;
+        } catch (AwsException $e) {
+            return false;
         } catch (\Exception $e) {
             return false;
         }
-        return $response->getStatusCode() == 200;
     }
 
     /**
