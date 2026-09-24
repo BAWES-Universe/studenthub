@@ -34,7 +34,11 @@ return [
             'class' => 'common\components\JWT'
         ],
         'smsComponent' => [
-            'class' => 'common\components\SMSComponent'
+            'class' => 'common\components\SMSComponent',
+            'apiEndpoint' => getenv('SMS_PROVIDER_ENDPOINT') ?: null,
+            'username' => getenv('SMS_PROVIDER_USERNAME') ?: null,
+            'password' => getenv('SMS_PROVIDER_PASSWORD') ?: null,
+            'sender' => getenv('SMS_PROVIDER_SENDER') ?: null,
         ],
         'jira' => [
             'class' => 'common\components\JiraComponent',
