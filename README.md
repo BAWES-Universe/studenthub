@@ -32,6 +32,23 @@ Detailed documentation is available in the `docs/` directory:
 - Access backend container: `docker-compose exec backend bash`
 - Code generator: http://localhost:8888/bawes/studenthub/admin/web/gii
 
+## Required S3 Environment Variables
+
+The temp upload bucket and permanent upload bucket credentials must be supplied through environment variables, not committed config values.
+
+| Variable | Used by | Default |
+| --- | --- | --- |
+| `AWS_TEMP_BUCKET_KEY` | `temporaryBucketResourceManager` access key in `common/config/main.php` | Required |
+| `AWS_TEMP_BUCKET_SECRET` | `temporaryBucketResourceManager` secret in `common/config/main.php` | Required |
+| `AWS_TEMP_BUCKET_REGION` | `temporaryBucketResourceManager` region in `common/config/main.php` | `eu-west-2` |
+| `AWS_TEMP_BUCKET_NAME` | `temporaryBucketResourceManager` bucket in `common/config/main.php` | `studenthub-public-anyone-can-upload-24hr-expiry` |
+| `AWS_PERMANENT_S3_ACCESS_KEY_ID` | `resourceManager` access key in `environments/prod-railway/common/config/main-local.php` | Required |
+| `AWS_PERMANENT_S3_SECRET_ACCESS_KEY` | `resourceManager` secret in `environments/prod-railway/common/config/main-local.php` | Required |
+| `AWS_PERMANENT_S3_REGION` | `resourceManager` region in `environments/prod-railway/common/config/main-local.php` | `eu-west-2` |
+| `AWS_PERMANENT_S3_BUCKET` | `resourceManager` bucket in `environments/prod-railway/common/config/main-local.php` | `studenthub-uploads` |
+
+Run `bash tests/check-s3-env-config.sh` to verify these upload bucket config paths stay env-backed.
+
 ## allow access from docker to local mysql server 
 
 `GRANT ALL PRIVILEGES ON *.* TO 'root'@'192.168.1.5' IDENTIFIED BY 'root' WITH GRANT OPTION;`
@@ -202,6 +219,3 @@ BEGIN
 END $$
 
 DELIMITER;
-
-
-
