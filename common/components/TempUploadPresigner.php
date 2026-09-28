@@ -40,9 +40,16 @@ class TempUploadPresigner
     const ACL = 'public-read';
 
     /**
-     * Current Staff AwsService maxUploadSize (5 MB).
+     * Staff ceiling. This is the default when the server does not pass a ceiling.
+     * It is not read from the HTTP body.
      */
     const MAX_FILE_SIZE = 5242880;
+
+    /**
+     * Admin ceiling. The Admin controller passes this when it constructs the
+     * signer. A request field cannot select or raise it.
+     */
+    const ADMIN_MAX_FILE_SIZE = 18874368;
 
     const SIGNER_KEY_ENV = 'AWS_TEMP_UPLOAD_SIGNER_KEY';
     const SIGNER_SECRET_ENV = 'AWS_TEMP_UPLOAD_SIGNER_SECRET';
@@ -162,20 +169,26 @@ class TempUploadPresigner
     /** @var string */
     private $secretKey;
 
+    /** @var int */
+    private $maximum;
+
     /**
      * @param string|null $accessKey Injected only by tests. Production uses env vars.
      * @param string|null $secretKey Injected only by tests. Production uses env vars.
+     * @param int|null $maxFileSize Server-side ceiling. Null keeps the Staff 5 MB default.
+     *        This is not an HTTP field. Callers pass a class constant or omit it.
      */
-    public function __construct($accessKey = null, $secretKey = null)
+    public function __construct($accessKey = null, $secretKey = null, $maxFileSize = null)
     {
         $this->accessKey = $accessKey !== null ? (string) $accessKey : self::readEnv(self::SIGNER_KEY_ENV);
         $this->secretKey = $secretKey !== null ? (string) $secretKey : self::readEnv(self::SIGNER_SECRET_ENV);
+        $this->maximum = $this->resolveMaximum($maxFileSize);
     }
 
     /**
      * @param mixed $filename
      * @param mixed $contentType
-     * @param mixed $fileSize
+     * @param mixed $fileSize Declared object size. Checked against the server ceiling.
      * @return array
      * @throws TempUploadValidationException
      * @throws TempUploadConfigurationException
@@ -192,7 +205,7 @@ class TempUploadPresigner
         $this->assertSignerAccessKeyId($this->accessKey, $this->secretKey);
 
         $declaredContentType = $this->normalizeDeclaredContentType($contentType);
-        $validatedFileSize = $this->validateFileSize($fileSize);
+        $validatedFileSize = $this->validateFileSize($fileSize, $this->maximum);
         $objectKey = $this->generateObjectKey($filename, $declaredContentType);
         $validatedContentType = $this->canonicalContentTypeForKey($objectKey);
 
@@ -385,14 +398,37 @@ class TempUploadPresigner
     }
 
     /**
-     * @param mixed $fileSize
+     * Null keeps the Staff 5 MB default. Admin passes ADMIN_MAX_FILE_SIZE
+     * from its controller. Any other ceiling is rejected. The HTTP body is
+     * never consulted here.
+     *
+     * @param int|null $maxFileSize
      * @return int
      * @throws TempUploadValidationException
      */
-    private function validateFileSize($fileSize)
+    private function resolveMaximum($maxFileSize)
+    {
+        if ($maxFileSize === null) {
+            return self::MAX_FILE_SIZE;
+        }
+
+        if ($maxFileSize === self::MAX_FILE_SIZE || $maxFileSize === self::ADMIN_MAX_FILE_SIZE) {
+            return $maxFileSize;
+        }
+
+        throw new TempUploadValidationException('Invalid file size.');
+    }
+
+    /**
+     * @param mixed $fileSize
+     * @param int $maximum
+     * @return int
+     * @throws TempUploadValidationException
+     */
+    private function validateFileSize($fileSize, $maximum)
     {
         if (is_int($fileSize)) {
-            return $this->assertWholeByteSize($fileSize);
+            return $this->assertWholeByteSize($fileSize, $maximum);
         }
 
         if (is_string($fileSize)) {
@@ -400,9 +436,9 @@ class TempUploadPresigner
                 throw new TempUploadValidationException('Invalid file size.');
             }
 
-            $maximum = (string) self::MAX_FILE_SIZE;
-            if (strlen($fileSize) > strlen($maximum) || (strlen($fileSize) === strlen($maximum) && strcmp($fileSize, $maximum) > 0)) {
-                throw new TempUploadValidationException('File size exceeds the 5 MB Staff maximum.');
+            $maximumText = (string) $maximum;
+            if (strlen($fileSize) > strlen($maximumText) || (strlen($fileSize) === strlen($maximumText) && strcmp($fileSize, $maximumText) > 0)) {
+                throw new TempUploadValidationException($this->maximumMessage($maximum));
             }
 
             return (int) $fileSize;
@@ -418,7 +454,7 @@ class TempUploadPresigner
                 throw new TempUploadValidationException('Invalid file size.');
             }
 
-            return $this->assertWholeByteSize($size);
+            return $this->assertWholeByteSize($size, $maximum);
         }
 
         throw new TempUploadValidationException('Invalid file size.');
@@ -426,20 +462,34 @@ class TempUploadPresigner
 
     /**
      * @param int $size
+     * @param int $maximum
      * @return int
      * @throws TempUploadValidationException
      */
-    private function assertWholeByteSize($size)
+    private function assertWholeByteSize($size, $maximum)
     {
         if ($size < 1) {
             throw new TempUploadValidationException('Invalid file size.');
         }
 
-        if ($size > self::MAX_FILE_SIZE) {
-            throw new TempUploadValidationException('File size exceeds the 5 MB Staff maximum.');
+        if ($size > $maximum) {
+            throw new TempUploadValidationException($this->maximumMessage($maximum));
         }
 
         return $size;
+    }
+
+    /**
+     * @param int $maximum
+     * @return string
+     */
+    private function maximumMessage($maximum)
+    {
+        if ($maximum === self::ADMIN_MAX_FILE_SIZE) {
+            return 'File size exceeds the 18 MB Admin maximum.';
+        }
+
+        return 'File size exceeds the 5 MB Staff maximum.';
     }
 
     /**

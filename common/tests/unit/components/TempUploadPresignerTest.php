@@ -51,6 +51,14 @@ class TempUploadPresignerTest extends \PHPUnit\Framework\TestCase
         return new TempUploadPresigner(self::FAKE_KEY, self::FAKE_SECRET);
     }
 
+    /**
+     * @return TempUploadPresigner
+     */
+    private function adminPresigner()
+    {
+        return new TempUploadPresigner(self::FAKE_KEY, self::FAKE_SECRET, TempUploadPresigner::ADMIN_MAX_FILE_SIZE);
+    }
+
     public function testAuthenticatedValidRequestContract()
     {
         $result = $this->presigner()->presign('document.pdf', 'application/pdf', 123456);
@@ -194,7 +202,54 @@ class TempUploadPresignerTest extends \PHPUnit\Framework\TestCase
     public function testFileSizeOverStaffMaximumRejected()
     {
         $this->expectException(TempUploadValidationException::class);
+        $this->expectExceptionMessage('File size exceeds the 5 MB Staff maximum.');
         $this->presigner()->presign('document.pdf', 'application/pdf', 5242881);
+    }
+
+    public function testAdminMaximumAcceptsEighteenMegabytes()
+    {
+        $result = $this->adminPresigner()->presign(
+            'document.pdf',
+            'application/pdf',
+            TempUploadPresigner::ADMIN_MAX_FILE_SIZE
+        );
+        $this->assertStringEndsWith('.pdf', $result['key']);
+    }
+
+    public function testAdminMaximumRejectsAboveEighteenMegabytes()
+    {
+        $this->expectException(TempUploadValidationException::class);
+        $this->expectExceptionMessage('File size exceeds the 18 MB Admin maximum.');
+        $this->adminPresigner()->presign(
+            'document.pdf',
+            'application/pdf',
+            TempUploadPresigner::ADMIN_MAX_FILE_SIZE + 1
+        );
+    }
+
+    public function testCallerCannotRaiseCeilingAboveAdmin()
+    {
+        $this->expectException(TempUploadValidationException::class);
+        $this->expectExceptionMessage('Invalid file size.');
+        new TempUploadPresigner(self::FAKE_KEY, self::FAKE_SECRET, TempUploadPresigner::ADMIN_MAX_FILE_SIZE + 1);
+    }
+
+    public function testAdminControllerUsesAdminCeilingAndLeavesAwsConfigAlone()
+    {
+        $controller = file_get_contents(dirname(__DIR__, 4) . '/admin/modules/v1/controllers/TempUploadController.php');
+        $staff = file_get_contents(dirname(__DIR__, 4) . '/staff/modules/v1/controllers/TempUploadController.php');
+        $aws = file_get_contents(dirname(__DIR__, 4) . '/admin/modules/v1/controllers/AwsController.php');
+        $this->assertStringContainsString('new TempUploadPresigner(null, null, TempUploadPresigner::ADMIN_MAX_FILE_SIZE)', $controller);
+        $this->assertStringNotContainsString("body['max_file_size']", $controller);
+        $this->assertStringNotContainsString("body['maximum']", $controller);
+        $this->assertStringContainsString('HttpBearerAuth', $controller);
+        $this->assertStringNotContainsString('function actionConfig', $controller);
+        $this->assertStringNotContainsString("Yii::\$app->params['aws_temp_access_key_id']", $controller);
+        $this->assertStringNotContainsString('ADMIN_MAX_FILE_SIZE', $staff);
+        $this->assertStringContainsString('new TempUploadPresigner()', $staff);
+        $this->assertStringContainsString('function actionConfig', $aws);
+        $this->assertStringNotContainsString('TempUpload', $aws);
+        $this->assertStringNotContainsString('HttpBearerAuth', $aws);
     }
 
     public function testFractionalFileSizeRejected()
