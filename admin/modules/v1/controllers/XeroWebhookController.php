@@ -5,6 +5,7 @@ namespace admin\modules\v1\controllers;
 use Yii;
 use yii\filters\Cors;
 use yii\rest\Controller;
+use yii\web\UnauthorizedHttpException;
 
 class XeroWebhookController extends Controller
 {
@@ -62,23 +63,24 @@ class XeroWebhookController extends Controller
             return false;
         }
 
-        $key = "+E4OxefKZm8uPKkiz8RkGA8t/XogInNgvIZhX9izCliOMVCerc8114/T7JSxudGfPxfwU1N3UCe1Ika2VuKDbQ==";
+        $key = getenv('XERO_WEBHOOK_SIGNING_KEY') ?: '';
+        if ($key === '') {
+            Yii::error('XERO_WEBHOOK_SIGNING_KEY is not configured.', __METHOD__);
+            throw new UnauthorizedHttpException('Webhook signature validation is not configured.');
+        }
 
         // Get the provided signature from the request headers
         $provided_signature = Yii::$app->request->headers->get("x-xero-signature"); // $_SERVER['HTTP_X_Xero_Signature'];
 
         // Get the request data
-        $request_data = Yii::$app->request->getBodyParams();  //file_get_contents('php://input');
+        $request_data = Yii::$app->request->rawBody;
 
         // Calculate the HMAC signature
         $generated_signature = base64_encode(hash_hmac('sha256', $request_data, $key, true));
 
         // Compare the provided signature with the generated one
-        if ($provided_signature !== $generated_signature) {
-            // Signature mismatch
-            http_response_code(401);
-            echo "Signature mismatch";
-            die();
+        if (!$provided_signature || !hash_equals($generated_signature, $provided_signature)) {
+            throw new UnauthorizedHttpException('Signature mismatch.');
         } /*else {
             // Signature matched
             http_response_code(200);
