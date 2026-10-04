@@ -35,6 +35,30 @@ class ActivationPresignAuthorizerTest extends TestCase
         $this->assertSame('1234', $contact->contact_auth_key);
     }
 
+    public function testDifferentlyCapitalizedEmailIsAcceptedWithoutAFailedGuess()
+    {
+        $contact = $this->contact('1234');
+        $contact->contact_email = 'Owner@Example.TEST';
+        $cache = new ActivationTestCache();
+        $lookups = [];
+        $authorizer = new ActivationPresignAuthorizer($cache, function ($email) use ($contact, &$lookups) {
+            $lookups[] = $email;
+            if (strtolower($contact->contact_email) === strtolower($email)) {
+                return [$contact];
+            }
+            return [];
+        }, $this->lockDir);
+
+        $company = $authorizer->authorize('owner@example.test', '1234', 42, '203.0.113.8');
+
+        $this->assertSame(42, $company->company_id);
+        $this->assertSame(['owner@example.test'], $lookups);
+        $this->assertSame('1234', $contact->contact_auth_key);
+        $this->assertSame([], $this->failureCounts($cache));
+
+        $this->assertDenied($authorizer, 'owner@example.test', '9999', 42);
+    }
+
     public function testInvalidShapesDoNotQueryOrCountAsGuesses()
     {
         $calls = 0;
@@ -260,6 +284,18 @@ class ActivationPresignAuthorizerTest extends TestCase
         } catch (ActivationPresignDeniedException $e) {
             $this->assertSame('The requested page does not exist.', $e->getMessage());
         }
+    }
+
+    private function failureCounts(ActivationTestCache $cache)
+    {
+        $counts = [];
+        foreach ($cache->values as $key => $value) {
+            if (strpos($key, 'ce37:co:act:email:') === 0 || strpos($key, 'ce37:co:act:ip:') === 0) {
+                $counts[$key] = $value;
+            }
+        }
+
+        return $counts;
     }
 
     private function authorizer(ActivationTestCache $cache, array $contacts)

@@ -234,7 +234,9 @@ class ActivationPresignAuthorizer
                 continue;
             }
 
-            if (hash_equals($storedEmail, $email) && hash_equals($storedKey, $key)) {
+            if (hash_equals($this->normalizedEmail($storedEmail), $this->normalizedEmail($email))
+                && hash_equals($storedKey, $key)
+            ) {
                 return $contact;
             }
         }
@@ -359,9 +361,18 @@ class ActivationPresignAuthorizer
      * @param string $email
      * @return string
      */
+    private function normalizedEmail($email)
+    {
+        return strtolower($email);
+    }
+
+    /**
+     * @param string $email
+     * @return string
+     */
     private function emailFailureKey($email)
     {
-        return 'ce37:co:act:email:' . hash('sha256', strtolower($email));
+        return 'ce37:co:act:email:' . hash('sha256', $this->normalizedEmail($email));
     }
 
     /**
