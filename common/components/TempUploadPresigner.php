@@ -51,6 +51,12 @@ class TempUploadPresigner
      */
     const ADMIN_MAX_FILE_SIZE = 18874368;
 
+    /**
+     * Employer ceiling. Same 18 MB byte count as Admin, selected only by the
+     * company controller. A request field cannot select or raise it.
+     */
+    const COMPANY_MAX_FILE_SIZE = 18874368;
+
     const SIGNER_KEY_ENV = 'AWS_TEMP_UPLOAD_SIGNER_KEY';
     const SIGNER_SECRET_ENV = 'AWS_TEMP_UPLOAD_SIGNER_SECRET';
 
@@ -172,17 +178,21 @@ class TempUploadPresigner
     /** @var int */
     private $maximum;
 
+    /** @var string */
+    private $limitName = 'Staff';
+
     /**
      * @param string|null $accessKey Injected only by tests. Production uses env vars.
      * @param string|null $secretKey Injected only by tests. Production uses env vars.
      * @param int|null $maxFileSize Server-side ceiling. Null keeps the Staff 5 MB default.
      *        This is not an HTTP field. Callers pass a class constant or omit it.
+     * @param string|null $limitName Null for Staff and Admin. The company controller passes Employer.
      */
-    public function __construct($accessKey = null, $secretKey = null, $maxFileSize = null)
+    public function __construct($accessKey = null, $secretKey = null, $maxFileSize = null, $limitName = null)
     {
         $this->accessKey = $accessKey !== null ? (string) $accessKey : self::readEnv(self::SIGNER_KEY_ENV);
         $this->secretKey = $secretKey !== null ? (string) $secretKey : self::readEnv(self::SIGNER_SECRET_ENV);
-        $this->maximum = $this->resolveMaximum($maxFileSize);
+        $this->maximum = $this->resolveMaximum($maxFileSize, $limitName);
     }
 
     /**
@@ -398,22 +408,46 @@ class TempUploadPresigner
     }
 
     /**
-     * Null keeps the Staff 5 MB default. Admin passes ADMIN_MAX_FILE_SIZE
-     * from its controller. Any other ceiling is rejected. The HTTP body is
-     * never consulted here.
+     * Null keeps the Staff 5 MB default. Admin passes ADMIN_MAX_FILE_SIZE.
+     * Employer passes COMPANY_MAX_FILE_SIZE with the Employer label because
+     * that constant is the same byte count as the Admin ceiling. Any other
+     * ceiling is rejected. The HTTP body is never consulted here.
      *
      * @param int|null $maxFileSize
+     * @param string|null $limitName
      * @return int
      * @throws TempUploadValidationException
      */
-    private function resolveMaximum($maxFileSize)
+    private function resolveMaximum($maxFileSize, $limitName)
     {
+        if ($limitName !== null && $limitName !== 'Employer') {
+            throw new TempUploadValidationException('Invalid file size.');
+        }
+
         if ($maxFileSize === null) {
+            if ($limitName !== null) {
+                throw new TempUploadValidationException('Invalid file size.');
+            }
+            $this->limitName = 'Staff';
             return self::MAX_FILE_SIZE;
         }
 
-        if ($maxFileSize === self::MAX_FILE_SIZE || $maxFileSize === self::ADMIN_MAX_FILE_SIZE) {
-            return $maxFileSize;
+        if ($limitName === 'Employer') {
+            if ($maxFileSize !== self::COMPANY_MAX_FILE_SIZE) {
+                throw new TempUploadValidationException('Invalid file size.');
+            }
+            $this->limitName = 'Employer';
+            return self::COMPANY_MAX_FILE_SIZE;
+        }
+
+        if ($maxFileSize === self::MAX_FILE_SIZE) {
+            $this->limitName = 'Staff';
+            return self::MAX_FILE_SIZE;
+        }
+
+        if ($maxFileSize === self::ADMIN_MAX_FILE_SIZE) {
+            $this->limitName = 'Admin';
+            return self::ADMIN_MAX_FILE_SIZE;
         }
 
         throw new TempUploadValidationException('Invalid file size.');
@@ -485,7 +519,11 @@ class TempUploadPresigner
      */
     private function maximumMessage($maximum)
     {
-        if ($maximum === self::ADMIN_MAX_FILE_SIZE) {
+        if ($this->limitName === 'Employer') {
+            return 'File size exceeds the 18 MB Employer maximum.';
+        }
+
+        if ($this->limitName === 'Admin') {
             return 'File size exceeds the 18 MB Admin maximum.';
         }
 

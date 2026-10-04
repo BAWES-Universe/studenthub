@@ -234,6 +234,60 @@ class TempUploadPresignerTest extends \PHPUnit\Framework\TestCase
         new TempUploadPresigner(self::FAKE_KEY, self::FAKE_SECRET, TempUploadPresigner::ADMIN_MAX_FILE_SIZE + 1);
     }
 
+    public function testEmployerMaximumAcceptsEighteenMegabytes()
+    {
+        $presigner = new TempUploadPresigner(
+            self::FAKE_KEY,
+            self::FAKE_SECRET,
+            TempUploadPresigner::COMPANY_MAX_FILE_SIZE,
+            'Employer'
+        );
+        $result = $presigner->presign(
+            'logo.png',
+            'image/png',
+            TempUploadPresigner::COMPANY_MAX_FILE_SIZE
+        );
+        $this->assertSame(TempUploadPresigner::BUCKET, $result['bucket']);
+    }
+
+    public function testEmployerMaximumRejectsAboveEighteenMegabytes()
+    {
+        $this->expectException(TempUploadValidationException::class);
+        $this->expectExceptionMessage('File size exceeds the 18 MB Employer maximum.');
+        $presigner = new TempUploadPresigner(
+            self::FAKE_KEY,
+            self::FAKE_SECRET,
+            TempUploadPresigner::COMPANY_MAX_FILE_SIZE,
+            'Employer'
+        );
+        $presigner->presign('logo.png', 'image/png', TempUploadPresigner::COMPANY_MAX_FILE_SIZE + 1);
+    }
+
+    public function testEmployerLabelCannotSelectAnotherCeiling()
+    {
+        $this->expectException(TempUploadValidationException::class);
+        $this->expectExceptionMessage('Invalid file size.');
+        new TempUploadPresigner(self::FAKE_KEY, self::FAKE_SECRET, TempUploadPresigner::MAX_FILE_SIZE, 'Employer');
+    }
+
+    public function testCompanyControllerUsesEmployerCeilingAndLeavesAwsConfigAlone()
+    {
+        $controller = file_get_contents(dirname(__DIR__, 4) . '/company/modules/v1/controllers/TempUploadController.php');
+        $aws = file_get_contents(dirname(__DIR__, 4) . '/company/modules/v1/controllers/AwsController.php');
+        $this->assertStringContainsString('TempUploadPresigner::COMPANY_MAX_FILE_SIZE', $controller);
+        $this->assertStringContainsString("'Employer'", $controller);
+        $this->assertStringContainsString("'activate', 'options'", $controller);
+        $this->assertStringNotContainsString("body['max_file_size']", $controller);
+        $this->assertStringNotContainsString("body['maximum']", $controller);
+        $this->assertStringNotContainsString('contact_auth_key =', $controller);
+        $this->assertStringNotContainsString("params['user_ip_address']", $controller);
+        $this->assertStringContainsString('ActivationClientAddress::resolve', $controller);
+        $this->assertStringNotContainsString('function actionConfig', $controller);
+        $this->assertStringContainsString('function actionConfig', $aws);
+        $this->assertStringNotContainsString('TempUpload', $aws);
+        $this->assertStringNotContainsString('HttpBearerAuth', $aws);
+    }
+
     public function testAdminControllerUsesAdminCeilingAndLeavesAwsConfigAlone()
     {
         $controller = file_get_contents(dirname(__DIR__, 4) . '/admin/modules/v1/controllers/TempUploadController.php');
