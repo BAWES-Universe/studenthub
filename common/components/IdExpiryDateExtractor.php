@@ -6,7 +6,6 @@ use Yii;
 use Aws\Textract\TextractClient;
 use Aws\Exception\AwsException;
 use yii\base\Component;
-use yii\base\InvalidConfigException;
 
 /**
  * $dates = Yii::$app->idExpiryDateExtractor->extractExpiryDate($documentName);
@@ -15,8 +14,11 @@ use yii\base\InvalidConfigException;
 class IdExpiryDateExtractor extends Component
 {
     private $textractClient;
+    private $configurationError;
 
     public $version = 'latest';
+    public $region;
+    public $bucket;
 
     /**
      * @var string Amazon access key
@@ -35,8 +37,21 @@ class IdExpiryDateExtractor extends Component
     {
         parent::init();
 
+        $region = $this->region ?: $this->getResourceManagerProperty('region');
+        if (!$region || !$this->bucket && !$this->getResourceManagerProperty('bucket')) {
+            $this->configurationError = 'Textract document bucket configuration is missing.';
+            Yii::warning($this->configurationError, __METHOD__);
+            return;
+        }
+
+        if (!$this->key || !$this->secret) {
+            $this->configurationError = 'Textract credentials are not configured.';
+            Yii::warning($this->configurationError, __METHOD__);
+            return;
+        }
+
         $this->textractClient = new TextractClient([
-            'region' => Yii::$app->resourceManager->region,
+            'region' => $region,
             'version' => $this->version,
             'credentials' => [
                 'key' => $this->key,
@@ -51,11 +66,26 @@ class IdExpiryDateExtractor extends Component
      */
     public function extractExpiryDate($documentName)
     {
+        if ($this->configurationError) {
+            return $this->errorResponse('Textract is not configured.');
+        }
+
+        if (!$this->isSafeDocumentName($documentName)) {
+            Yii::warning("Rejected unsafe Textract document name.", __METHOD__);
+            return $this->errorResponse('Invalid document reference.');
+        }
+
+        $bucket = $this->bucket ?: $this->getResourceManagerProperty('bucket');
+        if (!$bucket) {
+            Yii::warning("Textract document bucket is not configured.", __METHOD__);
+            return $this->errorResponse('Textract is not configured.');
+        }
+
         try {
             $result = $this->textractClient->detectDocumentText([
                 'Document' => [
                     'S3Object' => [
-                        'Bucket' => Yii::$app->resourceManager->bucket,
+                        'Bucket' => $bucket,
                         'Name' => $documentName
                     ]
                 ]
@@ -104,11 +134,50 @@ class IdExpiryDateExtractor extends Component
             ];
 
         } catch (AwsException $e) {
-            return [
-                "operation" => "error",
-                "matches" => $e->getMessage()
-            ];
+            Yii::error(sprintf(
+                'Textract detectDocumentText failed: %s',
+                $e->getAwsErrorCode() ?: get_class($e)
+            ), __METHOD__);
+
+            return $this->errorResponse('Unable to read document text.');
+        } catch (\Throwable $e) {
+            Yii::error(sprintf(
+                'Textract expiry extraction failed: %s',
+                get_class($e)
+            ), __METHOD__);
+
+            return $this->errorResponse('Unable to read document text.');
         }
+    }
+
+    private function getResourceManagerProperty($property)
+    {
+        $resourceManager = Yii::$app->get('resourceManager', false);
+
+        return $resourceManager && isset($resourceManager->$property)
+            ? $resourceManager->$property
+            : null;
+    }
+
+    private function isSafeDocumentName($documentName)
+    {
+        if (!is_string($documentName) || $documentName === '') {
+            return false;
+        }
+
+        if (preg_match('/(^\/|^\w+:|\\\\|\.\.)/', $documentName)) {
+            return false;
+        }
+
+        return str_starts_with($documentName, 'photos/');
+    }
+
+    private function errorResponse($message)
+    {
+        return [
+            "operation" => "error",
+            "matches" => $message
+        ];
     }
 }
 
