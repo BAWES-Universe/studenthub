@@ -25,6 +25,7 @@ Detailed documentation is available in the `docs/` directory:
 - [Database Documentation](docs/database/README.md) - Database structure and diagrams
 - [Cron Jobs](docs/cron-jobs.md) - Scheduled tasks
 - [Analytics](docs/analytics.md) - Event tracking and analytics
+- [IAM Access Key Review](docs/security/iam-access-key-review.md) - Offline AWS key review and evidence runbook
 
 ## Development
 
@@ -202,6 +203,5 @@ BEGIN
 END $$
 
 DELIMITER;
-
 
 
