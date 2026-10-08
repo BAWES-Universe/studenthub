@@ -57,6 +57,26 @@ class TempUploadPresigner
      */
     const COMPANY_MAX_FILE_SIZE = 18874368;
 
+    /**
+     * Candidate profile photo product limit. Matches the student photo picker
+     * (10 * 1024 * 1024). It is not the Staff 5 MB or Employer 18 MB ceiling.
+     * A request field cannot select or raise it.
+     */
+    const CANDIDATE_PROFILE_PHOTO_MAX_FILE_SIZE = 10485760;
+
+    /**
+     * Single PutObject transport ceiling. S3 documents that one PUT can upload
+     * an object up to 5 GB; the API limit is 5 * 1024 * 1024 * 1024 bytes.
+     * Candidate civil ID, resume/portfolio, and video have no smaller product
+     * cap, so declared file_size is checked against this ceiling.
+     *
+     * This comparison is request validation only. The signed PUT does not
+     * include a content-length-range, so it is not S3-enforced protection.
+     * Objects above this size would need multipart upload, which this signer
+     * does not create.
+     */
+    const SINGLE_PUT_MAX_FILE_SIZE = 5368709120;
+
     const SIGNER_KEY_ENV = 'AWS_TEMP_UPLOAD_SIGNER_KEY';
     const SIGNER_SECRET_ENV = 'AWS_TEMP_UPLOAD_SIGNER_SECRET';
 
@@ -169,6 +189,31 @@ class TempUploadPresigner
         'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     ];
 
+    /**
+     * Candidate video only. These types are not in CONTENT_TYPES_BY_EXTENSION,
+     * so Staff, Admin, and Employer presigns cannot accept them.
+     * mov stays mov and webm stays webm so non-MP4 objects still reach MediaConvert.
+     * Empty browser file.type and application/octet-stream resolve from the extension.
+     */
+    const CANDIDATE_VIDEO_CONTENT_TYPES_BY_EXTENSION = [
+        'mp4' => [
+            'video/mp4' => true,
+        ],
+        'mov' => [
+            'video/quicktime' => true,
+            'video/mov' => true,
+        ],
+        'webm' => [
+            'video/webm' => true,
+        ],
+    ];
+
+    const CANDIDATE_VIDEO_CANONICAL_CONTENT_TYPE_BY_EXTENSION = [
+        'mp4' => 'video/mp4',
+        'mov' => 'video/quicktime',
+        'webm' => 'video/webm',
+    ];
+
     /** @var string */
     private $accessKey;
 
@@ -181,17 +226,30 @@ class TempUploadPresigner
     /** @var string */
     private $limitName = 'Staff';
 
+    /** @var string|null */
+    private $candidatePurpose;
+
+    /** @var array<string, array<string, bool>> */
+    private $contentTypesByExtension;
+
+    /** @var array<string, string> */
+    private $canonicalContentTypeByExtension;
+
     /**
      * @param string|null $accessKey Injected only by tests. Production uses env vars.
      * @param string|null $secretKey Injected only by tests. Production uses env vars.
      * @param int|null $maxFileSize Server-side ceiling. Null keeps the Staff 5 MB default.
      *        This is not an HTTP field. Callers pass a class constant or omit it.
      * @param string|null $limitName Null for Staff and Admin. The company controller passes Employer.
+     *        The candidate controller passes Candidate and leaves the ceiling null;
+     *        the purpose argument selects the Candidate policy.
      */
     public function __construct($accessKey = null, $secretKey = null, $maxFileSize = null, $limitName = null)
     {
         $this->accessKey = $accessKey !== null ? (string) $accessKey : self::readEnv(self::SIGNER_KEY_ENV);
         $this->secretKey = $secretKey !== null ? (string) $secretKey : self::readEnv(self::SIGNER_SECRET_ENV);
+        $this->contentTypesByExtension = self::CONTENT_TYPES_BY_EXTENSION;
+        $this->canonicalContentTypeByExtension = self::CANONICAL_CONTENT_TYPE_BY_EXTENSION;
         $this->maximum = $this->resolveMaximum($maxFileSize, $limitName);
     }
 
@@ -204,6 +262,49 @@ class TempUploadPresigner
      * @throws TempUploadConfigurationException
      */
     public function presign($filename, $contentType, $fileSize)
+    {
+        if ($this->limitName === 'Candidate') {
+            throw new TempUploadValidationException('Invalid upload purpose.');
+        }
+
+        return $this->issuePresign($filename, $contentType, $fileSize);
+    }
+
+    /**
+     * Candidate-only presign. Purpose selects a fixed server policy.
+     * profile_photo keeps the 10 MB product limit. civil_id, resume, and video
+     * check declared file_size against SINGLE_PUT_MAX_FILE_SIZE only.
+     * The HTTP body cannot choose a different ceiling.
+     *
+     * @param mixed $purpose profile_photo, civil_id, resume, or video.
+     *        Portfolio uses resume. There is no separate portfolio policy.
+     * @param mixed $filename
+     * @param mixed $contentType
+     * @param mixed $fileSize Declared object size. Not an S3 content-length-range.
+     * @return array
+     * @throws TempUploadValidationException
+     * @throws TempUploadConfigurationException
+     */
+    public function presignForCandidatePurpose($purpose, $filename, $contentType, $fileSize)
+    {
+        if ($this->limitName !== 'Candidate') {
+            throw new TempUploadValidationException('Invalid upload purpose.');
+        }
+
+        $this->applyCandidatePurpose($purpose);
+
+        return $this->issuePresign($filename, $contentType, $fileSize);
+    }
+
+    /**
+     * @param mixed $filename
+     * @param mixed $contentType
+     * @param mixed $fileSize
+     * @return array
+     * @throws TempUploadValidationException
+     * @throws TempUploadConfigurationException
+     */
+    private function issuePresign($filename, $contentType, $fileSize)
     {
         if ($this->accessKey === '' || $this->secretKey === '') {
             throw new TempUploadConfigurationException('Temporary upload signer is not configured.');
@@ -368,7 +469,7 @@ class TempUploadPresigner
      */
     private function assertExtensionMatchesContentType($extension, $contentType)
     {
-        if ($extension === '' || !isset(self::CANONICAL_CONTENT_TYPE_BY_EXTENSION[$extension])) {
+        if ($extension === '' || !isset($this->canonicalContentTypeByExtension[$extension])) {
             throw new TempUploadValidationException('Unsupported file type.');
         }
 
@@ -376,7 +477,7 @@ class TempUploadPresigner
             return;
         }
 
-        if (!isset(self::CONTENT_TYPES_BY_EXTENSION[$extension][$contentType])) {
+        if (!isset($this->contentTypesByExtension[$extension][$contentType])) {
             throw new TempUploadValidationException('Filename extension does not match content type.');
         }
     }
@@ -389,7 +490,7 @@ class TempUploadPresigner
     {
         $extension = $this->extractExtension($objectKey);
 
-        return self::CANONICAL_CONTENT_TYPE_BY_EXTENSION[$extension];
+        return $this->canonicalContentTypeByExtension[$extension];
     }
 
     /**
@@ -398,7 +499,7 @@ class TempUploadPresigner
      */
     private function isKnownDeclaredContentType($contentType)
     {
-        foreach (self::CONTENT_TYPES_BY_EXTENSION as $types) {
+        foreach ($this->contentTypesByExtension as $types) {
             if (isset($types[$contentType])) {
                 return true;
             }
@@ -408,10 +509,72 @@ class TempUploadPresigner
     }
 
     /**
+     * Restrict the active allow-list to extensions already accepted for Staff.
+     * Candidate video does not use this helper.
+     *
+     * @param string[] $extensions
+     * @return void
+     */
+    private function useSharedExtensions(array $extensions)
+    {
+        $types = [];
+        $canonical = [];
+        foreach ($extensions as $extension) {
+            $types[$extension] = self::CONTENT_TYPES_BY_EXTENSION[$extension];
+            $canonical[$extension] = self::CANONICAL_CONTENT_TYPE_BY_EXTENSION[$extension];
+        }
+        $this->contentTypesByExtension = $types;
+        $this->canonicalContentTypeByExtension = $canonical;
+    }
+
+    /**
+     * @param mixed $purpose
+     * @return void
+     * @throws TempUploadValidationException
+     */
+    private function applyCandidatePurpose($purpose)
+    {
+        $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'heic', 'heif', 'bmp', 'tif', 'tiff'];
+
+        if ($purpose === 'profile_photo') {
+            $this->candidatePurpose = 'profile_photo';
+            $this->maximum = self::CANDIDATE_PROFILE_PHOTO_MAX_FILE_SIZE;
+            $this->useSharedExtensions($imageExtensions);
+            return;
+        }
+
+        if ($purpose === 'civil_id') {
+            $this->candidatePurpose = 'civil_id';
+            $this->maximum = self::SINGLE_PUT_MAX_FILE_SIZE;
+            $this->useSharedExtensions($imageExtensions);
+            return;
+        }
+
+        if ($purpose === 'resume') {
+            $this->candidatePurpose = 'resume';
+            $this->maximum = self::SINGLE_PUT_MAX_FILE_SIZE;
+            $this->useSharedExtensions(['pdf']);
+            return;
+        }
+
+        if ($purpose === 'video') {
+            $this->candidatePurpose = 'video';
+            $this->maximum = self::SINGLE_PUT_MAX_FILE_SIZE;
+            $this->contentTypesByExtension = self::CANDIDATE_VIDEO_CONTENT_TYPES_BY_EXTENSION;
+            $this->canonicalContentTypeByExtension = self::CANDIDATE_VIDEO_CANONICAL_CONTENT_TYPE_BY_EXTENSION;
+            return;
+        }
+
+        throw new TempUploadValidationException('Invalid upload purpose.');
+    }
+
+    /**
      * Null keeps the Staff 5 MB default. Admin passes ADMIN_MAX_FILE_SIZE.
      * Employer passes COMPANY_MAX_FILE_SIZE with the Employer label because
-     * that constant is the same byte count as the Admin ceiling. Any other
-     * ceiling is rejected. The HTTP body is never consulted here.
+     * that constant is the same byte count as the Admin ceiling. Candidate
+     * passes the Candidate label and a null ceiling; the purpose selects
+     * the Candidate policy later. Any other ceiling is rejected.
+     * The HTTP body is never consulted here.
      *
      * @param int|null $maxFileSize
      * @param string|null $limitName
@@ -420,6 +583,16 @@ class TempUploadPresigner
      */
     private function resolveMaximum($maxFileSize, $limitName)
     {
+        if ($limitName === 'Candidate') {
+            if ($maxFileSize !== null) {
+                throw new TempUploadValidationException('Invalid file size.');
+            }
+            $this->limitName = 'Candidate';
+            $this->maximum = 0;
+
+            return 0;
+        }
+
         if ($limitName !== null && $limitName !== 'Employer') {
             throw new TempUploadValidationException('Invalid file size.');
         }
@@ -519,6 +692,14 @@ class TempUploadPresigner
      */
     private function maximumMessage($maximum)
     {
+        if ($this->candidatePurpose === 'profile_photo') {
+            return 'File size exceeds the 10 MB profile photo maximum.';
+        }
+
+        if ($this->limitName === 'Candidate') {
+            return 'File size exceeds the 5 GiB single-PUT transport limit.';
+        }
+
         if ($this->limitName === 'Employer') {
             return 'File size exceeds the 18 MB Employer maximum.';
         }
