@@ -513,6 +513,215 @@ class TempUploadPresignerTest extends \PHPUnit\Framework\TestCase
         $this->assertStringNotContainsString('AWS_TEMP_UPLOAD_SIGNER', $source);
     }
 
+    public function testCandidateControllerUsesPurposePoliciesAndLeavesAwsConfigAlone()
+    {
+        $controller = file_get_contents(dirname(__DIR__, 4) . '/candidate/modules/v1/controllers/TempUploadController.php');
+        $aws = file_get_contents(dirname(__DIR__, 4) . '/candidate/modules/v1/controllers/AwsController.php');
+        $rules = file_get_contents(dirname(__DIR__, 4) . '/candidate/config/main.php');
+        $this->assertStringContainsString("new TempUploadPresigner(null, null, null, 'Candidate')", $controller);
+        $this->assertStringContainsString('presignForCandidatePurpose', $controller);
+        $this->assertStringContainsString("body['purpose']", $controller);
+        $this->assertStringContainsString('HttpBearerAuth', $controller);
+        $this->assertStringContainsString("['options']", $controller);
+        $this->assertStringContainsString('Cache-Control', $controller);
+        $this->assertStringNotContainsString("body['max_file_size']", $controller);
+        $this->assertStringNotContainsString("body['maximum']", $controller);
+        $this->assertStringNotContainsString('function actionConfig', $controller);
+        $this->assertStringNotContainsString('AWS_TEMP_BUCKET', $controller);
+        $this->assertStringContainsString("'controller' => 'v1/temp-upload'", $rules);
+        $this->assertStringContainsString("'POST url' => 'url'", $rules);
+        $this->assertStringContainsString('function actionConfig', $aws);
+        $this->assertStringContainsString("Yii::\$app->params['aws_temp_access_key_id']", $aws);
+        $this->assertStringContainsString("Yii::\$app->params['aws_temp_secret_access_key']", $aws);
+        $this->assertStringNotContainsString('TempUpload', $aws);
+        $this->assertStringNotContainsString('presignForCandidatePurpose', $aws);
+    }
+
+    public function testSharedAllowListDoesNotContainCandidateVideoTypes()
+    {
+        $this->assertArrayNotHasKey('mp4', TempUploadPresigner::CONTENT_TYPES_BY_EXTENSION);
+        $this->assertArrayNotHasKey('mov', TempUploadPresigner::CONTENT_TYPES_BY_EXTENSION);
+        $this->assertArrayNotHasKey('webm', TempUploadPresigner::CONTENT_TYPES_BY_EXTENSION);
+        $this->expectException(TempUploadValidationException::class);
+        $this->expectExceptionMessage('Unsupported content type.');
+        $this->presigner()->presign('clip.webm', 'video/webm', 1000);
+    }
+
+    public function testCandidateLabelRejectsAConstructorCeiling()
+    {
+        $this->expectException(TempUploadValidationException::class);
+        $this->expectExceptionMessage('Invalid file size.');
+        new TempUploadPresigner(
+            self::FAKE_KEY,
+            self::FAKE_SECRET,
+            TempUploadPresigner::CANDIDATE_PROFILE_PHOTO_MAX_FILE_SIZE,
+            'Candidate'
+        );
+    }
+
+    public function testCandidatePresignWithoutPurposeFailsBeforeSigning()
+    {
+        $this->expectException(TempUploadValidationException::class);
+        $this->expectExceptionMessage('Invalid upload purpose.');
+        $this->candidatePresigner()->presign('photo.jpg', 'image/jpeg', 1000);
+    }
+
+    public function testStaffPresignerRejectsCandidatePurpose()
+    {
+        $this->expectException(TempUploadValidationException::class);
+        $this->expectExceptionMessage('Invalid upload purpose.');
+        $this->presigner()->presignForCandidatePurpose('video', 'clip.mp4', 'video/mp4', 1000);
+    }
+
+    public function testUnknownCandidatePurposeRejected()
+    {
+        $this->expectException(TempUploadValidationException::class);
+        $this->expectExceptionMessage('Invalid upload purpose.');
+        $this->candidatePresigner()->presignForCandidatePurpose('portfolio', 'cv.pdf', 'application/pdf', 1000);
+    }
+
+    public function testCandidateMissingSignerFailsClosed()
+    {
+        $this->expectException(TempUploadConfigurationException::class);
+        $this->expectExceptionMessage('Temporary upload signer is not configured.');
+        $presigner = new TempUploadPresigner('', '', null, 'Candidate');
+        $presigner->presignForCandidatePurpose('resume', 'cv.pdf', 'application/pdf', 1000);
+    }
+
+    public function testProfilePhotoKeepsTenMegabyteLimit()
+    {
+        $accepted = $this->candidatePresigner()->presignForCandidatePurpose(
+            'profile_photo',
+            'photo.jpg',
+            'image/jpeg',
+            TempUploadPresigner::CANDIDATE_PROFILE_PHOTO_MAX_FILE_SIZE
+        );
+        $this->assertSame('image/jpeg', $accepted['headers']['Content-Type']);
+        $this->assertStringNotContainsString('content-length-range', strtolower($accepted['upload_url']));
+
+        try {
+            $this->candidatePresigner()->presignForCandidatePurpose(
+                'profile_photo',
+                'photo.jpg',
+                'image/jpeg',
+                TempUploadPresigner::CANDIDATE_PROFILE_PHOTO_MAX_FILE_SIZE + 1
+            );
+            $this->fail('Profile photo above 10 MB was accepted.');
+        } catch (TempUploadValidationException $e) {
+            $this->assertSame('File size exceeds the 10 MB profile photo maximum.', $e->getMessage());
+        }
+    }
+
+    public function testProfilePhotoRejectsDocumentsAndSvg()
+    {
+        try {
+            $this->candidatePresigner()->presignForCandidatePurpose('profile_photo', 'notes.pdf', 'application/pdf', 1000);
+            $this->fail('A PDF was accepted as a profile photo.');
+        } catch (TempUploadValidationException $e) {
+            $this->assertSame('Unsupported content type.', $e->getMessage());
+        }
+
+        try {
+            $this->candidatePresigner()->presignForCandidatePurpose('profile_photo', 'logo.svg', 'image/svg+xml', 1000);
+            $this->fail('SVG was accepted as a profile photo.');
+        } catch (TempUploadValidationException $e) {
+            $this->assertSame('Unsupported content type.', $e->getMessage());
+        }
+    }
+
+    public function testCivilIdAllowsLargeImageAndRejectsPdf()
+    {
+        $result = $this->candidatePresigner()->presignForCandidatePurpose(
+            'civil_id',
+            'front.png',
+            'image/png',
+            TempUploadPresigner::SINGLE_PUT_MAX_FILE_SIZE
+        );
+        $this->assertSame('image/png', $result['headers']['Content-Type']);
+
+        try {
+            $this->candidatePresigner()->presignForCandidatePurpose(
+                'civil_id',
+                'front.png',
+                'image/png',
+                TempUploadPresigner::SINGLE_PUT_MAX_FILE_SIZE + 1
+            );
+            $this->fail('Civil ID above the single-PUT ceiling was accepted.');
+        } catch (TempUploadValidationException $e) {
+            $this->assertSame('File size exceeds the 5 GiB single-PUT transport limit.', $e->getMessage());
+        }
+
+        $this->expectException(TempUploadValidationException::class);
+        $this->expectExceptionMessage('Unsupported content type.');
+        $this->candidatePresigner()->presignForCandidatePurpose('civil_id', 'front.pdf', 'application/pdf', 1000);
+    }
+
+    public function testResumeAcceptsPdfOnly()
+    {
+        $result = $this->candidatePresigner()->presignForCandidatePurpose(
+            'resume',
+            'cv.pdf',
+            '',
+            1000
+        );
+        $this->assertSame('application/pdf', $result['headers']['Content-Type']);
+        $this->assertMatchesRegularExpression('/\.pdf$/', $result['key']);
+
+        $this->expectException(TempUploadValidationException::class);
+        $this->expectExceptionMessage('Unsupported file type.');
+        $this->candidatePresigner()->presignForCandidatePurpose('resume', 'cv.docx', '', 1000);
+    }
+
+    public function testCandidateVideoKeepsMp4MovAndWebmExtensions()
+    {
+        $mp4 = $this->candidatePresigner()->presignForCandidatePurpose('video', '9.mp4', 'video/mp4', 1000);
+        $mov = $this->candidatePresigner()->presignForCandidatePurpose('video', '9.mov', 'video/quicktime', 1000);
+        $webm = $this->candidatePresigner()->presignForCandidatePurpose('video', '9.webm', '', 1000);
+        $codecs = $this->candidatePresigner()->presignForCandidatePurpose(
+            'video',
+            '9.webm',
+            'video/webm;codecs=vp8,opus',
+            1000
+        );
+
+        $this->assertMatchesRegularExpression('/\.mp4$/', $mp4['key']);
+        $this->assertSame('video/mp4', $mp4['headers']['Content-Type']);
+        $this->assertMatchesRegularExpression('/\.mov$/', $mov['key']);
+        $this->assertSame('video/quicktime', $mov['headers']['Content-Type']);
+        $this->assertMatchesRegularExpression('/\.webm$/', $webm['key']);
+        $this->assertSame('video/webm', $webm['headers']['Content-Type']);
+        $this->assertMatchesRegularExpression('/\.webm$/', $codecs['key']);
+        $this->assertSame('video/webm', $codecs['headers']['Content-Type']);
+        $this->assertStringNotContainsString('content-length-range', strtolower($webm['upload_url']));
+    }
+
+    public function testCandidateVideoRejectsMismatchedTypeAndTransportCeiling()
+    {
+        try {
+            $this->candidatePresigner()->presignForCandidatePurpose('video', '9.webm', 'video/mp4', 1000);
+            $this->fail('A WebM name with an MP4 type was accepted.');
+        } catch (TempUploadValidationException $e) {
+            $this->assertSame('Filename extension does not match content type.', $e->getMessage());
+        }
+
+        $this->expectException(TempUploadValidationException::class);
+        $this->expectExceptionMessage('File size exceeds the 5 GiB single-PUT transport limit.');
+        $this->candidatePresigner()->presignForCandidatePurpose(
+            'video',
+            '9.webm',
+            'video/webm',
+            (string) (TempUploadPresigner::SINGLE_PUT_MAX_FILE_SIZE + 1)
+        );
+    }
+
+    /**
+     * @return TempUploadPresigner
+     */
+    private function candidatePresigner()
+    {
+        return new TempUploadPresigner(self::FAKE_KEY, self::FAKE_SECRET, null, 'Candidate');
+    }
+
     /**
      * @param mixed $data
      * @return void
