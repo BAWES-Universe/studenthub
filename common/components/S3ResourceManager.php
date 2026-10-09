@@ -63,23 +63,7 @@ class S3ResourceManager extends Component
      */
     public function init()
     {
-        // Fields required by default
-        $requiredAttributes = ['region', 'bucket'];
-
-        // If Auth via Key and Secret, set vars as required
-        if ($this->authMethod == self::AUTH_VIA_KEY_AND_SECRET) {
-            $requiredAttributes = ['key', 'secret', 'region', 'bucket'];
-        }
-
-        // Process Validation
-        foreach ($requiredAttributes as $attribute) {
-            if ($this->$attribute === null) {
-                throw new InvalidConfigException(strtr('"{class}::{attribute}" cannot be empty.', [
-                    '{class}' => static::class,
-                    '{attribute}' => '$' . $attribute
-                ]));
-            }
-        }
+        $this->assertRequiredAttributes();
 
         parent::init();
     }
@@ -268,19 +252,44 @@ class S3ResourceManager extends Component
                 'region' => $this->region
             ];
 
-            // Use key and secret if its the auth method
+            // Explicit credentials only. Never omit them: the SDK would then
+            // search the default credential chain.
             if ($this->authMethod == self::AUTH_VIA_KEY_AND_SECRET) {
+                $this->assertRequiredAttributes();
                 $factoryParams['credentials'] = [
                     'key' => $this->key,
                     'secret' => $this->secret,
                 ];
             }
 
-            // Create S3 client instance
-           // $this->_client = S3Client::factory($factoryParams);
             $this->_client = new S3Client($factoryParams);
         }
         return $this->_client;
+    }
+
+    /**
+     * Reject missing credentials before the AWS SDK can choose its own.
+     * The exception names the empty field and does not include the value.
+     */
+    private function assertRequiredAttributes()
+    {
+        $requiredAttributes = ['region', 'bucket'];
+        if ($this->authMethod == self::AUTH_VIA_KEY_AND_SECRET) {
+            $requiredAttributes = ['key', 'secret', 'region', 'bucket'];
+        }
+
+        foreach ($requiredAttributes as $attribute) {
+            $value = $this->$attribute;
+            $blankCredential = ($attribute === 'key' || $attribute === 'secret')
+                && is_string($value)
+                && trim($value) === '';
+            if ($value === null || $blankCredential) {
+                throw new InvalidConfigException(strtr('"{class}::{attribute}" cannot be empty.', [
+                    '{class}' => static::class,
+                    '{attribute}' => '$' . $attribute
+                ]));
+            }
+        }
     }
 
 

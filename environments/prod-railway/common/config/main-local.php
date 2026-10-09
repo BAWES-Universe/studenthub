@@ -4,6 +4,11 @@ $sentryEnvironment = getenv('SENTRY_ENVIRONMENT') ?: (defined('YII_ENV') ? YII_E
 $sentryTracesSampleRate = getenv('SENTRY_TRACES_SAMPLE_RATE');
 $sentryTracesSampleRate = is_numeric($sentryTracesSampleRate) ? max(0.0, min(1.0, (float) $sentryTracesSampleRate)) : 0.1;
 
+$railwayS3AccessKeyId = getenv('AWS_S3_RAILWAY_ACCESS_KEY_ID');
+$railwayS3SecretAccessKey = getenv('AWS_S3_RAILWAY_SECRET_ACCESS_KEY');
+$railwayS3AccessKeyId = is_string($railwayS3AccessKeyId) ? trim($railwayS3AccessKeyId) : '';
+$railwayS3SecretAccessKey = is_string($railwayS3SecretAccessKey) ? trim($railwayS3SecretAccessKey) : '';
+
 return [
     'components' => [
         'db' => [
@@ -159,11 +164,12 @@ return [
             'authMethod' => \common\components\S3ResourceManager::AUTH_VIA_KEY_AND_SECRET,
             'region' => 'eu-west-2', // Bucket based in London
             'bucket' => 'studenthub-uploads',
-            'key' => 'AKIAWMITDJRKWZZEWCUM',//railway-s3-access
-            'secret' => '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',
+            'key' => $railwayS3AccessKeyId !== '' ? $railwayS3AccessKeyId : null,
+            'secret' => $railwayS3SecretAccessKey !== '' ? $railwayS3SecretAccessKey : null,
             /**
-             * For Local Development, we access using key and secret
-             * For Dev and Production servers, access is via server embedded IAM roles so no key/secret required
+             * Permanent storage reads AWS_S3_RAILWAY_ACCESS_KEY_ID and
+             * AWS_S3_RAILWAY_SECRET_ACCESS_KEY. Missing or blank values stay
+             * null so S3ResourceManager fails closed on use.
              *
              * You can access the bucket with:
              * https://studenthub-uploads.s3.amazonaws.com/
