@@ -141,7 +141,7 @@ return [
         'xero' => [
             'class' => 'common\components\Xero',
             'clientId' => 'EAFC4996641A4A0CB86B501545518B15',
-            "clientSecret" => "2vpFTWzxR8qXHIuJQsBof6eSDSw5kj_cpFdAaxjoY_Jwhwym",
+            "clientSecret" => getenv('XERO_CLIENT_SECRET') ?: null,
             "xeroTenantId" => "c9895946-8dcc-4670-87be-ec1cca21c6d4"
         ],
         'mediaConvert' => [

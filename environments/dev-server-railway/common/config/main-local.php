@@ -31,10 +31,9 @@ return [
             'class' => 'common\components\Xero',
             //sandbox web app
             'clientId' => '392C9A9B3D5F408689B18A26E8FF41F5',
-            "clientSecret" => "9PlW56cve8wkjPgxvvt3kG2ng3vWhLzH7yMMxADLkYa0q40Z",
+            "clientSecret" => getenv('XERO_CLIENT_SECRET') ?: null,
             //custom connection
             //'clientId' => 'CF8C4521B478EB2654D4317AEF2D9',
-            //"clientSecret" => "hUv5IzcGOkZv0J6D185FJw73tNUDrHR8vswI2sERUKXC7Jgm",
             "xeroTenantId" => "c9895946-8dcc-4670-87be-ec1cca21c6d4"
         ],
         'redis' => [
