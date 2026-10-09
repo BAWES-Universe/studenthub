@@ -12,6 +12,7 @@ use yii\rest\Controller;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
 use candidate\models\Candidate;
+use common\components\CandidateVideoState;
 use candidate\models\CandidateSkill;
 use candidate\models\CandidateExperience;
 use candidate\models\TransferCandidate;
@@ -280,18 +281,26 @@ class AccountController extends Controller
             ];
         }
 
-        if($detail->status == 'ERROR') {
+        $status = isset($detail->status) ? (string)$detail->status : '';
 
-            //log to sentry
+        if ($status === 'ERROR') {
+            $written = $this->writeCurrentVideoJob($model, $jobId, CandidateVideoState::failedJobAttributes());
 
-            Yii::error($detail->errorMessage, 'candidate');
+            if ($written === null) {
+                return [
+                    'operation' => 'error',
+                    'message' => Yii::t('candidate', 'Could not update video.'),
+                ];
+            }
 
-            //remove video
+            if ($written === false) {
+                return [
+                    'operation' => 'error',
+                    'message' => Yii::t('candidate', "Invalid Job ID")
+                ];
+            }
 
-            $model->candidate_video = null;
-            $model->candidate_video_processed = true;
-
-            $model->save(false);
+            Yii::error(isset($detail->errorMessage) ? $detail->errorMessage : 'MediaConvert job failed', 'candidate');
 
             return [
                 'operation' => 'error',
@@ -299,20 +308,40 @@ class AccountController extends Controller
             ];
         }
 
-        $fileName = basename($detail->outputGroupDetails[0]->outputDetails[0]->outputFilePaths[0]);
-
-        $model->candidate_video =  explode('.', $fileName)[0];
-
-        $model->candidate_video_processed = true;
-        
-        if(!$model->save(false)) {
+        if ($status !== 'COMPLETE') {
             return [
-                'operation' => 'error',
-                'message' => $model->getErrors()
+                'operation' => 'success',
             ];
         }
 
-        //log to slack
+        $outputPath = null;
+        if (isset($detail->outputGroupDetails[0]->outputDetails[0]->outputFilePaths[0])) {
+            $outputPath = $detail->outputGroupDetails[0]->outputDetails[0]->outputFilePaths[0];
+        }
+
+        $completed = CandidateVideoState::completedJobAttributes($outputPath);
+        if ($completed === null) {
+            return [
+                'operation' => 'error',
+                "message" => "Empty message"
+            ];
+        }
+
+        $written = $this->writeCurrentVideoJob($model, $jobId, $completed);
+
+        if ($written === null) {
+            return [
+                'operation' => 'error',
+                'message' => Yii::t('candidate', 'Could not update video.'),
+            ];
+        }
+
+        if ($written === false) {
+            return [
+                'operation' => 'error',
+                'message' => Yii::t('candidate', "Invalid Job ID")
+            ];
+        }
 
         $name = $model->candidate_name? $model->candidate_name: $model->candidate_name_ar;
 
@@ -326,27 +355,100 @@ class AccountController extends Controller
     }
 
     /**
+     * Write callback fields only while this job is still current.
+     * @param Candidate $model
+     * @param mixed $jobId
+     * @param array<string, mixed> $attributes
+     * @return bool|null true when the current job was updated, false when it was no longer current, null when the database write failed
+     */
+    private function writeCurrentVideoJob(Candidate $model, $jobId, array $attributes)
+    {
+        try {
+            $updated = Candidate::updateAll(
+                array_merge($attributes, [
+                    'candidate_updated_at' => new Expression('NOW()'),
+                ]),
+                CandidateVideoState::currentJobCondition($model->candidate_id, $jobId)
+            );
+        } catch (\Throwable $e) {
+            Yii::error($e->getMessage(), 'candidate');
+            return null;
+        }
+
+        if ($updated !== 1) {
+            return false;
+        }
+
+        $previous = [
+            'candidate_video' => $model->candidate_video,
+            'candidate_video_processed' => $model->candidate_video_processed,
+        ];
+        foreach ($attributes as $name => $value) {
+            $model->$name = $value;
+        }
+
+        $fresh = Candidate::findOne($model->candidate_id);
+        if (!$fresh || (string)$fresh->candidate_video_job_id !== (string)$jobId) {
+            return false;
+        }
+
+        $model->candidate_name = $fresh->candidate_name;
+        $model->candidate_name_ar = $fresh->candidate_name_ar;
+        $model->candidate_video = $fresh->candidate_video;
+
+        try {
+            $fresh->afterSave(false, $previous);
+        } catch (\Throwable $e) {
+            Yii::error($e->getMessage(), 'candidate');
+        }
+
+        return true;
+    }
+
+    /**
      * Remove Video
      */
     public function actionRemoveVideo() {
         $model = Candidate::findOne(Yii::$app->user->getId());
 
-        if ($model->candidate_video) {
-            $model->deleteVideo();
+        if (!$model) {
+            throw new NotFoundHttpException(Yii::t('candidate', 'The requested Item could not be found.'));
         }
-        
-        $model->candidate_video = null;
+
+        if ($model->candidate_video) {
+            if (!$model->deleteVideo()) {
+                return [
+                    'operation' => 'error',
+                    'message' => Yii::t('candidate', 'Could not remove video.'),
+                ];
+            }
+        }
+
+        foreach (CandidateVideoState::clearedVideoAttributes() as $attribute => $value) {
+            $model->$attribute = $value;
+        }
         $model->scenario = 'changeVideo';
 
-        if (!$model->save()) {
+        try {
+            if (!$model->save()) {
+                return [
+                    'operation' => 'error',
+                    'message' => Yii::t('candidate', 'Could not remove video.'),
+                ];
+            }
+        } catch (\Throwable $e) {
+            Yii::error($e->getMessage(), 'candidate');
+
             return [
                 'operation' => 'error',
-                'message' => $model->getErrors()
+                'message' => Yii::t('candidate', 'Could not remove video.'),
             ];
         }
 
         return [
             'operation' => 'success',
+            'candidate_video' => null,
+            'candidate_video_processed' => $model->candidate_video_processed,
         ];
     }
 
