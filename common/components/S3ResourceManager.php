@@ -27,6 +27,7 @@ class S3ResourceManager extends Component
 {
     const AUTH_VIA_KEY_AND_SECRET = 1;
     const AUTH_VIA_IAM_ROLE = 2;
+    const AUTH_VIA_ANONYMOUS = 3;
 
     /**
      * @var string Auth Method
@@ -162,7 +163,7 @@ class S3ResourceManager extends Component
             $isUrl = true;
         }
 
-        $http = new \GuzzleHttp\Client(['base_uri' => $isUrl ? $filenameOrUrl : $this->getUrl($filenameOrUrl)]);
+        $http = $this->httpClient($isUrl ? $filenameOrUrl : $this->getUrl($filenameOrUrl));
         try {
             $response = $http->request('HEAD');
         } catch (\Exception $e) {
@@ -179,7 +180,9 @@ class S3ResourceManager extends Component
      */
     public function getUrl($name, $expires = NULL)
     {
-        return $this->getClient()->getObjectUrl($this->bucket, $name, $expires);
+        // The installed SDK returns an unsigned object URL and accepts only
+        // bucket and key. Callers do not pass $expires.
+        return $this->getClient()->getObjectUrl($this->bucket, $name);
     }
 
     /**
@@ -194,7 +197,7 @@ class S3ResourceManager extends Component
             $isUrl = true;
         }
 
-        $http = new \GuzzleHttp\Client(['base_uri' => $isUrl ? $filenameOrUrl : $this->getUrl($filenameOrUrl)]);
+        $http = $this->httpClient($isUrl ? $filenameOrUrl : $this->getUrl($filenameOrUrl));
 
         try {
             $response = $http->request('HEAD');
@@ -252,19 +255,31 @@ class S3ResourceManager extends Component
                 'region' => $this->region
             ];
 
-            // Explicit credentials only. Never omit them: the SDK would then
-            // search the default credential chain.
+            // Key-and-secret passes an explicit pair. Anonymous passes false.
+            // Omitting credentials would search the default provider chain.
             if ($this->authMethod == self::AUTH_VIA_KEY_AND_SECRET) {
                 $this->assertRequiredAttributes();
                 $factoryParams['credentials'] = [
                     'key' => $this->key,
                     'secret' => $this->secret,
                 ];
+            } elseif ($this->authMethod == self::AUTH_VIA_ANONYMOUS) {
+                $this->assertRequiredAttributes();
+                $factoryParams['credentials'] = false;
             }
 
             $this->_client = new S3Client($factoryParams);
         }
         return $this->_client;
+    }
+
+    /**
+     * @param string $baseUri
+     * @return \GuzzleHttp\Client
+     */
+    protected function httpClient($baseUri)
+    {
+        return new \GuzzleHttp\Client(['base_uri' => $baseUri]);
     }
 
     /**
