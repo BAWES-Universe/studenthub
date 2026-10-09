@@ -2575,13 +2575,13 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         try {
 
-            //video
-
-            Yii::$app->resourceManager->delete("candidate-video/" . $this->candidate_video . '.mp4');
-
             //video thumbnail
 
             Yii::$app->resourceManager->delete("candidate-video/" . $this->candidate_video . '.jpg');
+
+            //video
+
+            Yii::$app->resourceManager->delete("candidate-video/" . $this->candidate_video . '.mp4');
 
             return true;
         }

@@ -59,6 +59,7 @@ class CandidateVideoControllerTest extends TestCase
         $failed = $this->controller->actionRemoveVideo();
 
         $this->assertSame('error', $failed['operation']);
+        $this->assertSame(['candidate-video/stuck-output_1.jpg'], $this->storage->deleted);
         $row = $this->row();
         $this->assertSame('stuck-output_1', $row['candidate_video']);
         $this->assertSame('stuck-job', $row['candidate_video_job_id']);
@@ -66,9 +67,14 @@ class CandidateVideoControllerTest extends TestCase
         $this->assertSame('Noura', $row['candidate_name']);
 
         $this->storage->fail = false;
+        $this->storage->deleted = [];
         $removed = $this->controller->actionRemoveVideo();
 
         $this->assertSame('success', $removed['operation'], isset($removed['message']) ? json_encode($removed['message']) : '');
+        $this->assertSame([
+            'candidate-video/stuck-output_1.jpg',
+            'candidate-video/stuck-output_1.mp4',
+        ], $this->storage->deleted);
         $this->assertNull($removed['candidate_video']);
         $row = $this->row();
         $this->assertNull($row['candidate_video']);
@@ -361,8 +367,12 @@ class CandidateVideoStorageStub extends Component
     /** @var bool */
     public $fail = false;
 
+    /** @var string[] */
+    public $deleted = [];
+
     public function delete($path)
     {
+        $this->deleted[] = $path;
         if ($this->fail) {
             throw new \RuntimeException('storage unavailable');
         }
