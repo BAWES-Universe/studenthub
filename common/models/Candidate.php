@@ -3,6 +3,7 @@
 namespace common\models;
 
 
+use common\components\CandidateVideoState;
 use Detection\MobileDetect;
 use Yii;
 use yii\db\Exception;
@@ -2441,7 +2442,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
                 Yii::$app->resourceManager->copy($this->candidate_video, $file_s3_path, $sourceBucket);
 
-                $this->candidate_video_processed = true;
+                foreach (CandidateVideoState::directMp4Attributes() as $attribute => $value) {
+                    $this->$attribute = $value;
+                }
 
                 //log to slack
 
@@ -2572,13 +2575,13 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         try {
 
-            //video
-
-            Yii::$app->resourceManager->delete("candidate-video/" . $this->candidate_video . '.mp4');
-
             //video thumbnail
 
             Yii::$app->resourceManager->delete("candidate-video/" . $this->candidate_video . '.jpg');
+
+            //video
+
+            Yii::$app->resourceManager->delete("candidate-video/" . $this->candidate_video . '.mp4');
 
             return true;
         }
