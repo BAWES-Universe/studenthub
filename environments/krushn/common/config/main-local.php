@@ -73,11 +73,11 @@ return [
         ],
         'eventManager' => [
             'class' => 'common\components\EventManager',
-            // "sqsRagion" => "eu-west-2",
-            // "sqsKey" => "",
-            //  "sqsSecret" => "",
-            //  "sqsQueue" => "438663597141/StudenthubDev",
-            // "sqsEndpoint" => "http://localhost:3001"
+            // "sqsRagion" => getenv('AWS_SQS_REGION') ?: "eu-west-2",
+            // "sqsKey" => getenv('AWS_SQS_ACCESS_KEY_ID') ?: "",
+            //  "sqsSecret" => getenv('AWS_SQS_SECRET_ACCESS_KEY') ?: "",
+            //  "sqsQueue" => getenv('AWS_SQS_QUEUE') ?: "438663597141/StudenthubDev",
+            // "sqsEndpoint" => getenv('AWS_SQS_ENDPOINT') ?: "http://localhost:3001"
         ],
         'mediaConvert' => [
             'class' => 'common\components\MediaConvert',
