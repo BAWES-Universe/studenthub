@@ -13,7 +13,7 @@ use yii\web\HttpException;
  * Candidate-only authenticated temp-upload URL endpoint.
  *
  * Intentionally separate from AwsController. Do not add this action to
- * AwsController. Existing unauthenticated GET /v1/aws/config must remain unchanged.
+ * AwsController. GET /v1/aws/config is retired and does not return credentials.
  *
  * purpose is one of profile_photo, civil_id, resume, or video. Portfolio uses
  * resume. The purpose selects a fixed server policy. file_size is declared-size

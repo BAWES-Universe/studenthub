@@ -256,19 +256,26 @@ class TempUploadCest
         Assert::assertStringStartsWith('document-', $response['key']);
     }
 
-    public function tryExistingAwsConfigRemainsUnauthenticated(FunctionalTester $I)
+    public function tryRetiredAwsConfigReturns410WithoutCredentials(FunctionalTester $I)
     {
+        $this->setEnvSource('AWS_TEMP_BUCKET_KEY', self::CE37_SENTINEL_KEY);
+        $this->setEnvSource('AWS_TEMP_BUCKET_SECRET', self::CE37_SENTINEL_SECRET);
         \Yii::$app->params['aws_temp_access_key_id'] = self::SYNTHETIC_CONFIG_KEY;
         \Yii::$app->params['aws_temp_secret_access_key'] = self::SYNTHETIC_CONFIG_SECRET;
         $I->sendGET('v1/aws/config');
-        $I->seeResponseCodeIs(HttpCode::OK);
-        $response = json_decode($I->grabResponse(), true);
+        $I->seeResponseCodeIs(410);
+        $I->seeHttpHeader('Cache-Control', 'no-store');
+        $body = $I->grabResponse();
+        Assert::assertStringNotContainsString(self::SYNTHETIC_CONFIG_KEY, $body);
+        Assert::assertStringNotContainsString(self::SYNTHETIC_CONFIG_SECRET, $body);
+        Assert::assertStringNotContainsString(self::CE37_SENTINEL_KEY, $body);
+        Assert::assertStringNotContainsString(self::CE37_SENTINEL_SECRET, $body);
+        $response = json_decode($body, true);
         Assert::assertIsArray($response);
-        Assert::assertArrayHasKey('region', $response);
-        Assert::assertArrayHasKey('bucket', $response);
-        Assert::assertSame(self::SYNTHETIC_CONFIG_KEY, $response['key']);
-        Assert::assertSame(self::SYNTHETIC_CONFIG_SECRET, $response['secret']);
-        Assert::assertArrayNotHasKey('Cache-Control', $response);
+        Assert::assertArrayNotHasKey('key', $response);
+        Assert::assertArrayNotHasKey('secret', $response);
+        Assert::assertArrayNotHasKey('region', $response);
+        Assert::assertArrayNotHasKey('bucket', $response);
     }
 
     /**

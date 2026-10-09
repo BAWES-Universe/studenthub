@@ -506,8 +506,10 @@ class TempUploadPresignerTest extends \PHPUnit\Framework\TestCase
     {
         $source = file_get_contents(dirname(__DIR__, 4) . '/staff/modules/v1/controllers/AwsController.php');
         $this->assertStringContainsString('function actionConfig', $source);
-        $this->assertStringContainsString("Yii::\$app->params['aws_temp_access_key_id']", $source);
-        $this->assertStringContainsString("Yii::\$app->params['aws_temp_secret_access_key']", $source);
+        $this->assertStringContainsString('statusCode = 410', $source);
+        $this->assertStringContainsString("'Cache-Control', 'no-store'", $source);
+        $this->assertStringNotContainsString("Yii::\$app->params['aws_temp_access_key_id']", $source);
+        $this->assertStringNotContainsString("Yii::\$app->params['aws_temp_secret_access_key']", $source);
         $this->assertStringNotContainsString('HttpBearerAuth', $source);
         $this->assertStringNotContainsString('TempUpload', $source);
         $this->assertStringNotContainsString('AWS_TEMP_UPLOAD_SIGNER', $source);
@@ -531,8 +533,10 @@ class TempUploadPresignerTest extends \PHPUnit\Framework\TestCase
         $this->assertStringContainsString("'controller' => 'v1/temp-upload'", $rules);
         $this->assertStringContainsString("'POST url' => 'url'", $rules);
         $this->assertStringContainsString('function actionConfig', $aws);
-        $this->assertStringContainsString("Yii::\$app->params['aws_temp_access_key_id']", $aws);
-        $this->assertStringContainsString("Yii::\$app->params['aws_temp_secret_access_key']", $aws);
+        $this->assertStringContainsString('statusCode = 410', $aws);
+        $this->assertStringContainsString("'Cache-Control', 'no-store'", $aws);
+        $this->assertStringNotContainsString("Yii::\$app->params['aws_temp_access_key_id']", $aws);
+        $this->assertStringNotContainsString("Yii::\$app->params['aws_temp_secret_access_key']", $aws);
         $this->assertStringNotContainsString('TempUpload', $aws);
         $this->assertStringNotContainsString('presignForCandidatePurpose', $aws);
     }

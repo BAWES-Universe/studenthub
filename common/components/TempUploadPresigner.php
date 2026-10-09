@@ -7,9 +7,8 @@ use Aws\S3\S3Client;
 /**
  * Staff Phase 1 backend presigner for the public 24hr temp upload bucket.
  *
- * This class must never read the existing browser-SDK temp-bucket env vars
- * and must never fall back to any other IAM user. Those remain the existing
- * /aws/config path.
+ * This class must never read the retired browser-SDK temp-bucket env vars
+ * and must never fall back to any other IAM user.
  *
  * Signer env vars (Railway will not have these during Phase 1):
  *   AWS_TEMP_UPLOAD_SIGNER_KEY

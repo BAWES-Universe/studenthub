@@ -14,7 +14,7 @@ use yii\web\HttpException;
  *
  * Uses the existing signer and Admin bearer authentication. Intentionally
  * separate from AwsController. Do not add this action to AwsController.
- * Existing unauthenticated GET /v1/aws/config must remain unchanged.
+ * GET /v1/aws/config is retired and does not return credentials.
  */
 class TempUploadController extends Controller
 {

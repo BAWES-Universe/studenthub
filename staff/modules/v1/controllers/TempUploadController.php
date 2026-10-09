@@ -13,7 +13,7 @@ use yii\web\HttpException;
  * Staff-only authenticated temp-upload URL endpoint.
  *
  * Intentionally separate from AwsController. Do not add this action to
- * AwsController. Existing unauthenticated GET /v1/aws/config must remain unchanged.
+ * AwsController. GET /v1/aws/config is retired and does not return credentials.
  */
 class TempUploadController extends Controller
 {

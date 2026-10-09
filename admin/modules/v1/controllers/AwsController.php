@@ -55,13 +55,11 @@ class AwsController extends Controller
      */
     public function actionConfig()
     {
-        //todo: key with expiry
+        Yii::$app->response->statusCode = 410;
+        Yii::$app->response->headers->set('Cache-Control', 'no-store');
 
         return [
-            'region' => Yii::$app->temporaryBucketResourceManager->region,
-            'key' => Yii::$app->params['aws_temp_access_key_id'],
-            'secret' =>  Yii::$app->params['aws_temp_secret_access_key'],
-            'bucket' => Yii::$app->temporaryBucketResourceManager->bucket
+            'message' => 'This endpoint is no longer available.',
         ];
     }
 }
