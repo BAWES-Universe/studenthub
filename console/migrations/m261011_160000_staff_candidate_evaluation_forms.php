@@ -32,11 +32,11 @@ class m261011_160000_staff_candidate_evaluation_forms extends Migration
             $tableOptions = "CHARACTER SET {$charset} COLLATE {$collation} ENGINE=InnoDB";
         }
 
-        $this->addColumn('{{%interview_evaluation}}', 'title', $this->utf8mb4($this->string(200)->null()));
+        $this->addColumn('{{%interview_evaluation}}', 'title', $this->utf8mb4Varchar(200, false));
         $this->addColumn('{{%interview_evaluation}}', 'evaluation_date', $this->date()->null());
         $this->addColumn('{{%interview_evaluation}}', 'form_status', $this->string(20)->null());
         $this->addColumn('{{%interview_evaluation}}', 'preset_uuid', $this->char(60)->null());
-        $this->addColumn('{{%interview_evaluation}}', 'preset_name', $this->utf8mb4($this->string(200)->null()));
+        $this->addColumn('{{%interview_evaluation}}', 'preset_name', $this->utf8mb4Varchar(200, false));
         $this->addColumn('{{%interview_evaluation}}', 'schema_json', $this->mediumText(true));
         $this->addColumn('{{%interview_evaluation}}', 'answers_json', $this->mediumText(true));
         $this->addColumn('{{%interview_evaluation}}', 'revision', $this->integer()->notNull()->defaultValue(0));
@@ -64,7 +64,7 @@ class m261011_160000_staff_candidate_evaluation_forms extends Migration
 
         $this->createTable('{{%interview_evaluation_preset}}', [
             'preset_uuid' => $this->char(60),
-            'name' => $this->utf8mb4($this->string(200)->notNull()),
+            'name' => $this->utf8mb4Varchar(200, true),
             'schema_json' => $this->mediumText(false),
             'created_by_staff_id' => $this->integer()->notNull(),
             'updated_by_staff_id' => $this->integer()->null(),
@@ -143,18 +143,19 @@ class m261011_160000_staff_candidate_evaluation_forms extends Migration
     }
 
     /**
-     * Text columns store names and JSON that can include 4-byte characters.
-     * Identifier columns stay on the parent table charset so the evaluation UUID foreign key still matches.
+     * Yii 2.0.51 append() places extra SQL after NULL/NOT NULL, which is invalid for CHARACTER SET.
+     * The charset clause has to come before nullability. Identifier columns stay on the parent charset.
      *
-     * @param \yii\db\ColumnSchemaBuilder $column
-     * @return \yii\db\ColumnSchemaBuilder
+     * @return \yii\db\ColumnSchemaBuilder|string
      */
-    private function utf8mb4($column)
+    private function utf8mb4Varchar($length, $notNull)
     {
+        $nullSql = $notNull ? 'NOT NULL' : 'NULL';
         if ($this->db->driverName === 'mysql') {
-            $column->append('CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
+            return "varchar({$length}) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci {$nullSql}";
         }
-        return $column;
+        $column = $this->string($length);
+        return $notNull ? $column->notNull() : $column->null();
     }
 
     private function mediumText($nullable)
