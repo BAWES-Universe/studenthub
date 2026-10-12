@@ -1,207 +1,310 @@
-# StudentHub
+# StudentHub — Backend API (Yii2)
 
-StudentHub is a platform that enables corporate recruitment and management of trainees through a structured program. The system facilitates trainee placement, time tracking, and payment processing between companies, trainees, and administrators.
+> **Payroll & Recruitment Platform for the Youth Training Program**
+> Connects trainees (candidates), companies, staff supervisors, inspectors, managers, and admins through structured placement, time-tracking, and payment workflows.
 
-## Quick Start
+---
 
-1. Clone the repository
-2. Run `docker-compose up` to start the development environment
-3. Access the various APIs:
-   - Admin: http://localhost:21080
-   - Candidate: http://localhost:22080
-   - Company: http://localhost:23080
-   - Inspector: http://localhost:24080
-   - Staff: http://localhost:25080
-   - Verification: http://localhost:26080
-   
+## ⚠️ Bounty Contributors — Read This First
 
-## Documentation
+This repo is the **Yii2 PHP backend**. It powers **14 interconnected repositories**. Before starting any bounty:
 
-Detailed documentation is available in the `docs/` directory:
+1. Read the [Ecosystem Map](#ecosystem-map) below — understand which app your issue belongs to
+2. Find the matching frontend repo and read *its* README
+3. Check the [API app inside this repo](#backend-apps-in-this-repo) that your feature touches
+4. If building a UI screen, study the **Angular reference implementation** before writing new code — see [Frontend Tech Stack](#frontend-tech-stack)
 
-- [Setup Guide](docs/setup.md) - Installation and configuration
-- [User Roles](docs/user-roles.md) - User types and permissions
-- [API Endpoints](docs/api-endpoints.md) - Available API endpoints
-- [Database Documentation](docs/database/README.md) - Database structure and diagrams
-- [Cron Jobs](docs/cron-jobs.md) - Scheduled tasks
-- [Analytics](docs/analytics.md) - Event tracking and analytics
+---
 
-## Development
+## Ecosystem Map
 
-- Run tests: `./run-tests.sh`
-- Access backend container: `docker-compose exec backend bash`
-- Code generator: http://localhost:8888/bawes/studenthub/admin/web/gii
+The full StudentHub platform is split across multiple repos. This backend serves all of them.
 
-## allow access from docker to local mysql server 
+### 🔵 This Repo — PHP Backend (Yii2)
+| Internal App | Local Port | API Base URL (dev) | Purpose |
+|---|---|---|---|
+| `admin/` | 21080 | `admin.api.dev.studenthub.co` | Internal admin panel API |
+| `candidate/` | 22080 | `candidate.api.dev.studenthub.co` | Trainee/candidate API |
+| `company/` | 23080 | `company.api.dev.studenthub.co` | Employer/company API |
+| `inspector/` | 24080 | `inspector.api.dev.studenthub.co` | On-site inspector API |
+| `staff/` | 25080 | `staff.api.dev.studenthub.co` | Internal staff operations API |
+| `verification/` | 26080 | `verification.api.dev.studenthub.co` | Document verification API |
+| `manager/` | — | `manager.api.dev.studenthub.co` | Manager reporting API |
+| `status/` | — | — | System health/status |
+| `console/` | — | CLI only | Console commands & migrations |
+| `cron/` | — | CLI only | Scheduled background jobs |
 
-`GRANT ALL PRIVILEGES ON *.* TO 'root'@'192.168.1.5' IDENTIFIED BY 'root' WITH GRANT OPTION;`
+### 🟢 Frontend Repos (Angular / Ionic — Production)
 
-## allow access from docker to local mysql server 
-`GRANT ALL PRIVILEGES ON wallet.* TO 'studenthubuser'@'127.0.0.1'`
+These are the **battle-tested production apps**. Study these before building anything new — they contain the established UX patterns, API usage, and business logic that works in production.
 
-# copy to s3 
+| Repo | Stack | Who uses it | Status |
+|---|---|---|---|
+| [studenthub-candidate](https://github.com/BAWES-Universe/studenthub-candidate) | **Angular + Ionic** | Trainees / candidates | ✅ Production reference |
+| [studenthub-company](https://github.com/BAWES-Universe/studenthub-company) | **Angular + Ionic** | Employers | ✅ Production reference |
+| [studenthub-staff](https://github.com/BAWES-Universe/studenthub-staff) | **Angular + Ionic** | Internal staff | ✅ Production reference |
+| [studenthub-inspector](https://github.com/BAWES-Universe/studenthub-inspector) | **Angular + Ionic** | On-site inspectors | ✅ Production reference |
+| [studenthub-admin](https://github.com/BAWES-Universe/studenthub-admin) | **Angular** | Admins | ✅ Production reference |
+| [studenthub-manager](https://github.com/BAWES-Universe/studenthub-manager) | **Angular** | Managers | ✅ Production reference |
+| [studenthub-finance](https://github.com/BAWES-Universe/studenthub-finance) | **Angular** | Finance team | ✅ Production reference |
+| [studenthub-team](https://github.com/BAWES-Universe/studenthub-team) | **Angular** | Team reporting | ✅ Production reference |
 
-`aws s3 cp ./db.sql s3://studenthub-uploads-dev-server/exports/db.sql`
+### 🟡 Newer / Experimental Frontend Repos
 
-# Docker 
+These are newer implementations — some experimental, some in active development. They are **not yet in production** as the primary user-facing apps.
 
-`docker-compose -f docker-compose-dev.yml down`
-`docker-compose -f docker-compose-dev.yml -p studenthub-dev-server up -d`
-`docker-compose -f docker-compose-dev.yml -p studenthub-dev-server down`
+| Repo | Stack | Purpose | Status |
+|---|---|---|---|
+| [studenthub-candidate-react](https://github.com/BAWES-Universe/studenthub-candidate-react) | **Ionic + React** | Candidate app rebuild | 🧪 Experimental |
+| [studenthub-candidate-next](https://github.com/BAWES-Universe/studenthub-candidate-next) | **Next.js** | Candidate app (web-first) | 🚧 In development |
 
-`docker-compose -f docker-compose-local.yml -p studenthub-local-server up -d`
+### 🟣 Supporting Services
 
-`docker-compose -f docker-compose-prod.yml -p studenthub-prod-server up -d`
+| Repo | Stack | Purpose |
+|---|---|---|
+| [studenthub-microservices](https://github.com/BAWES-Universe/studenthub-microservices) | Node.js | Microservices layer |
+| [studenthub-pbx](https://github.com/BAWES-Universe/studenthub-pbx) | Go | Call center / PBX integration |
+| [studenthub-personas](https://github.com/BAWES-Universe/studenthub-personas) | JavaScript | Landing pages for different user personas |
 
-## CI/ CD 
+---
 
-### Build image 
+## Frontend Tech Stack
 
-`docker-compose -f docker-compose-dev.yml -p studenthub-dev-server build`
+### The Angular Apps (Production — Use These as Reference)
 
-### Run container 
+The core frontend applications (`candidate`, `company`, `staff`, `inspector`, `admin`, `manager`, `finance`, `team`) are all built with:
 
-`docker-compose -f docker-compose-dev.yml -p studenthub-dev-server up --force-recreate`
+- **Framework:** Angular
+- **Mobile wrapper:** Ionic (for the candidate/company/staff/inspector apps)
+- **Language:** TypeScript
+- **API communication:** HTTP client talking to this Yii2 backend
+- **Auth:** Bearer token via the `candidate/`, `company/`, `staff/` API apps respectively
 
-## To rebuild this image you must use `docker-compose build` or `docker-compose up --build`.
+**If you are implementing a feature that has a UI component**, always check the matching Angular repo first. The Angular apps contain the established screen layouts, form validations, API call patterns, and error handling that are already in production. Do not reinvent these patterns.
 
-## execute docker build 
+### The Newer Frontends (Development)
 
-`docker exec -it <container_id> /bin/bash`
+Two newer candidate app approaches are in progress:
 
-docker exec -it b019f98548b1 /bin/bash
+- **`studenthub-candidate-react`** — Built with Ionic + React. An alternative mobile-first implementation exploring the React ecosystem.
+- **`studenthub-candidate-next`** — Built with Next.js. A web-first rebuild targeting modern SSR/SSG patterns.
 
+Neither has replaced the Angular app in production. If you are contributing to this backend and need to understand how the candidate-facing API is consumed, **start with [studenthub-candidate](https://github.com/BAWES-Universe/studenthub-candidate) (Angular)** as it is the most complete and production-proven reference.
+
+---
+
+## Backend Apps In This Repo
+
+This is a **Yii2 Advanced Application** monorepo. Each subdirectory is a separate Yii2 application with its own controllers, models, web entry point, and config.
+
+```
+studenth ub/
+├── admin/          # Admin panel backend API
+├── candidate/      # Candidate (trainee) REST API
+├── company/        # Company (employer) REST API
+├── inspector/      # Inspector REST API
+├── staff/          # Internal staff REST API
+├── manager/        # Manager REST API
+├── verification/   # Document verification API
+├── status/         # System status
+├── common/         # Shared models, components, fixtures
+├── console/        # CLI commands (migrations, seeds)
+├── cron/           # Scheduled jobs
+├── docs/           # Full documentation
+├── environments/   # Environment-specific configs (dev/prod)
+└── nginx/          # Nginx config files
+```
+
+### Shared Code
+
+All apps share the `common/` directory which contains:
+- **Models** — ActiveRecord models for every database table
+- **Components** — Reusable components (mail, auth, payments)
+- **Fixtures** — Database seed data for development
+- **Config** — Shared configuration (database, params)
+
+If you add a new model or modify database structure, do it in `common/` — not inside individual apps.
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Docker + Docker Compose
+- Git
+- PHP 8.2+ (for running composer outside Docker)
+
+### 1. Clone & Configure
+
+```bash
+git clone https://github.com/BAWES-Universe/studenthub.git
+cd studenthub
+```
+
+Copy environment config:
+```bash
+cp environments/dev/common/config/main-local.php.example environments/dev/common/config/main-local.php
+cp environments/dev/common/config/params-local.php.example environments/dev/common/config/params-local.php
+```
+
+### 2. Start with Docker (Local)
+
+```bash
+# Start all services (PHP + Nginx + MySQL)
+docker-compose -f docker-compose-local.yml -p studenthub-local-server up -d
+
+# Watch logs
+docker-compose -f docker-compose-local.yml logs -f
+```
+
+### 3. Initialize the Application
+
+```bash
+# Enter the backend container
 docker exec -it studenthub-backend-dev /bin/bash
-docker exec -it studenthub-backend-prod /bin/bash
 
-docker logs b019f98548b1
+# Run Yii2 init (choose Development environment)
+./init
 
-docker exec -it 50ae5a2794bf0a7f2baa087230036f7b5866b6c868d9e8168b59ec19fa0b7ada /bin/bash
+# Install PHP dependencies
+composer install
 
-## fixes 
-- why composer install not working 
+# Run database migrations
+./yii migrate
+```
 
-## publish to ecr
+### 4. Access the APIs
 
-### login
-- aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin 438663597141.dkr.ecr.eu-west-2.amazonaws.com 
+| App | URL |
+|---|---|
+| Candidate API | http://localhost:22080 |
+| Company API | http://localhost:23080 |
+| Staff API | http://localhost:25080 |
+| Admin API | http://localhost:21080 |
+| Inspector API | http://localhost:24080 |
+| Verification API | http://localhost:26080 |
+| Gii (Code Generator) | http://localhost:21080/gii |
 
-### basic 
-- docker build  -t studenthub/backend-dev .
+### 5. Flush Cache After Schema Changes
 
-### cross platform build 
-- docker buildx build --platform linux/amd64 -t studenthub/backend-dev -f Dockerfile-nginx-dev .
-- docker buildx build --platform linux/amd64 -t studenthub/backend-prod -f Dockerfile-nginx-prod .
+If you apply a migration but get "column not found" errors:
 
-### tag and push 
+```bash
+docker exec -it studenthub-backend-dev /bin/bash
+./yii cache/flush-schema db
+./yii cache/flush cache
+```
 
-For dev 
-- docker tag studenthub/backend-dev:latest 438663597141.dkr.ecr.eu-west-2.amazonaws.com/studenthub/backend-dev:latest
-- docker push 438663597141.dkr.ecr.eu-west-2.amazonaws.com/studenthub/backend-dev:latest
-
-For prod 
-- docker tag studenthub/backend-prod:latest 438663597141.dkr.ecr.eu-west-2.amazonaws.com/studenthub/backend-prod:latest
-- docker push 438663597141.dkr.ecr.eu-west-2.amazonaws.com/studenthub/backend-prod:latest
-
-## using docker compose 
-- docker-compose -f docker-compose-dev.yml build --build-arg platform=linux/amd64 tag=studenthub/backend-dev .
-- docker-compose -f docker-compose-dev.yml up --build
-
-## mysql 
-
-`docker-compose exec mysql mysql -u root -p`
-
-`docker-compose exec mysql mysql -u studenthubuser -pstudenthub -h mysql-1`
-
-# flush dns cache 
-
-sudo vim /etc/hosts
-- add 127.0.0.1 student.api.studenthub.co
-
-sudo killall -HUP mDNSResponder
-- to clear cache 
-
-open any frontend app (candidate, staff, admin, employer) and test 
-- make sure to use http in local 
-
-# Fix 
-
-./common/bin/png-linux-386 "http://localhost:8888/bawes/studenthub/staff/web/v1/candidate-id-cards/1/BjE4JvIxqgIO3SiNyNpTPdIzK6YwWLlm" "/var/www/html/common/runtime/cache";
-
-bash: ./common/bin/png-linux: cannot execute binary file: Exec format error
-
-http://localhost:8888/bawes/studenthub/staff/web/v1/candidate-id-cards/1/BjE4JvIxqgIO3SiNyNpTPdIzK6YwWLlm
-
-https://staff.api.dev.studenthub.co/v1/candidate-id-cards/1/yGVo9g1t4urP9ScpxP1A2yMwUuNN7hl6
-
-$command = "/var/www/html/common/bin/png-linux-386 https://staff.api.dev.studenthub.co/v1/candidate-id-cards/8/yGVo9g1t4urP9ScpxP1A2yMwUuNN7hl6 /tmp/id-cards/IJE71DHapkjGgL2dqy4M > /dev/null 2>&1";
-
-exec($command, $output, $returnVar);
-
-var_dump($output);
-var_dump($returnVar);
- 
- # on reboot, don't forget to run this based on the environment you want to run
- 
- - docker-compose -f docker-compose-prod.yml -p studenthub-prod-server up -d
-
- - docker-compose -f docker-compose-dev.yml -p studenthub-dev-server up -d
-
- - docker-compose -f docker-compose-local.yml -p studenthub-local-server up -d
-
-# git tag 
-
-git tag -a v2.0 -m "Version 2.0: PHP 7.4 to 8.2"
-git push origin v2.0
-git tag -l
-
-# fix migration applied but ActiveRecord/ Table column not found error getting trigger 
-`docker exec -it studenthub-backend-prod /bin/bash`
-`./yii cache/flush-schema db`
-`./yii cache/flush cache`
-
-## if still not working 
-
+Or manually clear runtime caches:
+```bash
 rm -rf /var/www/html/admin/runtime/cache
 rm -rf /var/www/html/candidate/runtime/cache
 rm -rf /var/www/html/company/runtime/cache
-rm -rf /var/www/html/console/runtime/cache
-rm -rf /var/www/html/common/runtime/cache
 rm -rf /var/www/html/staff/runtime/cache
-rm -rf /var/www/html/inspector/runtime/cache
-rm -rf /var/www/html/manager/runtime/cache
-rm -rf /var/www/html/status/runtime/cache
-rm -rf /var/www/html/verification/runtime/cache
+rm -rf /var/www/html/common/runtime/cache
+# (repeat for inspector, manager, status, verification, console)
+```
 
+---
 
-# Automatically start ssh-agent and add GitHub SSH key
+## Documentation
 
-Add the following lines to the ubuntu user's ~/.bashrc (or ~/.profile):
+Full docs are in the `docs/` directory:
 
-`if [ -z "$SSH_AUTH_SOCK" ]; then
-    eval "$(ssh-agent -s)"
-    ssh-add ~/.ssh/github
-fi`
+| Doc | Description |
+|---|---|
+| [Setup Guide](docs/setup.md) | Detailed installation and configuration |
+| [User Roles](docs/user-roles.md) | All user types and their permissions |
+| [API Endpoints](docs/api-endpoints.md) | Available REST endpoints per app |
+| [Database](docs/database/README.md) | Schema diagrams and table documentation |
+| [Cron Jobs](docs/cron-jobs.md) | Scheduled tasks and their schedules |
+| [Analytics](docs/analytics.md) | Event tracking setup |
 
+---
 
-#mysql trigger 
+## Running Tests
 
-SHOW CREATE TRIGGER after_candidate_working_hour_update \G;
+```bash
+./run-tests.sh
+```
 
-DROP TRIGGER IF EXISTS after_candidate_working_hour_update;
+---
 
-DELIMITER $$
+## Docker Reference
 
-CREATE DEFINER=`root`@`%` TRIGGER `after_candidate_working_hour_update`
-BEFORE UPDATE ON `candidate_working_hour`
-FOR EACH ROW
-BEGIN
-    IF (NEW.total_time < 0 OR NEW.total_time IS NULL) THEN
-        SET NEW.total_time = TIMESTAMPDIFF(SECOND, OLD.start_time, NEW.end_time);
-    END IF;
-END $$
+### Local Development
+```bash
+docker-compose -f docker-compose-local.yml -p studenthub-local-server up -d
+docker-compose -f docker-compose-local.yml -p studenthub-local-server down
+```
 
-DELIMITER;
+### Dev Server
+```bash
+docker-compose -f docker-compose-dev.yml -p studenthub-dev-server up -d
+docker-compose -f docker-compose-dev.yml -p studenthub-dev-server down
+```
 
+### Production
+```bash
+docker-compose -f docker-compose-prod.yml -p studenthub-prod-server up -d
+```
 
+### Rebuild Images
+```bash
+docker-compose -f docker-compose-dev.yml -p studenthub-dev-server build
+# Cross-platform (Apple Silicon → Linux)
+docker buildx build --platform linux/amd64 -t studenthub/backend-dev -f Dockerfile-nginx-dev .
+docker buildx build --platform linux/amd64 -t studenthub/backend-prod -f Dockerfile-nginx-prod .
+```
 
+### ECR Push (AWS)
+```bash
+# Login
+aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin 438663597141.dkr.ecr.eu-west-2.amazonaws.com
+
+# Tag & Push (dev)
+docker tag studenthub/backend-dev:latest 438663597141.dkr.ecr.eu-west-2.amazonaws.com/studenthub/backend-dev:latest
+docker push 438663597141.dkr.ecr.eu-west-2.amazonaws.com/studenthub/backend-dev:latest
+
+# Tag & Push (prod)
+docker tag studenthub/backend-prod:latest 438663597141.dkr.ecr.eu-west-2.amazonaws.com/studenthub/backend-prod:latest
+docker push 438663597141.dkr.ecr.eu-west-2.amazonaws.com/studenthub/backend-prod:latest
+```
+
+---
+
+## DNS / Local Hosts Setup
+
+To use local domain names instead of `localhost:PORT`, add to `/etc/hosts`:
+
+```
+127.0.0.1 student.api.studenthub.co
+```
+
+Then flush DNS cache:
+```bash
+sudo killall -HUP mDNSResponder
+```
+
+> ⚠️ Use `http://` (not `https://`) in local development.
+
+---
+
+## Contributing via Bounty
+
+This project uses [Algora](https://algora.io) for bounties across all StudentHub repos. When claiming a bounty:
+
+- [ ] Read the **Ecosystem Map** above — confirm which API app and frontend the issue touches
+- [ ] If the issue has a UI component, read the matching Angular frontend repo before coding
+- [ ] New database columns → add to `common/` models, then run `./yii migrate`
+- [ ] New API endpoints → add controller in the correct app directory (`candidate/`, `company/`, etc.)
+- [ ] Flush schema cache after any migration
+- [ ] Run `./run-tests.sh` before submitting your PR
+- [ ] Reference the issue number in your PR title
+
+---
+
+## License
+
+See [LICENSE.md](LICENSE.md)
