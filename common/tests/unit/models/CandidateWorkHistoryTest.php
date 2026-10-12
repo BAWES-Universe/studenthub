@@ -124,6 +124,30 @@ class CandidateWorkHistoryTest extends \Codeception\Test\Unit
     }
 
     /**
+     * Test that getFiringChartData executes without a SQL GROUP BY error
+     * and returns a properly structured 12-element array.
+     *
+     * Regression test for: SQLSTATE[42000] 1055 — end_date not in GROUP BY
+     * Fix: SELECT uses MIN(end_date) as end_date instead of bare end_date.
+     */
+    public function testGetFiringChartDataNoSqlError()
+    {
+        // Should not throw yii\db\Exception due to only_full_group_by violation
+        $result = CandidateWorkHistory::getFiringChartData(7, 12);
+
+        // Result must be an indexed array with 12 monthly entries
+        $this->assertIsArray($result);
+        $this->assertCount(12, $result);
+
+        // Each entry must have the expected keys
+        foreach ($result as $entry) {
+            $this->assertArrayHasKey('month', $entry);
+            $this->assertArrayHasKey('total', $entry);
+            $this->assertIsInt($entry['total']);
+        }
+    }
+
+    /**
      * test case to test checkTotalHistory
      */
     public function testCheckTotalHistory(){
