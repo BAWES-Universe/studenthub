@@ -1,0 +1,63 @@
+{
+  "bucket": "studenthub-civil-id-uploads",
+  "publicAccessBlock": {
+    "PublicAccessBlockConfiguration": {
+      "BlockPublicAcls": true,
+      "IgnorePublicAcls": true,
+      "BlockPublicPolicy": true,
+      "RestrictPublicBuckets": true
+    }
+  },
+  "policyStatus": {
+    "PolicyStatus": {
+      "IsPublic": false
+    }
+  },
+  "encryption": {
+    "ServerSideEncryptionConfiguration": {
+      "Rules": [
+        {
+          "ApplyServerSideEncryptionByDefault": {
+            "SSEAlgorithm": "AES256"
+          }
+        }
+      ]
+    }
+  },
+  "versioning": {
+    "Status": "Enabled"
+  },
+  "ownershipControls": {
+    "OwnershipControls": {
+      "Rules": [
+        {
+          "ObjectOwnership": "BucketOwnerEnforced"
+        }
+      ]
+    }
+  },
+  "lifecycle": {
+    "Rules": [
+      {
+        "ID": "abort-incomplete-civil-id-uploads",
+        "Status": "Enabled",
+        "AbortIncompleteMultipartUpload": {
+          "DaysAfterInitiation": 7
+        }
+      }
+    ]
+  },
+  "cors": {
+    "CORSRules": [
+      {
+        "AllowedOrigins": [
+          "https://staff.example.com"
+        ],
+        "AllowedMethods": [
+          "GET",
+          "PUT"
+        ]
+      }
+    ]
+  }
+}
