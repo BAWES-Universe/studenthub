@@ -434,7 +434,7 @@ class InterviewEvaluationController extends Controller
      */
     protected function rejectStructuredWrite(InterviewEvaluation $model)
     {
-        if ($model->schema_json === null || $model->schema_json === '') {
+        if (!$model->hasAttribute('schema_json') || $model->schema_json === null || $model->schema_json === '') {
             return null;
         }
 

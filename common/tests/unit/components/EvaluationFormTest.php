@@ -7,12 +7,14 @@ use common\components\evaluation\EvaluationForm;
 use common\components\evaluation\EvaluationWorkflow;
 use common\components\evaluation\MemoryEvaluationRepository;
 use PHPUnit\Framework\TestCase;
+use staff\components\EvaluationResponse;
 
 require_once dirname(__DIR__, 4) . '/common/components/evaluation/EvaluationAccess.php';
 require_once dirname(__DIR__, 4) . '/common/components/evaluation/EvaluationForm.php';
 require_once dirname(__DIR__, 4) . '/common/components/evaluation/EvaluationRepository.php';
 require_once dirname(__DIR__, 4) . '/common/components/evaluation/MemoryEvaluationRepository.php';
 require_once dirname(__DIR__, 4) . '/common/components/evaluation/EvaluationWorkflow.php';
+require_once dirname(__DIR__, 4) . '/staff/components/EvaluationResponse.php';
 
 class EvaluationFormTest extends TestCase
 {
@@ -136,8 +138,29 @@ class EvaluationFormTest extends TestCase
             'answers' => [],
         ]);
         $this->assertFalse($blocked['ok']);
-        $this->assertArrayHasKey('prop_note00001', $blocked['unsaved']['answers'] === [] ? $saved['data']['answers'] : $saved['data']['answers']);
+        $this->assertSame(['properties' => []], $blocked['unsaved']['schema']);
+        $this->assertSame([], $blocked['unsaved']['answers']);
+        $this->assertSame('prop_note00001', $blocked['errors'][0]['property_id']);
         $this->assertSame('Keep', $workflow->repository()->evaluations[$saved['data']['interview_evaluation_uuid']]['answers']['prop_note00001']);
+    }
+
+    public function testPresetConflictKeepsPresetFields()
+    {
+        $method = new \ReflectionMethod(EvaluationResponse::class, 'conflictCopy');
+        $method->setAccessible(true);
+        $preset = [
+            'preset_uuid' => 'eval_preset_1',
+            'name' => 'Screening',
+            'schema' => ['properties' => []],
+            'revision' => 2,
+            'can_manage' => true,
+        ];
+        $copy = $method->invoke(null, $preset);
+        $this->assertSame('eval_preset_1', $copy['preset_uuid']);
+        $this->assertSame('Screening', $copy['name']);
+        $this->assertTrue($copy['can_manage']);
+        $this->assertArrayNotHasKey('is_legacy', $copy);
+        $this->assertArrayNotHasKey('answers', $copy);
     }
 
     public function testFormattedNotesAndSelectionsSurviveSave()

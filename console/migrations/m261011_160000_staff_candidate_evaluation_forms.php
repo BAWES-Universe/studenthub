@@ -32,13 +32,13 @@ class m261011_160000_staff_candidate_evaluation_forms extends Migration
             $tableOptions = "CHARACTER SET {$charset} COLLATE {$collation} ENGINE=InnoDB";
         }
 
-        $this->addColumn('{{%interview_evaluation}}', 'title', $this->string(200)->null());
+        $this->addColumn('{{%interview_evaluation}}', 'title', $this->utf8mb4($this->string(200)->null()));
         $this->addColumn('{{%interview_evaluation}}', 'evaluation_date', $this->date()->null());
         $this->addColumn('{{%interview_evaluation}}', 'form_status', $this->string(20)->null());
         $this->addColumn('{{%interview_evaluation}}', 'preset_uuid', $this->char(60)->null());
-        $this->addColumn('{{%interview_evaluation}}', 'preset_name', $this->string(200)->null());
-        $this->addColumn('{{%interview_evaluation}}', 'schema_json', 'MEDIUMTEXT NULL');
-        $this->addColumn('{{%interview_evaluation}}', 'answers_json', 'MEDIUMTEXT NULL');
+        $this->addColumn('{{%interview_evaluation}}', 'preset_name', $this->utf8mb4($this->string(200)->null()));
+        $this->addColumn('{{%interview_evaluation}}', 'schema_json', $this->mediumText(true));
+        $this->addColumn('{{%interview_evaluation}}', 'answers_json', $this->mediumText(true));
         $this->addColumn('{{%interview_evaluation}}', 'revision', $this->integer()->notNull()->defaultValue(0));
         $this->addColumn('{{%interview_evaluation}}', 'created_by_staff_id', $this->integer()->null());
         $this->addColumn('{{%interview_evaluation}}', 'updated_by_staff_id', $this->integer()->null());
@@ -64,8 +64,8 @@ class m261011_160000_staff_candidate_evaluation_forms extends Migration
 
         $this->createTable('{{%interview_evaluation_preset}}', [
             'preset_uuid' => $this->char(60),
-            'name' => $this->string(200)->notNull(),
-            'schema_json' => 'MEDIUMTEXT NOT NULL',
+            'name' => $this->utf8mb4($this->string(200)->notNull()),
+            'schema_json' => $this->mediumText(false),
             'created_by_staff_id' => $this->integer()->notNull(),
             'updated_by_staff_id' => $this->integer()->null(),
             'archived_at' => $this->dateTime()->null(),
@@ -90,7 +90,7 @@ class m261011_160000_staff_candidate_evaluation_forms extends Migration
             'revision' => $this->integer()->notNull(),
             'action' => $this->string(20)->notNull(),
             'staff_id' => $this->integer()->notNull(),
-            'snapshot_json' => 'MEDIUMTEXT NOT NULL',
+            'snapshot_json' => $this->mediumText(false),
             'created_at' => $this->dateTime()->notNull(),
         ], $tableOptions);
         $this->addPrimaryKey('PK', '{{%interview_evaluation_change}}', 'change_uuid');
@@ -140,5 +140,29 @@ class m261011_160000_staff_candidate_evaluation_forms extends Migration
         $this->dropColumn('{{%interview_evaluation}}', 'title');
 
         return true;
+    }
+
+    /**
+     * Text columns store names and JSON that can include 4-byte characters.
+     * Identifier columns stay on the parent table charset so the evaluation UUID foreign key still matches.
+     *
+     * @param \yii\db\ColumnSchemaBuilder $column
+     * @return \yii\db\ColumnSchemaBuilder
+     */
+    private function utf8mb4($column)
+    {
+        if ($this->db->driverName === 'mysql') {
+            $column->append('CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
+        }
+        return $column;
+    }
+
+    private function mediumText($nullable)
+    {
+        $nullSql = $nullable ? 'NULL' : 'NOT NULL';
+        if ($this->db->driverName === 'mysql') {
+            return 'MEDIUMTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ' . $nullSql;
+        }
+        return 'MEDIUMTEXT ' . $nullSql;
     }
 }

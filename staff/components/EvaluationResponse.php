@@ -26,7 +26,7 @@ class EvaluationResponse
             return [
                 'operation' => 'conflict',
                 'message' => $result['errors'][0]['message'],
-                'server' => isset($result['server']) ? self::evaluation($result['server']) : null,
+                'server' => isset($result['server']) ? self::conflictCopy($result['server']) : null,
                 'unsaved' => isset($result['unsaved']) ? $result['unsaved'] : null,
             ];
         }
@@ -60,6 +60,21 @@ class EvaluationResponse
      * @param array<string, mixed> $row
      * @return array<string, mixed>
      */
+    /**
+     * Preset conflicts keep the preset fields the editor reloads.
+     * Evaluation formatting would add answer and legacy fields the preset does not have.
+     *
+     * @param array<string, mixed> $row
+     * @return array<string, mixed>
+     */
+    private static function conflictCopy(array $row)
+    {
+        if (isset($row['preset_uuid']) && !isset($row['interview_evaluation_uuid'])) {
+            return $row;
+        }
+        return self::evaluation($row);
+    }
+
     public static function evaluation(array $row)
     {
         $row['is_legacy'] = !empty($row['legacy']);

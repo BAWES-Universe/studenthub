@@ -117,6 +117,9 @@ class InterviewEvaluationPresetController extends StaffRestController
             $result['preset'] = $this->workflow()->presentPreset($result['preset'], $actor);
             $result['message'] = 'Preset saved.';
         }
+        if (!empty($result['conflict']) && isset($result['server']) && is_array($result['server'])) {
+            $result['server'] = $this->workflow()->presentPreset($result['server'], $actor);
+        }
         return EvaluationResponse::send($result, $actor);
     }
 
