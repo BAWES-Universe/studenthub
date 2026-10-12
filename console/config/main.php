@@ -6,6 +6,11 @@ $params = array_merge(
     require(__DIR__ . '/params-local.php')
 );
 
+$consoleSlackWebhookUrl = getenv('CONSOLE_SLACK_WEBHOOK_URL');
+if (!$consoleSlackWebhookUrl) {
+    $consoleSlackWebhookUrl = getenv('SLACK_WEBHOOK_URL') ?: '';
+}
+
 return [
     'id' => 'app-console',
     'basePath' => dirname(__DIR__),
@@ -26,7 +31,7 @@ return [
 
         'slack' => [
             'class' => 'understeam\slack\Client',
-            'url' => 'https://hooks.slack.com/services/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',
+            'url' => $consoleSlackWebhookUrl,
             'username' => 'StudentHub',
         ],
         'log' => [
