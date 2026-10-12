@@ -1,0 +1,110 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Alert on StudentHub S3 bucket-admin API calls captured by CloudTrail.",
+  "Parameters": {
+    "AlertSnsTopicArn": {
+      "Type": "String",
+      "Description": "SNS topic ARN for the maintainer-owned technical alert channel."
+    }
+  },
+  "Resources": {
+    "StudentHubS3BucketAdminChangeRule": {
+      "Type": "AWS::Events::Rule",
+      "Properties": {
+        "Description": "Alert when service users or automation change bucket-level S3 controls.",
+        "EventPattern": {
+          "source": [
+            "aws.s3"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail"
+          ],
+          "detail": {
+            "eventSource": [
+              "s3.amazonaws.com"
+            ],
+            "eventName": [
+              "DeleteBucketCors",
+              "DeleteBucketPolicy",
+              "DeleteBucketReplication",
+              "DeleteBucketWebsite",
+              "DeletePublicAccessBlock",
+              "PutBucketAcl",
+              "PutBucketCors",
+              "PutBucketLifecycle",
+              "PutBucketLifecycleConfiguration",
+              "PutBucketLogging",
+              "PutBucketNotification",
+              "PutBucketPolicy",
+              "PutBucketReplication",
+              "PutBucketTagging",
+              "PutBucketVersioning",
+              "PutBucketWebsite",
+              "PutPublicAccessBlock"
+            ],
+            "requestParameters": {
+              "bucketName": [
+                {
+                  "prefix": "studenthub-"
+                }
+              ]
+            }
+          }
+        },
+        "State": "ENABLED",
+        "Targets": [
+          {
+            "Arn": {
+              "Ref": "AlertSnsTopicArn"
+            },
+            "Id": "StudentHubS3BucketAdminAlertTopic"
+          }
+        ]
+      }
+    },
+    "StudentHubS3BucketAdminAlertTopicPolicy": {
+      "Type": "AWS::SNS::TopicPolicy",
+      "Properties": {
+        "Topics": [
+          {
+            "Ref": "AlertSnsTopicArn"
+          }
+        ],
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Sid": "AllowEventBridgeBucketAdminAlerts",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "events.amazonaws.com"
+              },
+              "Action": "sns:Publish",
+              "Resource": {
+                "Ref": "AlertSnsTopicArn"
+              },
+              "Condition": {
+                "ArnEquals": {
+                  "aws:SourceArn": {
+                    "Fn::GetAtt": [
+                      "StudentHubS3BucketAdminChangeRule",
+                      "Arn"
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "RuleName": {
+      "Description": "EventBridge rule name for S3 bucket-admin change alerts.",
+      "Value": {
+        "Ref": "StudentHubS3BucketAdminChangeRule"
+      }
+    }
+  }
+}

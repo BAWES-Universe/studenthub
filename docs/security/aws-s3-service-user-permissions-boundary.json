@@ -1,0 +1,60 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowExpectedStudentHubBucketReadAccess",
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetBucketLocation",
+        "s3:ListBucket",
+        "s3:ListBucketMultipartUploads"
+      ],
+      "Resource": [
+        "arn:aws:s3:::studenthub-uploads",
+        "arn:aws:s3:::studenthub-public-anyone-can-upload-24hr-expiry"
+      ]
+    },
+    {
+      "Sid": "AllowExpectedStudentHubObjectAccess",
+      "Effect": "Allow",
+      "Action": [
+        "s3:AbortMultipartUpload",
+        "s3:CopyObject",
+        "s3:DeleteObject",
+        "s3:GetObject",
+        "s3:ListMultipartUploadParts",
+        "s3:PutObject",
+        "s3:PutObjectAcl"
+      ],
+      "Resource": [
+        "arn:aws:s3:::studenthub-uploads/*",
+        "arn:aws:s3:::studenthub-public-anyone-can-upload-24hr-expiry/*"
+      ]
+    },
+    {
+      "Sid": "DenyBucketAdministrationForServiceUsers",
+      "Effect": "Deny",
+      "Action": [
+        "s3:DeleteBucket",
+        "s3:DeleteBucketOwnershipControls",
+        "s3:DeleteBucketPolicy",
+        "s3:DeleteBucketWebsite",
+        "s3:PutBucketCORS",
+        "s3:PutBucketAcl",
+        "s3:PutBucketLogging",
+        "s3:PutBucketNotification",
+        "s3:PutBucketOwnershipControls",
+        "s3:PutBucketPolicy",
+        "s3:PutBucketPublicAccessBlock",
+        "s3:PutBucketVersioning",
+        "s3:PutBucketWebsite",
+        "s3:PutEncryptionConfiguration",
+        "s3:PutLifecycleConfiguration",
+        "s3:PutReplicationConfiguration"
+      ],
+      "Resource": [
+        "arn:aws:s3:::studenthub-*"
+      ]
+    }
+  ]
+}
