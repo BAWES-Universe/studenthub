@@ -25,6 +25,7 @@ Detailed documentation is available in the `docs/` directory:
 - [Database Documentation](docs/database/README.md) - Database structure and diagrams
 - [Cron Jobs](docs/cron-jobs.md) - Scheduled tasks
 - [Analytics](docs/analytics.md) - Event tracking and analytics
+- [AWS Support Evidence Package](docs/security/aws-support-evidence-package.md) - Redacted incident evidence bundle for S3/IAM remediation
 
 ## Development
 
@@ -202,6 +203,5 @@ BEGIN
 END $$
 
 DELIMITER;
-
 
 
