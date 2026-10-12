@@ -94,6 +94,23 @@ class InterviewEvaluation extends \yii\db\ActiveRecord
     }
 
     /**
+     * Original response fields. Structured form data is added only by the Staff model.
+     * @return string[]
+     */
+    public function fields()
+    {
+        return [
+            'interview_evaluation_uuid',
+            'request_uuid',
+            'company_id',
+            'staff_id',
+            'candidate_id',
+            'created_at',
+            'updated_at',
+        ];
+    }
+
+    /**
      * @return string[]
      */
     public function extraFields()

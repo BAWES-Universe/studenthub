@@ -589,6 +589,37 @@ return [
                         'OPTIONS add-note/<id>' => 'options',
                     ]
                 ],
+                [ // InterviewEvaluationFormController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/interview-evaluation-form',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'POST' => 'save-form',
+                        'PATCH <id>' => 'update-form',
+                        'GET history/<id>' => 'history',
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                        'OPTIONS history/<id>' => 'options',
+                    ]
+                ],
+                [ // InterviewEvaluationPresetController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/interview-evaluation-preset',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET' => 'list',
+                        'POST' => 'create',
+                        'POST from-evaluation/<id>' => 'from-evaluation',
+                        'PATCH <id>' => 'update',
+                        'POST duplicate/<id>' => 'duplicate',
+                        'POST archive/<id>' => 'archive',
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                        'OPTIONS from-evaluation/<id>' => 'options',
+                        'OPTIONS duplicate/<id>' => 'options',
+                        'OPTIONS archive/<id>' => 'options',
+                    ]
+                ],
                 [ // JiraController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/jira',
