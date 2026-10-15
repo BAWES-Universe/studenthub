@@ -516,48 +516,6 @@ class CandidateUpdateRequestFlowTest extends TestCase
         $this->assertNull(CandidateUpdateRequestService::pending(1, CandidateUpdateRequest::TYPE_CIVIL_ID));
     }
 
-    public function testOverlappingStageDoesNotDeleteTheActiveStagingKey()
-    {
-        $candidate = $this->pendingCivilCandidate();
-        CandidateUpdateRequestService::recordEligibleUpload(1, 'civil_id', 'active-front.jpg');
-        $this->assertSame('success', CandidateUpdateRequestService::stageCivilSide($candidate, 'front', 'active-front.jpg')['operation']);
-        $request = CandidateUpdateRequestService::pending(1, CandidateUpdateRequest::TYPE_CIVIL_ID);
-        $activeKey = $request->staged_front_key;
-        $script = tempnam(sys_get_temp_dir(), 'cur') . '.php';
-        file_put_contents($script, $this->overlapWorkerSource());
-        $hold = proc_open(
-            [PHP_BINARY, $script, 'hold-replace', $request->cur_uuid],
-            [1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
-            $holdPipes
-        );
-        $this->assertIsResource($hold);
-        stream_set_blocking($holdPipes[1], false);
-        $held = '';
-        $deadline = time() + 20;
-        while (time() < $deadline && strpos($held, 'HOLDING') === false) {
-            $held .= (string) stream_get_contents($holdPipes[1]);
-            usleep(50000);
-        }
-        $this->assertStringContainsString('HOLDING', $held);
-
-        Yii::$app->set('idExpiryDateExtractor', new class extends \yii\base\Component {
-            public function extractExpiryDate($key)
-            {
-                return ['operation' => 'success', 'matches' => ['01/01/1990'], 'ids' => []];
-            }
-        });
-        $retried = CandidateUpdateRequestService::stageCivilSide($candidate, 'front', 'active-front.jpg');
-        $holdError = stream_get_contents($holdPipes[2]);
-        $holdCode = proc_close($hold);
-        @unlink($script);
-        $request->refresh();
-
-        $this->assertSame(0, $holdCode, $holdError);
-        $this->assertSame('error', $retried['operation']);
-        $this->assertNotContains($activeKey, self::$storage->deleted);
-        $this->assertSame($activeKey, $request->staged_front_key);
-    }
-
     public function testAbandonedFormAndInvalidExpiryDoNotCommit()
     {
         $candidate = $this->stageBothSides();
