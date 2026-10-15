@@ -87,11 +87,17 @@ class TempUploadController extends Controller
         try {
             $presigner = new TempUploadPresigner(null, null, null, 'Candidate');
 
-            return $presigner->presignForCandidatePurpose(
+            $result = $presigner->presignForCandidatePurpose(
                 isset($body['purpose']) ? $body['purpose'] : null,
                 isset($body['filename']) ? $body['filename'] : null,
                 isset($body['content_type']) ? $body['content_type'] : null,
                 isset($body['file_size']) ? $body['file_size'] : null
+            );
+
+            $tracked = \common\components\CandidateUpdateRequestService::recordEligibleUpload(
+                Yii::$app->user->getId(),
+                isset($body['purpose']) ? $body['purpose'] : null,
+                isset($result['key']) ? $result['key'] : null
             );
         } catch (TempUploadValidationException $e) {
             throw new BadRequestHttpException($e->getMessage());
@@ -100,5 +106,11 @@ class TempUploadController extends Controller
             Yii::error('Temporary upload presign failed.', __METHOD__);
             throw new HttpException(503, 'Temporary upload is unavailable.');
         }
+
+        if ($tracked !== true) {
+            throw new HttpException(503, 'Could not start the upload. Please try again.');
+        }
+
+        return $result;
     }
 }

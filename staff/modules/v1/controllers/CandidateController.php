@@ -1599,6 +1599,86 @@ class CandidateController extends Controller
     }
 
     /**
+     * Latest photo and Civil ID request for one candidate.
+     *
+     * @param int $id
+     * @return array
+     */
+    public function actionListUpdateRequests($id)
+    {
+        $candidate = $this->findModel($id);
+        $rows = \common\components\CandidateUpdateRequestService::latestForStaff($candidate->candidate_id);
+        $requests = [];
+        foreach ($rows as $row) {
+            $requests[] = $row->toStaffArray();
+        }
+
+        return [
+            'operation' => 'success',
+            'requests' => $requests,
+        ];
+    }
+
+    /**
+     * Ask one candidate for a new profile photo or an updated Civil ID.
+     *
+     * @param int $id
+     * @return array
+     */
+    public function actionCreateUpdateRequest($id)
+    {
+        $candidate = $this->findModel($id);
+        $type = Yii::$app->request->getBodyParam('type');
+
+        try {
+            \common\components\CandidateUpdateRequestService::assertType($type);
+        } catch (\InvalidArgumentException $e) {
+            return [
+                'operation' => 'error',
+                'message' => 'Invalid request type.',
+            ];
+        }
+
+        $result = \common\components\CandidateUpdateRequestService::create(
+            $candidate,
+            (int) Yii::$app->user->getId(),
+            $type
+        );
+
+        return [
+            'operation' => 'success',
+            'already_pending' => $result['already_pending'],
+            'request' => $result['request']->toStaffArray(),
+        ];
+    }
+
+    /**
+     * Send one plain-text Activity message to this candidate.
+     *
+     * @param int $id
+     * @return array
+     */
+    public function actionSendCustomNotification($id)
+    {
+        $candidate = $this->findModel($id);
+        $result = \common\components\CandidateUpdateRequestService::sendCustomNotification(
+            $candidate,
+            (int) Yii::$app->user->getId(),
+            Yii::$app->request->getBodyParam('message'),
+            Yii::$app->request->getBodyParam('send_key')
+        );
+        if ($result['operation'] !== 'success') {
+            return $result;
+        }
+
+        return [
+            'operation' => 'success',
+            'already_sent' => $result['already_sent'],
+            'notification_id' => $result['notification']->cn_uuid,
+        ];
+    }
+
+    /**
      * Return a No of Candidate to review
      * Return a No of Payable candidate also
      */
