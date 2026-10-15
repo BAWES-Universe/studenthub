@@ -17,6 +17,20 @@ use yii\db\Exception as DbException;
 class CandidateUpdateRequestService
 {
     /**
+     * Test seam. Runs after the cleanup decision and before the storage delete.
+     *
+     * @var callable|null
+     */
+    public static $stagingCleanupBeforeDelete;
+
+    /**
+     * Test seam. The next reference lookup throws, and the cleanup still returns.
+     *
+     * @var bool
+     */
+    public static $failStagingReferenceLookup = false;
+
+    /**
      * @param Candidate $candidate
      * @param int $staffId
      * @param string $type
@@ -336,7 +350,7 @@ class CandidateUpdateRequestService
             return self::errorResponse(Yii::t('app', 'file not available to save.'));
         }
 
-        $stagedKey = 'photos/staging/' . $request->cur_uuid . '/' . $side . '/' . $basename;
+        $stagedKey = self::newStagingKey($request->cur_uuid, $side, $basename);
 
         try {
             Yii::$app->resourceManager->copy(
@@ -851,24 +865,42 @@ class CandidateUpdateRequestService
     }
 
     /**
-     * Delete one staging object when no pending request still stores that key.
-     * A retry can upload the same filename, which reuses the key, so a referenced
-     * object stays. This never deletes a permanent photo. A storage failure is ignored.
+     * One staging object per attempt. The last path segment stays the original
+     * basename, which commitCivil uses as the permanent filename.
+     *
+     * @param string $requestUuid
+     * @param string $side
+     * @param string $basename
+     * @return string
+     */
+    private static function newStagingKey($requestUuid, $side, $basename)
+    {
+        return 'photos/staging/' . $requestUuid . '/' . $side . '/' . bin2hex(random_bytes(8)) . '/' . $basename;
+    }
+
+    /**
+     * Best-effort removal of one staging object. The database lookup and the
+     * storage delete are both ignored on failure, including after a commit has
+     * already succeeded. Each attempt has its own key, so deleting an old key
+     * does not remove a later retry of the same filename.
      *
      * @param string|null $key
      * @return void
      */
     private static function releaseStagingObject($key)
     {
-        $key = self::normalizeKey($key);
-        if ($key === '' || strpos($key, 'photos/staging/') !== 0) {
-            return;
-        }
-        if (self::pendingRequestUsesStagingKey($key)) {
-            return;
-        }
-
         try {
+            $key = self::normalizeKey($key);
+            if ($key === '' || strpos($key, 'photos/staging/') !== 0) {
+                return;
+            }
+            if (self::pendingRequestUsesStagingKey($key)) {
+                return;
+            }
+            if (self::$stagingCleanupBeforeDelete) {
+                $beforeDelete = self::$stagingCleanupBeforeDelete;
+                $beforeDelete($key);
+            }
             Yii::$app->resourceManager->delete($key);
         } catch (\Throwable $e) {
             Yii::warning('Could not delete a staged civil object.', __METHOD__);
@@ -881,6 +913,10 @@ class CandidateUpdateRequestService
      */
     private static function pendingRequestUsesStagingKey($key)
     {
+        if (self::$failStagingReferenceLookup) {
+            throw new \RuntimeException('Staging reference lookup failed.');
+        }
+
         return CandidateUpdateRequest::find()
             ->where(['status' => CandidateUpdateRequest::STATUS_PENDING])
             ->andWhere(['or',

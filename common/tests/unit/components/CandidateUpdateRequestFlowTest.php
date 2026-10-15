@@ -118,6 +118,8 @@ class CandidateUpdateRequestFlowTest extends TestCase
         self::$storage->copied = [];
         self::$storage->deleted = [];
         self::$storage->failDeleteContaining = null;
+        CandidateUpdateRequestService::$stagingCleanupBeforeDelete = null;
+        CandidateUpdateRequestService::$failStagingReferenceLookup = false;
         Yii::$app->db->createCommand()->delete('candidate_notification')->execute();
         Yii::$app->db->createCommand()->delete('candidate_update_request_upload')->execute();
         Yii::$app->db->createCommand()->delete('candidate_update_request')->execute();
@@ -442,9 +444,12 @@ class CandidateUpdateRequestFlowTest extends TestCase
         $this->assertSame($activeKey, CandidateUpdateRequestService::pending(1, CandidateUpdateRequest::TYPE_CIVIL_ID)->staged_front_key);
 
         $rejected = CandidateUpdateRequestService::stageCivilSide($candidate, 'front', 'orphan-front.jpg');
-        $orphanKey = 'photos/staging/' . CandidateUpdateRequestService::pending(1, CandidateUpdateRequest::TYPE_CIVIL_ID)->cur_uuid . '/front/orphan-front.jpg';
+        $orphanDeletes = array_values(array_filter(self::$storage->deleted, function ($name) {
+            return is_string($name) && substr($name, -strlen('/orphan-front.jpg')) === '/orphan-front.jpg';
+        }));
         $this->assertSame('error', $rejected['operation']);
-        $this->assertContains($orphanKey, self::$storage->deleted);
+        $this->assertCount(1, $orphanDeletes);
+        $this->assertNotSame($activeKey, $orphanDeletes[0]);
         $this->assertSame($activeKey, CandidateUpdateRequestService::pending(1, CandidateUpdateRequest::TYPE_CIVIL_ID)->staged_front_key);
 
         $extractor->expire = false;
@@ -459,6 +464,56 @@ class CandidateUpdateRequestFlowTest extends TestCase
         $this->assertSame('success', $cleared['operation']);
         $this->assertContains($replacementKey, self::$storage->deleted);
         $this->assertNull(CandidateUpdateRequestService::pending(1, CandidateUpdateRequest::TYPE_CIVIL_ID)->staged_front_key);
+    }
+
+    public function testPausedCleanupDoesNotDeleteARetryOfTheSameFile()
+    {
+        $candidate = $this->pendingCivilCandidate();
+        CandidateUpdateRequestService::recordEligibleUpload(1, 'civil_id', 'same-front.jpg');
+        CandidateUpdateRequestService::recordEligibleUpload(1, 'civil_id', 'same-back.jpg');
+        $this->assertSame('success', CandidateUpdateRequestService::stageCivilSide($candidate, 'back', 'same-back.jpg')['operation']);
+        $this->assertSame('success', CandidateUpdateRequestService::stageCivilSide($candidate, 'front', 'same-front.jpg')['operation']);
+        $firstFront = CandidateUpdateRequestService::pending(1, CandidateUpdateRequest::TYPE_CIVIL_ID)->staged_front_key;
+
+        $accepted = null;
+        CandidateUpdateRequestService::$stagingCleanupBeforeDelete = function () use ($candidate, &$accepted) {
+            CandidateUpdateRequestService::$stagingCleanupBeforeDelete = null;
+            $accepted = CandidateUpdateRequestService::stageCivilSide($candidate, 'front', 'same-front.jpg');
+        };
+
+        $duringCleanup = CandidateUpdateRequestService::stageCivilSide($candidate, 'front', 'same-front.jpg');
+        $pending = CandidateUpdateRequestService::pending(1, CandidateUpdateRequest::TYPE_CIVIL_ID);
+
+        $this->assertSame('success', $duringCleanup['operation']);
+        $this->assertSame('success', $accepted['operation']);
+        $this->assertNotSame($firstFront, $pending->staged_front_key);
+        $this->assertSame('same-front.jpg', basename($pending->staged_front_key));
+        $this->assertContains($firstFront, self::$storage->deleted);
+        $this->assertNotContains($pending->staged_front_key, self::$storage->deleted);
+        $this->assertContains($pending->staged_front_key, array_column(self::$storage->copied, 'newFile'));
+
+        $committed = $this->commitCurrent($candidate, '200000000009', '2031-06-01');
+        $candidate->refresh();
+
+        $this->assertSame('success', $committed['operation']);
+        $this->assertSame('same-front.jpg', $candidate->candidate_civil_photo_front);
+        $this->assertSame('same-back.jpg', $candidate->candidate_civil_photo_back);
+        $this->assertNull(CandidateUpdateRequestService::pending(1, CandidateUpdateRequest::TYPE_CIVIL_ID));
+    }
+
+    public function testStagingReferenceLookupFailureLeavesTheCommitSuccessful()
+    {
+        $candidate = $this->stageBothSides();
+        CandidateUpdateRequestService::$failStagingReferenceLookup = true;
+
+        $response = $this->commitCurrent($candidate, '200000000009', '2031-06-01');
+        $candidate->refresh();
+
+        $this->assertSame('success', $response['operation']);
+        $this->assertSame('200000000009', (string) $candidate->candidate_civil_id);
+        $this->assertSame('new-front.jpg', $candidate->candidate_civil_photo_front);
+        $this->assertSame('new-back.jpg', $candidate->candidate_civil_photo_back);
+        $this->assertNull(CandidateUpdateRequestService::pending(1, CandidateUpdateRequest::TYPE_CIVIL_ID));
     }
 
     public function testOverlappingStageDoesNotDeleteTheActiveStagingKey()
