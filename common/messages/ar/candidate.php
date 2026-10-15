@@ -51,6 +51,8 @@ return [
     'Candidate phone number Updated Successfully' => 'تم تحديث رقم هاتف المرشح بنجاح',
     "Civil Photo Back Uploaded Successfully" => "تم إعادة تحميل الصورة المدنية بنجاح",
     "Civil Photo Front Uploaded Successfully" => "تم تحميل جبهة الصورة المدنية بنجاح",
+    "Civil photo back removed." => "تمت إزالة الصورة الخلفية للبطاقة المدنية.",
+    "Civil photo front removed." => "تمت إزالة الصورة الأمامية للبطاقة المدنية.",
     "Civil ID Expiry Date Updated Successfully" => "تم تحديث تاريخ انتهاء البطاقة المدنية بنجاح",
     "Name is required" => "مطلوب اسم",
     "Please upload a video for the candidate" => "الرجاء تحميل فيديو للمرشح",

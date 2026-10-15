@@ -52,6 +52,10 @@ class CandidateUpdateRequestFlowTest extends TestCase
                             'class' => 'yii\i18n\PhpMessageSource',
                             'forceTranslation' => false,
                         ],
+                        'app*' => [
+                            'class' => 'yii\i18n\PhpMessageSource',
+                            'forceTranslation' => false,
+                        ],
                     ],
                 ],
                 'db' => [
@@ -103,6 +107,9 @@ class CandidateUpdateRequestFlowTest extends TestCase
         }
         if (!getenv('UPDATE_REQUEST_TEST_DSN')) {
             return;
+        }
+        if (Yii::$app->has('idExpiryDateExtractor')) {
+            Yii::$app->clear('idExpiryDateExtractor');
         }
         self::$storage->copied = [];
         self::$storage->deleted = [];
@@ -247,6 +254,113 @@ class CandidateUpdateRequestFlowTest extends TestCase
         $this->assertSame('200000000001', (string) $candidate->candidate_civil_id);
         $this->assertNull($request->staged_back_key);
         $this->assertNotNull($request->staged_front_key);
+    }
+
+    public function testStagedRemovalReportsTheNewRevisionAndLeavesTheSavedPhoto()
+    {
+        $candidate = $this->pendingCivilCandidate();
+        CandidateUpdateRequestService::recordEligibleUpload(1, 'civil_id', 'new-front.jpg');
+        $staged = CandidateUpdateRequestService::stageCivilSide($candidate, 'front', 'new-front.jpg');
+
+        $removed = CandidateUpdateRequestService::clearStagedSide($candidate, 'front');
+        $candidate->refresh();
+        $request = CandidateUpdateRequestService::pending(1, CandidateUpdateRequest::TYPE_CIVIL_ID);
+
+        $this->assertSame('success', $removed['operation']);
+        $this->assertSame('Civil photo front removed.', $removed['message']);
+        $this->assertSame($staged['update_request_id'], $removed['update_request_id']);
+        $this->assertSame((int) $staged['staging_revision'] + 1, (int) $removed['staging_revision']);
+        $this->assertNull($request->staged_front_key);
+        $this->assertSame('old-front.jpg', $candidate->candidate_civil_photo_front);
+        $this->assertNull(CandidateUpdateRequestService::clearStagedSide(Candidate::findOne(2), 'front'));
+    }
+
+    public function testStaleStagedRemovalDoesNotDeleteTheSavedPhoto()
+    {
+        $candidate = $this->pendingCivilCandidate();
+        CandidateUpdateRequestService::recordEligibleUpload(1, 'civil_id', 'new-front.jpg');
+        CandidateUpdateRequestService::stageCivilSide($candidate, 'front', 'new-front.jpg');
+        $request = CandidateUpdateRequestService::pending(1, CandidateUpdateRequest::TYPE_CIVIL_ID);
+        $script = tempnam(sys_get_temp_dir(), 'cur') . '.php';
+        file_put_contents($script, $this->overlapWorkerSource());
+        $hold = proc_open(
+            [PHP_BINARY, $script, 'hold-submit', $request->cur_uuid],
+            [1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
+            $holdPipes
+        );
+        $this->assertIsResource($hold);
+        stream_set_blocking($holdPipes[1], false);
+        $held = '';
+        $deadline = time() + 20;
+        while (time() < $deadline && strpos($held, 'HOLDING') === false) {
+            $held .= (string) stream_get_contents($holdPipes[1]);
+            usleep(50000);
+        }
+        $this->assertStringContainsString('HOLDING', $held);
+
+        $removed = CandidateUpdateRequestService::clearStagedSide($candidate, 'front');
+        $holdError = stream_get_contents($holdPipes[2]);
+        $holdCode = proc_close($hold);
+        @unlink($script);
+        $candidate->refresh();
+        $request->refresh();
+
+        $this->assertSame(0, $holdCode, $holdError);
+        $this->assertSame('error', $removed['operation']);
+        $this->assertSame('This Civil ID update is out of date. Refresh the page and submit it again.', $removed['message']);
+        $this->assertArrayNotHasKey('staging_revision', $removed);
+        $this->assertSame('old-front.jpg', $candidate->candidate_civil_photo_front);
+        $this->assertNotNull($request->staged_front_key);
+        $this->assertSame(CandidateUpdateRequest::STATUS_SUBMITTED, $request->status);
+    }
+
+    public function testPastBackDateDoesNotOverrideAValidFrontExpiry()
+    {
+        $candidate = $this->pendingCivilCandidate();
+        CandidateUpdateRequestService::recordEligibleUpload(1, 'civil_id', 'future-front.jpg');
+        CandidateUpdateRequestService::recordEligibleUpload(1, 'civil_id', 'past-back.jpg');
+        Yii::$app->set('idExpiryDateExtractor', new class extends \yii\base\Component {
+            public function extractExpiryDate($key)
+            {
+                $key = (string) $key;
+                if (strpos($key, 'past-back') !== false) {
+                    return ['operation' => 'success', 'matches' => ['01/01/1990'], 'ids' => ['111111111111']];
+                }
+                if (strpos($key, 'future-front') !== false) {
+                    return ['operation' => 'success', 'matches' => ['01/01/2031'], 'ids' => ['200000000009']];
+                }
+                if (strpos($key, 'plain-front') !== false) {
+                    return ['operation' => 'success', 'matches' => [], 'ids' => []];
+                }
+
+                return ['operation' => 'error'];
+            }
+        });
+
+        $front = CandidateUpdateRequestService::stageCivilSide($candidate, 'front', 'future-front.jpg');
+        $back = CandidateUpdateRequestService::stageCivilSide($candidate, 'back', 'past-back.jpg');
+        $request = CandidateUpdateRequestService::pending(1, CandidateUpdateRequest::TYPE_CIVIL_ID);
+
+        $this->assertSame('success', $front['operation']);
+        $this->assertSame('2031-01-01', $front['suggested_civil_expiry_date']);
+        $this->assertSame('success', $back['operation']);
+        $this->assertArrayNotHasKey('suggested_civil_expiry_date', $back);
+        $this->assertNotNull($request->staged_back_key);
+        $this->assertSame('old-back.jpg', $candidate->candidate_civil_photo_back);
+
+        $onlyBack = Candidate::findOne(2);
+        CandidateUpdateRequestService::create($onlyBack, 1, CandidateUpdateRequest::TYPE_CIVIL_ID);
+        CandidateUpdateRequestService::recordEligibleUpload(2, 'civil_id', 'past-back.jpg');
+        $rejected = CandidateUpdateRequestService::stageCivilSide($onlyBack, 'back', 'past-back.jpg');
+        $this->assertSame('error', $rejected['operation']);
+        $this->assertSame('Invalid Civil ID (Expired)', $rejected['message']);
+
+        CandidateUpdateRequestService::recordEligibleUpload(2, 'civil_id', 'plain-front.jpg');
+        $plain = CandidateUpdateRequestService::stageCivilSide($onlyBack, 'front', 'plain-front.jpg');
+        $this->assertSame('success', $plain['operation']);
+        $stillRejected = CandidateUpdateRequestService::stageCivilSide($onlyBack, 'back', 'past-back.jpg');
+        $this->assertSame('error', $stillRejected['operation']);
+        $this->assertSame('Invalid Civil ID (Expired)', $stillRejected['message']);
     }
 
     public function testAbandonedFormAndInvalidExpiryDoNotCommit()

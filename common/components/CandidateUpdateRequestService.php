@@ -350,7 +350,7 @@ class CandidateUpdateRequestService
             return self::errorResponse(Yii::t('app', 'file not available to save.'));
         }
 
-        $suggestion = self::readStagedSuggestion($stagedKey);
+        $suggestion = self::suggestionForSide($request, $side, $stagedKey);
         if (!empty($suggestion['expired'])) {
             return self::errorResponse(Yii::t('app', 'Invalid Civil ID (Expired)'));
         }
@@ -392,22 +392,38 @@ class CandidateUpdateRequestService
     }
 
     /**
-     * Clear a staged side only. Returns false when the normal remove path should run.
+     * Clear one staged side.
+     * Null means no request is pending, so the caller may remove the saved document.
+     * An error means the pending row could not be updated and the saved document must stay.
      *
      * @param Candidate $candidate
      * @param string $side
-     * @return bool
+     * @return array|null
      */
     public static function clearStagedSide(Candidate $candidate, $side)
     {
         $request = self::pending($candidate->candidate_id, CandidateUpdateRequest::TYPE_CIVIL_ID);
         if (!$request) {
-            return false;
+            return null;
         }
 
-        self::writeStagedRevision($request, $side, null, null);
+        $saved = self::writeStagedRevision($request, $side, null, null);
+        if (!$saved) {
+            return self::staleCivilResponse();
+        }
 
-        return true;
+        return [
+            'operation' => 'success',
+            'message' => $side === 'front'
+                ? Yii::t('candidate', 'Civil photo front removed.')
+                : Yii::t('candidate', 'Civil photo back removed.'),
+            'candidate_civil_photo_front' => $candidate->candidate_civil_photo_front,
+            'candidate_civil_photo_back' => $candidate->candidate_civil_photo_back,
+            'candidate_civil_id' => $candidate->candidate_civil_id,
+            'candidate_civil_expiry_date' => $candidate->candidate_civil_expiry_date,
+            'update_request_id' => $saved->cur_uuid,
+            'staging_revision' => (int) $saved->staging_revision,
+        ];
     }
 
     /**
@@ -538,6 +554,9 @@ class CandidateUpdateRequestService
         $backPermanent = Candidate::normalizeCivilIdPermanentS3Key($backBasename);
         $bucket = Yii::$app->resourceManager->bucket;
 
+        // Leave a copied object in place if the database commit fails. The permanent
+        // name is the uploaded basename, so deleting it can remove a file that a
+        // concurrent successful submission already saved under the same name.
         try {
             Yii::$app->resourceManager->copy($frontKey, $frontPermanent, $bucket);
             Yii::$app->resourceManager->copy($backKey, $backPermanent, $bucket);
@@ -740,6 +759,31 @@ class CandidateUpdateRequestService
             'operation' => 'error',
             'message' => $message,
         ];
+    }
+
+    /**
+     * Match Candidate::validateCivilID: a date found on the front is the expiry.
+     * A date on the back is used only when the front did not provide one, and a
+     * past date on the back does not replace a valid front expiry.
+     *
+     * @param CandidateUpdateRequest $request
+     * @param string $side
+     * @param string $stagedKey
+     * @return array{expired?: bool, civil_id?: string, expiry?: string}
+     */
+    private static function suggestionForSide(CandidateUpdateRequest $request, $side, $stagedKey)
+    {
+        if ($side === 'back' && $request->staged_front_key) {
+            $front = self::readStagedSuggestion($request->staged_front_key);
+            if (!empty($front['expiry']) && empty($front['expired'])) {
+                $back = self::readStagedSuggestion($stagedKey);
+                unset($back['expired'], $back['expiry']);
+
+                return $back;
+            }
+        }
+
+        return self::readStagedSuggestion($stagedKey);
     }
 
     /**

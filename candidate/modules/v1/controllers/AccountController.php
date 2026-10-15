@@ -503,12 +503,9 @@ class AccountController extends Controller
             throw new \yii\web\HttpException(404, Yii::t('candidate', 'The requested Item could not be found.'));
         }
 
-        if (\common\components\CandidateUpdateRequestService::clearStagedSide($model, 'back')) {
-            return [
-                'operation' => 'success',
-                'candidate_civil_photo_back' => $model->candidate_civil_photo_back,
-                'message' => Yii::t('candidate', 'Civil Photo Back Uploaded Successfully'),
-            ];
+        $cleared = \common\components\CandidateUpdateRequestService::clearStagedSide($model, 'back');
+        if ($cleared !== null) {
+            return $cleared;
         }
 
         $oldFileName = $model->candidate_civil_photo_back;
@@ -576,12 +573,9 @@ class AccountController extends Controller
             throw new \yii\web\HttpException(404, Yii::t('candidate', 'The requested Item could not be found.'));
         }
 
-        if (\common\components\CandidateUpdateRequestService::clearStagedSide($model, 'front')) {
-            return [
-                'operation' => 'success',
-                'candidate_civil_photo_front' => $model->candidate_civil_photo_front,
-                'message' => Yii::t('candidate', 'Civil Photo Front Uploaded Successfully'),
-            ];
+        $cleared = \common\components\CandidateUpdateRequestService::clearStagedSide($model, 'front');
+        if ($cleared !== null) {
+            return $cleared;
         }
 
         $oldFileName = $model->candidate_civil_photo_front;
