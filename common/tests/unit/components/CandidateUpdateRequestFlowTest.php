@@ -73,6 +73,7 @@ class CandidateUpdateRequestFlowTest extends TestCase
             public $bucket = 'permanent-test';
             public $copied = [];
             public $deleted = [];
+            public $failDeleteContaining = null;
             public function copy($oldFile, $newFile, $sourceBucket = '', $options = [])
             {
                 $destination = (string) $newFile;
@@ -90,6 +91,9 @@ class CandidateUpdateRequestFlowTest extends TestCase
             }
             public function delete($name)
             {
+                if ($this->failDeleteContaining && strpos((string) $name, (string) $this->failDeleteContaining) !== false) {
+                    throw new \RuntimeException('delete failed');
+                }
                 $this->deleted[] = $name;
             }
         };
@@ -113,6 +117,7 @@ class CandidateUpdateRequestFlowTest extends TestCase
         }
         self::$storage->copied = [];
         self::$storage->deleted = [];
+        self::$storage->failDeleteContaining = null;
         Yii::$app->db->createCommand()->delete('candidate_notification')->execute();
         Yii::$app->db->createCommand()->delete('candidate_update_request_upload')->execute();
         Yii::$app->db->createCommand()->delete('candidate_update_request')->execute();
@@ -363,6 +368,141 @@ class CandidateUpdateRequestFlowTest extends TestCase
         $this->assertSame('Invalid Civil ID (Expired)', $stillRejected['message']);
     }
 
+    public function testCommitDeletesStagingCopiesAndIgnoresACleanupFailure()
+    {
+        $candidate = $this->stageBothSides();
+        $request = CandidateUpdateRequestService::pending(1, CandidateUpdateRequest::TYPE_CIVIL_ID);
+        $frontKey = $request->staged_front_key;
+        $backKey = $request->staged_back_key;
+
+        $response = $this->commitCurrent($candidate, '200000000009', '2031-06-01');
+        $candidate->refresh();
+
+        $this->assertSame('success', $response['operation']);
+        $this->assertSame('new-front.jpg', $candidate->candidate_civil_photo_front);
+        $this->assertSame('new-back.jpg', $candidate->candidate_civil_photo_back);
+        $this->assertContains($frontKey, self::$storage->deleted);
+        $this->assertContains($backKey, self::$storage->deleted);
+        $this->assertNotContains(
+            Candidate::normalizeCivilIdPermanentS3Key('new-front.jpg'),
+            self::$storage->deleted
+        );
+        $this->assertNotContains(
+            Candidate::normalizeCivilIdPermanentS3Key('new-back.jpg'),
+            self::$storage->deleted
+        );
+
+        $again = Candidate::findOne(1);
+        CandidateUpdateRequestService::create($again, 1, CandidateUpdateRequest::TYPE_CIVIL_ID);
+        CandidateUpdateRequestService::recordEligibleUpload(1, 'civil_id', 'other-front.jpg');
+        CandidateUpdateRequestService::recordEligibleUpload(1, 'civil_id', 'other-back.jpg');
+        $this->assertSame('success', CandidateUpdateRequestService::stageCivilSide($again, 'front', 'other-front.jpg')['operation']);
+        $this->assertSame('success', CandidateUpdateRequestService::stageCivilSide($again, 'back', 'other-back.jpg')['operation']);
+        $staged = CandidateUpdateRequestService::pending(1, CandidateUpdateRequest::TYPE_CIVIL_ID);
+        self::$storage->deleted = [];
+        self::$storage->failDeleteContaining = 'photos/staging/';
+        $failedCleanup = $this->commitCurrent($again, '200000000010', '2032-02-02');
+        $again->refresh();
+
+        $this->assertSame('success', $failedCleanup['operation']);
+        $this->assertSame('200000000010', (string) $again->candidate_civil_id);
+        $this->assertSame('other-front.jpg', $again->candidate_civil_photo_front);
+        $this->assertSame('other-back.jpg', $again->candidate_civil_photo_back);
+        $this->assertNull(CandidateUpdateRequestService::pending(1, CandidateUpdateRequest::TYPE_CIVIL_ID));
+        $this->assertNotContains($staged->staged_front_key, self::$storage->deleted);
+        $this->assertNotContains($staged->staged_back_key, self::$storage->deleted);
+    }
+
+    public function testRejectedAndReplacedStagingCopiesKeepAKeyThatIsStillPending()
+    {
+        $candidate = $this->pendingCivilCandidate();
+        CandidateUpdateRequestService::recordEligibleUpload(1, 'civil_id', 'active-front.jpg');
+        CandidateUpdateRequestService::recordEligibleUpload(1, 'civil_id', 'orphan-front.jpg');
+        CandidateUpdateRequestService::recordEligibleUpload(1, 'civil_id', 'replacement-front.jpg');
+        $extractor = new class extends \yii\base\Component {
+            public $expire = false;
+            public function extractExpiryDate($key)
+            {
+                $key = (string) $key;
+                if ($this->expire || strpos($key, 'orphan-front') !== false) {
+                    return ['operation' => 'success', 'matches' => ['01/01/1990'], 'ids' => []];
+                }
+
+                return ['operation' => 'success', 'matches' => ['01/01/2031'], 'ids' => ['200000000009']];
+            }
+        };
+        Yii::$app->set('idExpiryDateExtractor', $extractor);
+
+        $this->assertSame('success', CandidateUpdateRequestService::stageCivilSide($candidate, 'front', 'active-front.jpg')['operation']);
+        $activeKey = CandidateUpdateRequestService::pending(1, CandidateUpdateRequest::TYPE_CIVIL_ID)->staged_front_key;
+        $extractor->expire = true;
+        $retried = CandidateUpdateRequestService::stageCivilSide($candidate, 'front', 'active-front.jpg');
+        $this->assertSame('error', $retried['operation']);
+        $this->assertNotContains($activeKey, self::$storage->deleted);
+        $this->assertSame($activeKey, CandidateUpdateRequestService::pending(1, CandidateUpdateRequest::TYPE_CIVIL_ID)->staged_front_key);
+
+        $rejected = CandidateUpdateRequestService::stageCivilSide($candidate, 'front', 'orphan-front.jpg');
+        $orphanKey = 'photos/staging/' . CandidateUpdateRequestService::pending(1, CandidateUpdateRequest::TYPE_CIVIL_ID)->cur_uuid . '/front/orphan-front.jpg';
+        $this->assertSame('error', $rejected['operation']);
+        $this->assertContains($orphanKey, self::$storage->deleted);
+        $this->assertSame($activeKey, CandidateUpdateRequestService::pending(1, CandidateUpdateRequest::TYPE_CIVIL_ID)->staged_front_key);
+
+        $extractor->expire = false;
+        $replaced = CandidateUpdateRequestService::stageCivilSide($candidate, 'front', 'replacement-front.jpg');
+        $replacementKey = CandidateUpdateRequestService::pending(1, CandidateUpdateRequest::TYPE_CIVIL_ID)->staged_front_key;
+        $this->assertSame('success', $replaced['operation']);
+        $this->assertNotSame($activeKey, $replacementKey);
+        $this->assertContains($activeKey, self::$storage->deleted);
+        $this->assertNotContains($replacementKey, self::$storage->deleted);
+
+        $cleared = CandidateUpdateRequestService::clearStagedSide($candidate, 'front');
+        $this->assertSame('success', $cleared['operation']);
+        $this->assertContains($replacementKey, self::$storage->deleted);
+        $this->assertNull(CandidateUpdateRequestService::pending(1, CandidateUpdateRequest::TYPE_CIVIL_ID)->staged_front_key);
+    }
+
+    public function testOverlappingStageDoesNotDeleteTheActiveStagingKey()
+    {
+        $candidate = $this->pendingCivilCandidate();
+        CandidateUpdateRequestService::recordEligibleUpload(1, 'civil_id', 'active-front.jpg');
+        $this->assertSame('success', CandidateUpdateRequestService::stageCivilSide($candidate, 'front', 'active-front.jpg')['operation']);
+        $request = CandidateUpdateRequestService::pending(1, CandidateUpdateRequest::TYPE_CIVIL_ID);
+        $activeKey = $request->staged_front_key;
+        $script = tempnam(sys_get_temp_dir(), 'cur') . '.php';
+        file_put_contents($script, $this->overlapWorkerSource());
+        $hold = proc_open(
+            [PHP_BINARY, $script, 'hold-replace', $request->cur_uuid],
+            [1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
+            $holdPipes
+        );
+        $this->assertIsResource($hold);
+        stream_set_blocking($holdPipes[1], false);
+        $held = '';
+        $deadline = time() + 20;
+        while (time() < $deadline && strpos($held, 'HOLDING') === false) {
+            $held .= (string) stream_get_contents($holdPipes[1]);
+            usleep(50000);
+        }
+        $this->assertStringContainsString('HOLDING', $held);
+
+        Yii::$app->set('idExpiryDateExtractor', new class extends \yii\base\Component {
+            public function extractExpiryDate($key)
+            {
+                return ['operation' => 'success', 'matches' => ['01/01/1990'], 'ids' => []];
+            }
+        });
+        $retried = CandidateUpdateRequestService::stageCivilSide($candidate, 'front', 'active-front.jpg');
+        $holdError = stream_get_contents($holdPipes[2]);
+        $holdCode = proc_close($hold);
+        @unlink($script);
+        $request->refresh();
+
+        $this->assertSame(0, $holdCode, $holdError);
+        $this->assertSame('error', $retried['operation']);
+        $this->assertNotContains($activeKey, self::$storage->deleted);
+        $this->assertSame($activeKey, $request->staged_front_key);
+    }
+
     public function testAbandonedFormAndInvalidExpiryDoNotCommit()
     {
         $candidate = $this->stageBothSides();
@@ -607,6 +747,7 @@ class CandidateUpdateRequestFlowTest extends TestCase
         $this->assertSame('old-front.jpg', $candidate->candidate_civil_photo_front);
         $this->assertSame('old-back.jpg', $candidate->candidate_civil_photo_back);
         $this->assertNotNull(CandidateUpdateRequestService::pending(1, CandidateUpdateRequest::TYPE_CIVIL_ID));
+        $this->assertSame([], self::$storage->deleted);
     }
 
     public function testDatabaseSaveFailureRollsBackCanonicalCivilId()
@@ -635,6 +776,7 @@ class CandidateUpdateRequestFlowTest extends TestCase
             $this->assertSame('old-back.jpg', $candidate->candidate_civil_photo_back);
             $this->assertSame(0, (int) $candidate->candidate_civil_need_verification);
             $this->assertNotNull(CandidateUpdateRequestService::pending(1, CandidateUpdateRequest::TYPE_CIVIL_ID));
+            $this->assertSame([], self::$storage->deleted);
         } finally {
             Yii::$app->db->createCommand('DROP TRIGGER IF EXISTS civil_commit_fail')->execute();
         }

@@ -53,6 +53,8 @@ return [
     "Civil Photo Front Uploaded Successfully" => "تم تحميل جبهة الصورة المدنية بنجاح",
     "Civil photo back removed." => "تمت إزالة الصورة الخلفية للبطاقة المدنية.",
     "Civil photo front removed." => "تمت إزالة الصورة الأمامية للبطاقة المدنية.",
+    'This file was uploaded before the request. Please choose the photo again.' => 'تم رفع هذا الملف قبل الطلب. يرجى اختيار الصورة مرة أخرى.',
+    'This Civil ID update is out of date. Refresh the page and submit it again.' => 'تحديث البطاقة المدنية هذا لم يعد صالحًا. حدّث الصفحة وأرسله مرة أخرى.',
     "Civil ID Expiry Date Updated Successfully" => "تم تحديث تاريخ انتهاء البطاقة المدنية بنجاح",
     "Name is required" => "مطلوب اسم",
     "Please upload a video for the candidate" => "الرجاء تحميل فيديو للمرشح",

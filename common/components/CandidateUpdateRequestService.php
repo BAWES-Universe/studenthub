@@ -328,7 +328,7 @@ class CandidateUpdateRequestService
 
         $hash = self::hashKey($tempKey);
         if (!self::uploadHashExists($request, $hash)) {
-            return self::errorResponse('This file was uploaded before the request. Please choose the photo again.');
+            return self::errorResponse(Yii::t('candidate', 'This file was uploaded before the request. Please choose the photo again.'));
         }
 
         $basename = basename(self::normalizeKey($tempKey));
@@ -352,11 +352,15 @@ class CandidateUpdateRequestService
 
         $suggestion = self::suggestionForSide($request, $side, $stagedKey);
         if (!empty($suggestion['expired'])) {
+            self::releaseStagingObject($stagedKey);
+
             return self::errorResponse(Yii::t('app', 'Invalid Civil ID (Expired)'));
         }
 
         $saved = self::writeStagedRevision($request, $side, $stagedKey, $hash);
         if (!$saved) {
+            self::releaseStagingObject($stagedKey);
+
             return self::staleCivilResponse();
         }
 
@@ -455,6 +459,7 @@ class CandidateUpdateRequestService
                 'staging_revision' => new \yii\db\Expression('[[staging_revision]] + 1'),
                 'updated_at' => date('Y-m-d H:i:s'),
             ];
+            $previousKey = $side === 'front' ? (string) $locked->staged_front_key : (string) $locked->staged_back_key;
             if ($side === 'front') {
                 $columns['staged_front_key'] = $key;
                 $columns['staged_front_source_sha256'] = $hash;
@@ -480,6 +485,9 @@ class CandidateUpdateRequestService
 
             $locked->refresh();
             $transaction->commit();
+            if ($previousKey !== '' && $previousKey !== (string) $key) {
+                self::releaseStagingObject($previousKey);
+            }
 
             return $locked;
         } catch (\Throwable $e) {
@@ -525,7 +533,7 @@ class CandidateUpdateRequestService
         if (!self::uploadHashExists($pending, (string) $pending->staged_front_source_sha256)
             || !self::uploadHashExists($pending, (string) $pending->staged_back_source_sha256)
         ) {
-            return self::errorResponse('This file was uploaded before the request. Please choose the photo again.');
+            return self::errorResponse(Yii::t('candidate', 'This file was uploaded before the request. Please choose the photo again.'));
         }
 
         $frontBasename = basename($pending->staged_front_key);
@@ -533,7 +541,7 @@ class CandidateUpdateRequestService
         if (self::hashKey($frontBasename) === (string) $pending->baseline_front_sha256
             || self::hashKey($backBasename) === (string) $pending->baseline_back_sha256
         ) {
-            return self::errorResponse('This file was uploaded before the request. Please choose the photo again.');
+            return self::errorResponse(Yii::t('candidate', 'This file was uploaded before the request. Please choose the photo again.'));
         }
 
         if (strtotime($expiryDate) < strtotime(date('Y-m-d'))) {
@@ -615,6 +623,8 @@ class CandidateUpdateRequestService
 
         self::deleteReplacedObject($oldFront, $frontPermanent);
         self::deleteReplacedObject($oldBack, $backPermanent);
+        self::releaseStagingObject($frontKey);
+        self::releaseStagingObject($backKey);
 
         return [
             'operation' => 'success',
@@ -746,7 +756,7 @@ class CandidateUpdateRequestService
      */
     private static function staleCivilResponse()
     {
-        return self::errorResponse('This Civil ID update is out of date. Refresh the page and submit it again.');
+        return self::errorResponse(Yii::t('candidate', 'This Civil ID update is out of date. Refresh the page and submit it again.'));
     }
 
     /**
@@ -838,6 +848,46 @@ class CandidateUpdateRequestService
         }
 
         return $normalized;
+    }
+
+    /**
+     * Delete one staging object when no pending request still stores that key.
+     * A retry can upload the same filename, which reuses the key, so a referenced
+     * object stays. This never deletes a permanent photo. A storage failure is ignored.
+     *
+     * @param string|null $key
+     * @return void
+     */
+    private static function releaseStagingObject($key)
+    {
+        $key = self::normalizeKey($key);
+        if ($key === '' || strpos($key, 'photos/staging/') !== 0) {
+            return;
+        }
+        if (self::pendingRequestUsesStagingKey($key)) {
+            return;
+        }
+
+        try {
+            Yii::$app->resourceManager->delete($key);
+        } catch (\Throwable $e) {
+            Yii::warning('Could not delete a staged civil object.', __METHOD__);
+        }
+    }
+
+    /**
+     * @param string $key
+     * @return bool
+     */
+    private static function pendingRequestUsesStagingKey($key)
+    {
+        return CandidateUpdateRequest::find()
+            ->where(['status' => CandidateUpdateRequest::STATUS_PENDING])
+            ->andWhere(['or',
+                ['staged_front_key' => $key],
+                ['staged_back_key' => $key],
+            ])
+            ->exists();
     }
 
     /**
