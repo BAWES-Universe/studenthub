@@ -58,7 +58,9 @@ cd console && ../yii algolia/index candidate
 ./yii cron/update-company-stats
 ```
 
-## Cloudinary Runtime Configuration
+## Runtime Service Credentials
+
+### Cloudinary Runtime Configuration
 
 Profile photos, brand logos, and company documents are stored in Cloudinary through
 `common\components\CloudinaryManager`. Do not commit Cloudinary credentials to
@@ -79,3 +81,15 @@ Before submitting config changes, run:
 ```bash
 python scripts/check-cloudinary-hardening.py
 ```
+
+### SMS Provider
+
+The SMS component reads provider settings from environment variables. Do not commit provider usernames, passwords, sender accounts, or private provider URLs.
+
+Required variables:
+* `SMS_PROVIDER_ENDPOINT` - HTTPS endpoint for the SMS provider API.
+* `SMS_PROVIDER_USERNAME` - provider account username.
+* `SMS_PROVIDER_PASSWORD` - provider account password.
+* `SMS_PROVIDER_SENDER` - approved sender name shown to recipients.
+
+The component fails closed when any required value is missing or when the endpoint is not HTTPS, so provider credentials are not sent over plaintext HTTP.
