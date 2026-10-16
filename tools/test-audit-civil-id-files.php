@@ -1,0 +1,125 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+$root = dirname(__DIR__);
+$workDir = sys_get_temp_dir() . '/civil-id-audit-test-' . bin2hex(random_bytes(4));
+$exitCode = 0;
+
+try {
+    createDirectory($workDir);
+
+    writeFile($workDir . '/candidates.csv', <<<CSV
+candidate_id,side,filename,expected_s3_key,candidate_updated_at
+,,,,
+1,front,front-ok.png,photos/front-ok.png,2026-05-01
+2,back,back-legacy.png,photos/back-legacy.png,2026-05-02
+3,front,temp-file.png,photos/temp-file.png,2026-05-03
+4,back,missing-file.png,photos/missing-file.png,2026-05-04
+5,front,,,2026-05-05
+6,front,https://studenthub-uploads.s3.amazonaws.com/photos/url-normalized.png,photos/url-normalized.png,2026-05-06
+7,back,s3-key-column.png,photos/s3-key-column.png,2026-05-07
+CSV);
+
+    writeFile($workDir . '/permanent.csv', "Key,Size\nphotos/front-ok.png,123\nphotos/url-normalized.png,456\n");
+    writeFile($workDir . '/legacy.txt', "candidate-civil-id/back-legacy.png\n");
+    writeFile($workDir . '/temp.csv', "s3_key,last_modified\n" . "temp-file.png,2026-05-03T00:00:00Z\n" . "photos/s3-key-column.png,2026-05-07T00:00:00Z\n");
+
+    $command = sprintf(
+        'php %s --candidate-csv=%s --permanent-keys=%s --legacy-keys=%s --temp-keys=%s',
+        escapeshellarg($root . '/tools/audit-civil-id-files.php'),
+        escapeshellarg($workDir . '/candidates.csv'),
+        escapeshellarg($workDir . '/permanent.csv'),
+        escapeshellarg($workDir . '/legacy.txt'),
+        escapeshellarg($workDir . '/temp.csv')
+    );
+
+    exec($command, $lines, $exitCode);
+    assertSame(0, $exitCode, 'audit command exit code');
+
+    $payload = json_decode(implode("\n", $lines), true);
+    if (!is_array($payload)) {
+        fail('audit output is not JSON');
+    }
+
+    assertSame('offline_no_database_no_aws', $payload['mode'] ?? null, 'offline mode');
+    assertSame([
+        'total_rows' => 7,
+        'permanent_present' => 2,
+        'copy_from_legacy' => 1,
+        'copy_from_temp' => 2,
+        'request_reupload' => 1,
+        'invalid_empty_filename' => 1,
+    ], $payload['summary'] ?? null, 'summary counts');
+
+    $statuses = array_column($payload['rows'] ?? [], 'status', 'candidate_id');
+    assertSame('permanent_present', $statuses['1'] ?? null, 'candidate 1 status');
+    assertSame('copy_from_legacy', $statuses['2'] ?? null, 'candidate 2 status');
+    assertSame('copy_from_temp', $statuses['3'] ?? null, 'candidate 3 status');
+    assertSame('request_reupload', $statuses['4'] ?? null, 'candidate 4 status');
+    assertSame('invalid_empty_filename', $statuses['5'] ?? null, 'candidate 5 status');
+    assertSame('permanent_present', $statuses['6'] ?? null, 'candidate 6 status');
+    assertSame('copy_from_temp', $statuses['7'] ?? null, 'candidate 7 status');
+
+    echo "audit-civil-id-files test passed\n";
+} catch (Throwable $e) {
+    fwrite(STDERR, $e->getMessage() . PHP_EOL);
+    $exitCode = 1;
+} finally {
+    removeDirectory($workDir);
+}
+
+exit($exitCode);
+
+function createDirectory(string $path): void
+{
+    if (is_dir($path)) {
+        return;
+    }
+
+    if (!@mkdir($path)) {
+        $error = error_get_last();
+        $message = $error['message'] ?? 'unknown error';
+        throw new RuntimeException("Unable to create test directory {$path}: {$message}");
+    }
+}
+
+function writeFile(string $path, string $contents): void
+{
+    $bytes = @file_put_contents($path, $contents);
+    if ($bytes === false) {
+        $error = error_get_last();
+        $message = $error['message'] ?? 'unknown error';
+        throw new RuntimeException("Unable to write test file {$path}: {$message}");
+    }
+}
+
+function assertSame(mixed $expected, mixed $actual, string $label): void
+{
+    if ($expected !== $actual) {
+        fail($label . ' expected ' . var_export($expected, true) . ' got ' . var_export($actual, true));
+    }
+}
+
+function fail(string $message): void
+{
+    throw new RuntimeException($message);
+}
+
+function removeDirectory(string $path): void
+{
+    if (!is_dir($path)) {
+        return;
+    }
+
+    foreach (scandir($path) ?: [] as $entry) {
+        if ($entry === '.' || $entry === '..') {
+            continue;
+        }
+        $child = $path . DIRECTORY_SEPARATOR . $entry;
+        is_dir($child) ? removeDirectory($child) : unlink($child);
+    }
+
+    rmdir($path);
+}
