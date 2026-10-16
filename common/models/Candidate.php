@@ -384,17 +384,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $scenarios['updateCivilExpiryDateAndCivilID'] = [
             "candidate_civil_need_verification", 'candidate_civil_expiry_date', 'candidate_civil_id', 'is_incomplete_profile'];
 
-        // Photos stay out of this scenario so the temporary-bucket and OCR
-        // validators do not run on files already copied to the permanent bucket.
-        // They are still written because they are dirty attributes.
-        $scenarios['commitRequestedCivilId'] = [
-            'candidate_civil_id',
-            'candidate_civil_expiry_date',
-            'candidate_civil_need_verification',
-            'is_incomplete_profile',
-            'candidate_pending_profile',
-        ];
-
         $scenarios['updateBirthDate'] = ['candidate_birth_date', 'is_incomplete_profile'];
 
         $scenarios['changePassword'] = ['candidate_email_verification', 'candidate_password_hash', 'candidate_password_reset_token'];

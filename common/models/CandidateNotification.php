@@ -79,7 +79,7 @@ class CandidateNotification extends \yii\db\ActiveRecord
             [['is_new'], "boolean"],
             [['is_new'], 'default', 'value'=> true],
             [['created_at', 'updated_at'], 'safe'],
-            [['cn_uuid', 'candidate_working_date_uuid', 'invitation_uuid', 'request_uuid', "appeal_uuid", 'update_request_uuid'], 'string', 'max' => 60],
+            [['cn_uuid', 'candidate_working_date_uuid', 'invitation_uuid', 'request_uuid', "appeal_uuid"], 'string', 'max' => 60],
             [['cn_uuid'], 'unique'],
             [['message'], "string"],
 
@@ -162,19 +162,6 @@ class CandidateNotification extends \yii\db\ActiveRecord
 
         $fields['is_new'] = function ($data) {
             return (boolean) $data->is_new;
-        };
-
-        $fields['update_request_status'] = function ($data) {
-            if (empty($data->update_request_uuid)) {
-                return null;
-            }
-
-            $status = CandidateUpdateRequest::find()
-                ->select('status')
-                ->where(['cur_uuid' => $data->update_request_uuid])
-                ->scalar();
-
-            return $status ? $status : 'missing';
         };
 
         return $fields;

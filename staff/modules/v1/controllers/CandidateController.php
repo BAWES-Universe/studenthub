@@ -1599,28 +1599,8 @@ class CandidateController extends Controller
     }
 
     /**
-     * Latest photo and Civil ID request for one candidate.
-     *
-     * @param int $id
-     * @return array
-     */
-    public function actionListUpdateRequests($id)
-    {
-        $candidate = $this->findModel($id);
-        $rows = \common\components\CandidateUpdateRequestService::latestForStaff($candidate->candidate_id);
-        $requests = [];
-        foreach ($rows as $row) {
-            $requests[] = $row->toStaffArray();
-        }
-
-        return [
-            'operation' => 'success',
-            'requests' => $requests,
-        ];
-    }
-
-    /**
      * Ask one candidate for a new profile photo or an updated Civil ID.
+     * The same send key does not create a second notification.
      *
      * @param int $id
      * @return array
@@ -1628,28 +1608,15 @@ class CandidateController extends Controller
     public function actionCreateUpdateRequest($id)
     {
         $candidate = $this->findModel($id);
-        $type = Yii::$app->request->getBodyParam('type');
 
-        try {
-            \common\components\CandidateUpdateRequestService::assertType($type);
-        } catch (\InvalidArgumentException $e) {
-            return [
-                'operation' => 'error',
-                'message' => 'Invalid request type.',
-            ];
-        }
-
-        $result = \common\components\CandidateUpdateRequestService::create(
-            $candidate,
-            (int) Yii::$app->user->getId(),
-            $type
+        return $this->notificationResponse(
+            \common\components\CandidateStaffNotificationService::sendDocumentRequest(
+                $candidate,
+                (int) Yii::$app->user->getId(),
+                Yii::$app->request->getBodyParam('type'),
+                Yii::$app->request->getBodyParam('send_key')
+            )
         );
-
-        return [
-            'operation' => 'success',
-            'already_pending' => $result['already_pending'],
-            'request' => $result['request']->toStaffArray(),
-        ];
     }
 
     /**
@@ -1661,12 +1628,23 @@ class CandidateController extends Controller
     public function actionSendCustomNotification($id)
     {
         $candidate = $this->findModel($id);
-        $result = \common\components\CandidateUpdateRequestService::sendCustomNotification(
-            $candidate,
-            (int) Yii::$app->user->getId(),
-            Yii::$app->request->getBodyParam('message'),
-            Yii::$app->request->getBodyParam('send_key')
+
+        return $this->notificationResponse(
+            \common\components\CandidateStaffNotificationService::sendCustomNotification(
+                $candidate,
+                (int) Yii::$app->user->getId(),
+                Yii::$app->request->getBodyParam('message'),
+                Yii::$app->request->getBodyParam('send_key')
+            )
         );
+    }
+
+    /**
+     * @param array $result
+     * @return array
+     */
+    private function notificationResponse(array $result)
+    {
         if ($result['operation'] !== 'success') {
             return $result;
         }

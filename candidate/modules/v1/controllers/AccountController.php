@@ -81,20 +81,6 @@ class AccountController extends Controller
     public function actionProfile() {
         return Candidate::findOne(Yii::$app->user->getId());
     }
-
-    /**
-     * Pending photo and Civil ID requests for the signed-in candidate.
-     * Status and time only. No document keys or civil number.
-     *
-     * @return array
-     */
-    public function actionUpdateRequests() {
-        return [
-            'requests' => \common\components\CandidateUpdateRequestService::pendingForCandidate(
-                Yii::$app->user->getId()
-            ),
-        ];
-    }
     
     /**
      * update candidate experiences
@@ -503,11 +489,6 @@ class AccountController extends Controller
             throw new \yii\web\HttpException(404, Yii::t('candidate', 'The requested Item could not be found.'));
         }
 
-        $cleared = \common\components\CandidateUpdateRequestService::clearStagedSide($model, 'back');
-        if ($cleared !== null) {
-            return $cleared;
-        }
-
         $oldFileName = $model->candidate_civil_photo_back;
 
         $model->candidate_civil_photo_back = null;
@@ -571,11 +552,6 @@ class AccountController extends Controller
 
         if (!$model) {
             throw new \yii\web\HttpException(404, Yii::t('candidate', 'The requested Item could not be found.'));
-        }
-
-        $cleared = \common\components\CandidateUpdateRequestService::clearStagedSide($model, 'front');
-        if ($cleared !== null) {
-            return $cleared;
         }
 
         $oldFileName = $model->candidate_civil_photo_front;
@@ -1046,10 +1022,8 @@ class AccountController extends Controller
      */
     public function actionProfilePhoto() {
         $model = Yii::$app->user->identity;
-        $beforePhoto = (string) $model->candidate_personal_photo;
-        $submittedPhoto = urldecode((string) Yii::$app->request->getBodyParam('personal_photo'));
 
-        $model->candidate_personal_photo = $submittedPhoto;
+        $model->candidate_personal_photo = urldecode(Yii::$app->request->getBodyParam('personal_photo'));
 
         if(!$model->candidate_personal_photo || $model->candidate_personal_photo == "undefined") {
             return [
@@ -1066,13 +1040,6 @@ class AccountController extends Controller
                 'message' => $model->getErrors()
             ];
         }
-
-        \common\components\CandidateUpdateRequestService::completeProfilePhoto(
-            $model,
-            $beforePhoto,
-            (string) $model->candidate_personal_photo,
-            $submittedPhoto
-        );
 
         return [
             'operation' => 'success',
@@ -1503,9 +1470,9 @@ class AccountController extends Controller
 
         $model->scenario = "updateCivilPhotoBack";
         
-        $submittedBack = urldecode((string) Yii::$app->request->getBodyParam('civil_photo_back'));
+        $model->candidate_civil_photo_back = urldecode(Yii::$app->request->getBodyParam('civil_photo_back'));
 
-        if(!$submittedBack || $submittedBack == "undefined") {
+        if(!$model->candidate_civil_photo_back || $model->candidate_civil_photo_back == "undefined") {
             return [
                 'operation' => 'error',
                 'message' => Yii::t('app', 'Invalid input for {attribute}', [
@@ -1513,13 +1480,6 @@ class AccountController extends Controller
                 ])
             ];
         }
-
-        $stagedBack = \common\components\CandidateUpdateRequestService::stageCivilSide($model, 'back', $submittedBack);
-        if ($stagedBack !== null) {
-            return $stagedBack;
-        }
-
-        $model->candidate_civil_photo_back = $submittedBack;
         
         $model->updateCivilId('back');
 
@@ -1562,9 +1522,9 @@ class AccountController extends Controller
 
         $model->scenario = "updateCivilPhotoFront";
         
-        $submittedFront = urldecode((string) Yii::$app->request->getBodyParam('civil_photo_front'));
+        $model->candidate_civil_photo_front = urldecode(Yii::$app->request->getBodyParam('civil_photo_front'));
 
-        if(!$submittedFront || $submittedFront == "undefined") {
+        if(!$model->candidate_civil_photo_front || $model->candidate_civil_photo_front == "undefined") {
             return [
                 'operation' => 'error',
                 'message' => Yii::t('app', 'Invalid input for {attribute}', [
@@ -1572,13 +1532,6 @@ class AccountController extends Controller
                 ])
             ];
         }
-
-        $stagedFront = \common\components\CandidateUpdateRequestService::stageCivilSide($model, 'front', $submittedFront);
-        if ($stagedFront !== null) {
-            return $stagedFront;
-        }
-
-        $model->candidate_civil_photo_front = $submittedFront;
         
         $model->updateCivilId('front');
 
@@ -1695,17 +1648,6 @@ class AccountController extends Controller
                 'operation' => 'error',
                 'message' => Yii::t('candidate', 'Civil ID expiry date is invalid.'),
             ];
-        }
-
-        $stagedCommit = \common\components\CandidateUpdateRequestService::commitCivil(
-            $candidate,
-            trim($candidate_civil_id),
-            $expiryDt->format('Y-m-d'),
-            Yii::$app->request->getBodyParam('update_request_id'),
-            Yii::$app->request->getBodyParam('staging_revision')
-        );
-        if ($stagedCommit !== null) {
-            return $stagedCommit;
         }
 
         $candidate->candidate_civil_id = trim($candidate_civil_id);

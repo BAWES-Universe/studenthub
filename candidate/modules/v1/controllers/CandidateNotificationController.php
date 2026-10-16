@@ -8,6 +8,7 @@ use yii\data\ActiveDataProvider;
 use yii\filters\auth\HttpBearerAuth;
 use yii\filters\Cors;
 use yii\rest\Controller;
+use yii\web\BadRequestHttpException;
 use yii\web\NotFoundHttpException;
 
 class CandidateNotificationController extends Controller
@@ -81,6 +82,23 @@ class CandidateNotificationController extends Controller
 
         if ($appeal_uuid) {
             $query->andWhere(['appeal_uuid' => $appeal_uuid]);
+        }
+
+        $isNew = Yii::$app->request->get('is_new');
+        if ($isNew === '0' || $isNew === '1') {
+            $query->andWhere(['is_new' => (int) $isNew]);
+        }
+
+        $types = Yii::$app->request->get('types');
+        if (is_string($types) && $types !== '') {
+            $parsed = [];
+            foreach (explode(',', $types) as $type) {
+                if (!preg_match('/\A\d{1,3}\z/', $type)) {
+                    throw new BadRequestHttpException('Invalid notification type.');
+                }
+                $parsed[] = (int) $type;
+            }
+            $query->andWhere(['type' => $parsed]);
         }
 
         $headers = Yii::$app->response->headers;
