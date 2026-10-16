@@ -47,3 +47,5 @@ manager/web/index.php
 
 # temp files
 temp.md
+__pycache__/
+*.pyc
