@@ -130,8 +130,8 @@ return [
             'class' => 'common\components\EventManager',
             //todo: commenting down as it's slowing down all apis
             //"sqsRagion" => "eu-west-2",
-            //"sqsKey" => "AKIAWMITDJRKXNWDOBNJ",
-            //"sqsSecret" => "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",
+            //"sqsKey" => "",
+            //"sqsSecret" => "",
             //"sqsQueue" => "438663597141/Studenthub",
             //"sqsEndpoint" => "http://ec2-18-130-75-235.eu-west-2.compute.amazonaws.com:3001"
         ],

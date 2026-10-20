@@ -75,8 +75,8 @@ return [
         'eventManager' => [
             'class' => 'common\components\EventManager',
             // "sqsRagion" => "eu-west-2",
-            // "sqsKey" => "AKIAWMITDJRKXNWDOBNJ",
-            //  "sqsSecret" => "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",
+            // "sqsKey" => "",
+            //  "sqsSecret" => "",
             //  "sqsQueue" => "438663597141/StudenthubDev",
             // "sqsEndpoint" => "http://localhost:3001"
         ],

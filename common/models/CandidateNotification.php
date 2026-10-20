@@ -57,6 +57,9 @@ class CandidateNotification extends \yii\db\ActiveRecord
 
     const TYPE_JOB_INTEREST_SHORTLISTED = 10;
     const TYPE_JOB_INTEREST_REJECTED = 11;
+    const TYPE_PROFILE_PHOTO_REQUEST = 12;
+    const TYPE_CIVIL_ID_REQUEST = 13;
+    const TYPE_STAFF_MESSAGE = 14;
     /**
      * {@inheritdoc}
      */

@@ -48,6 +48,16 @@ return [
                         'OPTIONS' => 'options',
                     ]
                 ],
+                [ // TempUploadController - Staff-only authenticated presign. Do not add to AwsController.
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/temp-upload',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'POST url' => 'url',
+                        // OPTIONS VERBS
+                        'OPTIONS url' => 'options',
+                    ]
+                ],
                 [ // CronLogController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/cron-log',
@@ -230,6 +240,8 @@ return [
                         'GET assigned-history-list' => 'assigned-history-list',
                         'GET export-assigned-history' => 'export-assigned-history',
                         'GET detail/<id>' => 'view',
+                        'POST update-request/<id>' => 'create-update-request',
+                        'POST custom-notification/<id>' => 'send-custom-notification',
                         'GET appreciation-certificate/<id>/<wid>' => 'appreciation-certificate',
                         'GET not-assigned' => 'list-not-assigned',
                         'GET assigned' => 'list-assigned',
@@ -281,6 +293,8 @@ return [
                         'OPTIONS merge' => 'options',
                         'OPTIONS filter' => 'options',
                         'OPTIONS detail/<id>' => 'options',
+                        'OPTIONS update-request/<id>' => 'options',
+                        'OPTIONS custom-notification/<id>' => 'options',
                         'OPTIONS candidate-resume-pdf/<id>' => 'options',
                         'OPTIONS assign/<id>' => 'options',
                         'OPTIONS unassign/<id>' => 'options',
@@ -577,6 +591,37 @@ return [
                         "OPTIONS versions/<id>" => "options",
                         "OPTIONS add-new-version/<id>" => "options",
                         'OPTIONS add-note/<id>' => 'options',
+                    ]
+                ],
+                [ // InterviewEvaluationFormController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/interview-evaluation-form',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'POST' => 'save-form',
+                        'PATCH <id>' => 'update-form',
+                        'GET history/<id>' => 'history',
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                        'OPTIONS history/<id>' => 'options',
+                    ]
+                ],
+                [ // InterviewEvaluationPresetController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/interview-evaluation-preset',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET' => 'list',
+                        'POST' => 'create',
+                        'POST from-evaluation/<id>' => 'from-evaluation',
+                        'PATCH <id>' => 'update',
+                        'POST duplicate/<id>' => 'duplicate',
+                        'POST archive/<id>' => 'archive',
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                        'OPTIONS from-evaluation/<id>' => 'options',
+                        'OPTIONS duplicate/<id>' => 'options',
+                        'OPTIONS archive/<id>' => 'options',
                     ]
                 ],
                 [ // JiraController

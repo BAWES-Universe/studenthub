@@ -5,9 +5,10 @@ namespace staff\modules\v1\controllers;
 use common\models\InterviewEvaluationNote;
 use common\models\InterviewEvaluationNoteVersion;
 use Yii;
-use common\models\InterviewEvaluation;
 use common\models\Note;
+use staff\components\EvaluationActor;
 use staff\models\Fulltimer;
+use staff\models\InterviewEvaluation;
 use yii\data\ActiveDataProvider;
 use yii\filters\auth\HttpBearerAuth;
 use yii\filters\Cors;
@@ -16,6 +17,8 @@ use yii\web\NotFoundHttpException;
 
 class InterviewEvaluationController extends Controller
 {
+    use EvaluationActor;
+
     public function behaviors()
     {
         $behaviors = parent::behaviors();
@@ -72,13 +75,23 @@ class InterviewEvaluationController extends Controller
      */
     public function actionList()
     {
-        $candidate_id = Yii::$app->request->get("candidate_id");
+        $this->evaluationActor();
+        $candidate_id = Yii::$app->request->get('candidate_id', null);
+        $filtersByCandidate = $candidate_id !== null && $candidate_id !== '';
+        if ($filtersByCandidate) {
+            $this->evaluationCandidate($candidate_id);
+        }
 
         $query = InterviewEvaluation::find()
-            ->orderBy("created_at DESC");
+            ->innerJoin(
+                '{{%candidate}}',
+                '{{%candidate}}.candidate_id = {{%interview_evaluation}}.candidate_id'
+            )
+            ->andWhere(['{{%candidate}}.deleted' => 0])
+            ->orderBy(['{{%interview_evaluation}}.created_at' => SORT_DESC]);
 
-        if ($candidate_id) {
-            $query->andWhere(['candidate_id' => $candidate_id]);
+        if ($filtersByCandidate) {
+            $query->andWhere(['{{%interview_evaluation}}.candidate_id' => (int) $candidate_id]);
         }
 
         return new ActiveDataProvider([
@@ -94,7 +107,9 @@ class InterviewEvaluationController extends Controller
      */
     public function actionView($id)
     {
-        return $this->findModel($id);
+        $model = $this->findModel($id);
+        $this->evaluationCandidate($model->candidate_id);
+        return $model;
     }
 
     /**
@@ -106,6 +121,7 @@ class InterviewEvaluationController extends Controller
     public function actionVersions($id)
     {
         $model = $this->findModel($id);
+        $this->evaluationCandidate($model->candidate_id);
 
         $query = $model->getInterviewEvaluationNoteVersions()
             ->orderBy("created_at DESC");
@@ -122,6 +138,10 @@ class InterviewEvaluationController extends Controller
      */
     public function actionAddNewVersion($id) {
         $interview = $this->findModel($id);
+        $this->evaluationCandidate($interview->candidate_id);
+        if ($blocked = $this->rejectStructuredWrite($interview)) {
+            return $blocked;
+        }
 
         $notes = Yii::$app->request->getBodyParam("interviewEvaluationNotes");
 
@@ -181,6 +201,10 @@ class InterviewEvaluationController extends Controller
      */
     public function actionAddNote($id) {
         $interview = $this->findModel($id);
+        $this->evaluationCandidate($interview->candidate_id);
+        if ($blocked = $this->rejectStructuredWrite($interview)) {
+            return $blocked;
+        }
 
         $model = new Note();
         $model->interview_evaluation_uuid = $interview->interview_evaluation_uuid;
@@ -214,6 +238,9 @@ class InterviewEvaluationController extends Controller
         $model->candidate_id = Yii::$app->request->getBodyParam("candidate_id");
         $model->company_id = $model->request? $model->request->company_id: null;//Yii::$app->request->getBodyParam("company_id");
         $model->staff_id = Yii::$app->user->getId();
+        if ($model->candidate_id) {
+            $this->evaluationCandidate($model->candidate_id);
+        }
 
         if (!$model->save()) {
             if (isset($model->errors)) {
@@ -300,6 +327,10 @@ class InterviewEvaluationController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
+        $this->evaluationCandidate($model->candidate_id);
+        if ($blocked = $this->rejectStructuredWrite($model)) {
+            return $blocked;
+        }
 
         //$model->candidate_id = Yii::$app->request->getBodyParam("candidate_id");
         $model->request_uuid = Yii::$app->request->getBodyParam("request_uuid");
@@ -377,6 +408,10 @@ class InterviewEvaluationController extends Controller
     public function actionDelete($id)
     {
         $model = $this->findModel($id);
+        $this->evaluationCandidate($model->candidate_id);
+        if ($blocked = $this->rejectStructuredWrite($model)) {
+            return $blocked;
+        }
 
         $model->delete();
 
@@ -391,6 +426,25 @@ class InterviewEvaluationController extends Controller
      * @return InterviewEvaluation|null
      * @throws NotFoundHttpException
      */
+    /**
+     * Structured rows keep their schema, answers, revision, and history.
+     * Legacy note writes stay available when no schema has been saved.
+     *
+     * @return array|null
+     */
+    protected function rejectStructuredWrite(InterviewEvaluation $model)
+    {
+        if (!$model->hasAttribute('schema_json') || $model->schema_json === null || $model->schema_json === '') {
+            return null;
+        }
+
+        Yii::$app->response->statusCode = 422;
+        return [
+            'operation' => 'error',
+            'message' => 'This evaluation uses the structured form. Save it from the evaluation editor so revision and history stay intact.',
+        ];
+    }
+
     protected function findModel($id)
     {
         if (($model = InterviewEvaluation::findOne($id)) !== null) {

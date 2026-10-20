@@ -27,6 +27,7 @@ class S3ResourceManager extends Component
 {
     const AUTH_VIA_KEY_AND_SECRET = 1;
     const AUTH_VIA_IAM_ROLE = 2;
+    const AUTH_VIA_ANONYMOUS = 3;
 
     /**
      * @var string Auth Method
@@ -63,23 +64,7 @@ class S3ResourceManager extends Component
      */
     public function init()
     {
-        // Fields required by default
-        $requiredAttributes = ['region', 'bucket'];
-
-        // If Auth via Key and Secret, set vars as required
-        if ($this->authMethod == self::AUTH_VIA_KEY_AND_SECRET) {
-            $requiredAttributes = ['key', 'secret', 'region', 'bucket'];
-        }
-
-        // Process Validation
-        foreach ($requiredAttributes as $attribute) {
-            if ($this->$attribute === null) {
-                throw new InvalidConfigException(strtr('"{class}::{attribute}" cannot be empty.', [
-                    '{class}' => static::class,
-                    '{attribute}' => '$' . $attribute
-                ]));
-            }
-        }
+        $this->assertRequiredAttributes();
 
         parent::init();
     }
@@ -210,12 +195,33 @@ class S3ResourceManager extends Component
     }
 
     /**
-     * Checks whether a file exists or not using S3 metadata.
+     * Checks whether a file exists.
+     *
+     * Anonymous access uses a public HTTP HEAD so the temporary bucket can
+     * be checked without credentials. Other auth methods use S3 HeadObject,
+     * which also resolves stored object URLs.
+     *
      * @param string $filenameOrUrl the name or url of the file
      * @return boolean
      */
     public function fileExists($filenameOrUrl)
     {
+        if ($this->authMethod == self::AUTH_VIA_ANONYMOUS) {
+            $isUrl = false;
+            if (strpos((string) $filenameOrUrl, 'http') !== false) {
+                $isUrl = true;
+            }
+
+            $http = $this->httpClient($isUrl ? $filenameOrUrl : $this->getUrl($filenameOrUrl));
+            try {
+                $response = $http->request('HEAD');
+            } catch (\Exception $e) {
+                return false;
+            }
+
+            return $response->getStatusCode() == 200;
+        }
+
         try {
             $this->headObject($filenameOrUrl);
             return true;
@@ -234,7 +240,9 @@ class S3ResourceManager extends Component
      */
     public function getUrl($name, $expires = NULL)
     {
-        return $this->getClient()->getObjectUrl($this->bucket, $name, $expires);
+        // The installed SDK returns an unsigned object URL and accepts only
+        // bucket and key. Callers do not pass $expires.
+        return $this->getClient()->getObjectUrl($this->bucket, $name);
     }
 
     /**
@@ -249,7 +257,7 @@ class S3ResourceManager extends Component
             $isUrl = true;
         }
 
-        $http = new \GuzzleHttp\Client(['base_uri' => $isUrl ? $filenameOrUrl : $this->getUrl($filenameOrUrl)]);
+        $http = $this->httpClient($isUrl ? $filenameOrUrl : $this->getUrl($filenameOrUrl));
 
         try {
             $response = $http->request('HEAD');
@@ -307,19 +315,56 @@ class S3ResourceManager extends Component
                 'region' => $this->region
             ];
 
-            // Use key and secret if its the auth method
+            // Key-and-secret passes an explicit pair. Anonymous passes false.
+            // Omitting credentials would search the default provider chain.
             if ($this->authMethod == self::AUTH_VIA_KEY_AND_SECRET) {
+                $this->assertRequiredAttributes();
                 $factoryParams['credentials'] = [
                     'key' => $this->key,
                     'secret' => $this->secret,
                 ];
+            } elseif ($this->authMethod == self::AUTH_VIA_ANONYMOUS) {
+                $this->assertRequiredAttributes();
+                $factoryParams['credentials'] = false;
             }
 
-            // Create S3 client instance
-           // $this->_client = S3Client::factory($factoryParams);
             $this->_client = new S3Client($factoryParams);
         }
         return $this->_client;
+    }
+
+    /**
+     * @param string $baseUri
+     * @return \GuzzleHttp\Client
+     */
+    protected function httpClient($baseUri)
+    {
+        return new \GuzzleHttp\Client(['base_uri' => $baseUri]);
+    }
+
+    /**
+     * Reject missing credentials before the AWS SDK can choose its own.
+     * The exception names the empty field and does not include the value.
+     */
+    private function assertRequiredAttributes()
+    {
+        $requiredAttributes = ['region', 'bucket'];
+        if ($this->authMethod == self::AUTH_VIA_KEY_AND_SECRET) {
+            $requiredAttributes = ['key', 'secret', 'region', 'bucket'];
+        }
+
+        foreach ($requiredAttributes as $attribute) {
+            $value = $this->$attribute;
+            $blankCredential = ($attribute === 'key' || $attribute === 'secret')
+                && is_string($value)
+                && trim($value) === '';
+            if ($value === null || $blankCredential) {
+                throw new InvalidConfigException(strtr('"{class}::{attribute}" cannot be empty.', [
+                    '{class}' => static::class,
+                    '{attribute}' => '$' . $attribute
+                ]));
+            }
+        }
     }
 
 

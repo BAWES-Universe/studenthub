@@ -7,11 +7,13 @@ return [
     'components' => [
         'temporaryBucketResourceManager' => [
             'class' => 'common\components\S3ResourceManager',
+            'authMethod' => \common\components\S3ResourceManager::AUTH_VIA_ANONYMOUS,
             'region' => 'eu-west-2', // Bucket based in London
-            'key' => 'AKIAWMITDJRKVN5ODY2X',
-            'secret' => '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',
-            'bucket' => 'studenthub-public-anyone-can-upload-24hr-expiry'
+            'bucket' => 'studenthub-public-anyone-can-upload-24hr-expiry',
             /**
+             * Public reads pass credentials => false so the SDK does not
+             * search the default credential chain.
+             *
              * You can access the Temporary bucket with:
              * https://studenthub-public-anyone-can-upload-24hr-expiry.s3.amazonaws.com/
              * https://studenthub-public-anyone-can-upload-24hr-expiry.s3.amazonaws.com/folderName/fileName.jpg

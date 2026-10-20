@@ -1599,6 +1599,64 @@ class CandidateController extends Controller
     }
 
     /**
+     * Ask one candidate for a new profile photo or an updated Civil ID.
+     * The same send key does not create a second notification.
+     *
+     * @param int $id
+     * @return array
+     */
+    public function actionCreateUpdateRequest($id)
+    {
+        $candidate = $this->findModel($id);
+
+        return $this->notificationResponse(
+            \common\components\CandidateStaffNotificationService::sendDocumentRequest(
+                $candidate,
+                (int) Yii::$app->user->getId(),
+                Yii::$app->request->getBodyParam('type'),
+                Yii::$app->request->getBodyParam('send_key')
+            )
+        );
+    }
+
+    /**
+     * Send one plain-text Activity message to this candidate.
+     *
+     * @param int $id
+     * @return array
+     */
+    public function actionSendCustomNotification($id)
+    {
+        $candidate = $this->findModel($id);
+
+        return $this->notificationResponse(
+            \common\components\CandidateStaffNotificationService::sendCustomNotification(
+                $candidate,
+                (int) Yii::$app->user->getId(),
+                Yii::$app->request->getBodyParam('message'),
+                Yii::$app->request->getBodyParam('send_key')
+            )
+        );
+    }
+
+    /**
+     * @param array $result
+     * @return array
+     */
+    private function notificationResponse(array $result)
+    {
+        if ($result['operation'] !== 'success') {
+            return $result;
+        }
+
+        return [
+            'operation' => 'success',
+            'already_sent' => $result['already_sent'],
+            'notification_id' => $result['notification']->cn_uuid,
+        ];
+    }
+
+    /**
      * Return a No of Candidate to review
      * Return a No of Payable candidate also
      */

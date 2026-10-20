@@ -54,6 +54,17 @@ return [
                         'OPTIONS' => 'options',
                     ]
                 ],
+                [ // TempUploadController - Employer presign. Do not add to AwsController.
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/temp-upload',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'POST url' => 'url',
+                        'OPTIONS url' => 'options',
+                        'POST activate' => 'activate',
+                        'OPTIONS activate' => 'options',
+                    ]
+                ],
                 [// ContractController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/contract',

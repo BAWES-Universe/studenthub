@@ -73,6 +73,13 @@ class Candidate extends \common\models\Candidate {
         $fields['working_hour_count'] = function($model) {
             return $model->getCandidateWorkingHour()->count();
         };
+
+        // Display correction, separate from temporary-upload credentials.
+        // Uses the existing resolver. Legacy bare filenames stay on that path.
+        $fields['candidate_personal_photo_url'] = function ($model) {
+            return $model->getPersonalPhotoUrl();
+        };
+
         return $fields;
     }
 
