@@ -1,3 +1,8 @@
 vendor
 .idea
 .circleci
+
+# Local secrets and debug endpoints must not be copied into images.
+.env
+.env.*
+info.php
