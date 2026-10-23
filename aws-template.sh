@@ -16,9 +16,15 @@ ps -auxc | grep ssh-agent
 eval $(ssh-agent)
 cd /var/www/html
 
-echo "github private key" > github
-chmod go-rw github
-echo "github public key" > github.pub
+if [ -z "${GITHUB_DEPLOY_KEY_PATH:-}" ]; then
+  echo "Set GITHUB_DEPLOY_KEY_PATH to a readable deploy key file before cloning private repositories." >&2
+  exit 1
+fi
+
+install -m 600 "$GITHUB_DEPLOY_KEY_PATH" github
+if [ -n "${GITHUB_DEPLOY_PUBLIC_KEY_PATH:-}" ]; then
+  install -m 644 "$GITHUB_DEPLOY_PUBLIC_KEY_PATH" github.pub
+fi
 ssh-add github
 ssh-keyscan github.com/ >> ~/.ssh/known_hosts
 apt install -y git
