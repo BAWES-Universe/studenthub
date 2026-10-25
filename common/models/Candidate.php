@@ -3260,9 +3260,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     }
 
     /**
+     * @param string $side
+     * @param bool $deleteOldImmediately
      * @return bool
      */
-    public function updateCivilId($side = 'front') {
+    public function updateCivilId($side = 'front', $deleteOldImmediately = true) {
 
         $idSide = ($side == 'front') ? 'candidate_civil_photo_front' : 'candidate_civil_photo_back';
 
@@ -3327,16 +3329,45 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ], 'candidate.civil-id');
         }
 
-        // 3) Best-effort delete of the old permanent-bucket file. deleteFile()
-        //    now logs and swallows missing-object failures for civil-id.
-        $oldNorm = self::normalizeCivilIdPermanentS3Key($this->oldAttributes[$idSide] ?? '');
-        $newNorm = self::normalizeCivilIdPermanentS3Key((string)$fileName);
-
-        if ($oldNorm !== '' && $oldNorm !== $newNorm) {
-            $this->deleteFile('civil-id', $side);
+        // 3) Best-effort delete of the old permanent-bucket file when requested.
+        //    Callers that run $model->save() validation afterwards pass $deleteOldImmediately = false
+        //    and call cleanupPreviousCivilIdPhoto() only after $model->save() succeeds.
+        if ($deleteOldImmediately) {
+            $this->cleanupPreviousCivilIdPhoto($side, $this->oldAttributes[$idSide] ?? '', (string)$fileName);
         }
 
         return true;
+    }
+
+    /**
+     * Best-effort delete of a replaced permanent-bucket Civil ID photo after persistence succeeds.
+     *
+     * @param string $side
+     * @param string|null $previousFileName
+     * @param string|null $currentFileName
+     * @return void
+     */
+    public function cleanupPreviousCivilIdPhoto($side, $previousFileName, $currentFileName)
+    {
+        $oldNorm = self::normalizeCivilIdPermanentS3Key((string)$previousFileName);
+        $newNorm = self::normalizeCivilIdPermanentS3Key((string)$currentFileName);
+
+        if ($oldNorm === '' || $oldNorm === $newNorm) {
+            return;
+        }
+
+        try {
+            Yii::$app->resourceManager->delete($oldNorm);
+        } catch (\Throwable $e) {
+            Yii::warning([
+                'action'       => 'Candidate::cleanupPreviousCivilIdPhoto',
+                'candidate_id' => $this->candidate_id ?? null,
+                'side'         => $side,
+                'old_key'      => $oldNorm,
+                'exception'    => get_class($e),
+                'message'      => $e->getMessage(),
+            ], 'candidate.civil-id');
+        }
     }
 
     /**

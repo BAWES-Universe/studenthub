@@ -1503,7 +1503,9 @@ class AccountController extends Controller
             ];
         }
         
-        if (!$model->updateCivilId('back')) {
+        $previousBackPhoto = $model->getOldAttribute('candidate_civil_photo_back');
+
+        if (!$model->updateCivilId('back', false)) {
             return [
                 'operation' => 'error',
                 'message' => $model->getErrors()
@@ -1521,6 +1523,7 @@ class AccountController extends Controller
                     'message' => $model->getErrors()
                 ];
             }
+            $model->cleanupPreviousCivilIdPhoto('back', $previousBackPhoto, $model->candidate_civil_photo_back);
         } catch (\Throwable $e) {
             Yii::error([
                 'action'       => 'actionUpdateCivilPhotoBack',
@@ -1574,7 +1577,9 @@ class AccountController extends Controller
             ];
         }
         
-        if (!$model->updateCivilId('front')) {
+        $previousFrontPhoto = $model->getOldAttribute('candidate_civil_photo_front');
+
+        if (!$model->updateCivilId('front', false)) {
             return [
                 'operation' => 'error',
                 'message' => $model->getErrors()
@@ -1592,6 +1597,7 @@ class AccountController extends Controller
                     'message' => $model->getErrors()
                 ];
             }
+            $model->cleanupPreviousCivilIdPhoto('front', $previousFrontPhoto, $model->candidate_civil_photo_front);
         } catch (\Throwable $e) {
             Yii::error([
                 'action'       => 'actionUpdateCivilPhotoFront',
