@@ -448,8 +448,21 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $foundDate = false;
 
-        $response = Yii::$app->idExpiryDateExtractor
-            ->extractExpiryDate("photos/" . $this->candidate_civil_photo_front);
+        $frontKey = self::normalizeCivilIdPermanentS3Key($this->candidate_civil_photo_front);
+        try {
+            $response = Yii::$app->idExpiryDateExtractor
+                ->extractExpiryDate($frontKey);
+        } catch (\Throwable $e) {
+            Yii::warning([
+                'action'       => 'Candidate::validateCivilID',
+                'candidate_id' => $this->candidate_id ?? null,
+                'side'         => 'front',
+                's3_key'       => $frontKey,
+                'exception'    => get_class($e),
+                'message'      => $e->getMessage(),
+            ], 'candidate.civil-id');
+            $response = ['operation' => 'error', 'matches' => []];
+        }
 
         if ($response['operation'] == "success") {
 
@@ -479,8 +492,21 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         if (!$foundDate) {
 
-            $response = Yii::$app->idExpiryDateExtractor
-                ->extractExpiryDate("photos/" . $this->candidate_civil_photo_back);
+            $backKey = self::normalizeCivilIdPermanentS3Key($this->candidate_civil_photo_back);
+            try {
+                $response = Yii::$app->idExpiryDateExtractor
+                    ->extractExpiryDate($backKey);
+            } catch (\Throwable $e) {
+                Yii::warning([
+                    'action'       => 'Candidate::validateCivilID',
+                    'candidate_id' => $this->candidate_id ?? null,
+                    'side'         => 'back',
+                    's3_key'       => $backKey,
+                    'exception'    => get_class($e),
+                    'message'      => $e->getMessage(),
+                ], 'candidate.civil-id');
+                $response = ['operation' => 'error', 'matches' => []];
+            }
 
             if ($response['operation'] == "success" && sizeof($response['matches']) > 0) {
 

@@ -1,4 +1,9 @@
 <?php
+$railwayS3AccessKeyId = getenv('AWS_S3_RAILWAY_ACCESS_KEY_ID');
+$railwayS3SecretAccessKey = getenv('AWS_S3_RAILWAY_SECRET_ACCESS_KEY');
+$railwayS3AccessKeyId = is_string($railwayS3AccessKeyId) ? trim($railwayS3AccessKeyId) : '';
+$railwayS3SecretAccessKey = is_string($railwayS3SecretAccessKey) ? trim($railwayS3SecretAccessKey) : '';
+
 return [
     'components' => [
         'db' => [
@@ -84,16 +89,18 @@ return [
             'class' => 'common\components\MediaConvert',
             'region' => 'eu-west-2', // based in London
             'endpoint' => 'https://ey3xqwxpb.mediaconvert.eu-west-2.amazonaws.com',
-            'key' => 'AKIAWMITDJRKWKGYOFLT',
-            'secret' => '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',
+            'authMethod' => \common\components\S3ResourceManager::AUTH_VIA_KEY_AND_SECRET,
+            'key' => getenv('AWS_MEDIACONVERT_RAILWAY_ACCESS_KEY_ID') ?: null,
+            'secret' => getenv('AWS_MEDIACONVERT_RAILWAY_SECRET_ACCESS_KEY') ?: null,
             'role' => 'arn:aws:iam::438663597141:role/MediaConvertPermissions',
             'jobQueue' =>  "arn:aws:mediaconvert:eu-west-2:438663597141:queues/Default"
         ],
         'resourceManager' => [
             'class' => 'common\components\S3ResourceManager',
+            'authMethod' => \common\components\S3ResourceManager::AUTH_VIA_KEY_AND_SECRET,
             'region' => 'eu-west-2', // Bucket based in London
-            'key' => 'AKIAWMITDJRKVN5ODY2X',
-            'secret' => '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',
+            'key' => $railwayS3AccessKeyId !== '' ? $railwayS3AccessKeyId : null,
+            'secret' => $railwayS3SecretAccessKey !== '' ? $railwayS3SecretAccessKey : null,
             'bucket' => 'studenthub-uploads-dev-server',
             /**
              * For Local Development, we access using key and secret

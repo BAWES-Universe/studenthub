@@ -157,7 +157,7 @@ class CronController extends \yii\console\Controller {
                 Console::updateProgress($count, $total);
 
                 $response = Yii::$app->idExpiryDateExtractor
-                    ->extractExpiryDate("photos/" . $candidate->candidate_civil_photo_front);
+                    ->extractExpiryDate(Candidate::normalizeCivilIdPermanentS3Key($candidate->candidate_civil_photo_front));
 
                 if ($response['operation'] == "success" ) {
 

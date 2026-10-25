@@ -35,14 +35,30 @@ class IdExpiryDateExtractor extends Component
     {
         parent::init();
 
-        $this->textractClient = new TextractClient([
-            'region' => Yii::$app->resourceManager->region,
-            'version' => $this->version,
-            'credentials' => [
-                'key' => $this->key,
-                'secret' => $this->secret
-            ]
-        ]);
+        $key = is_string($this->key) ? trim($this->key) : '';
+        $secret = is_string($this->secret) ? trim($this->secret) : '';
+
+        if ($key === '' || $secret === '') {
+            $this->textractClient = null;
+            return;
+        }
+
+        try {
+            $region = (isset(Yii::$app->resourceManager) && !empty(Yii::$app->resourceManager->region))
+                ? Yii::$app->resourceManager->region
+                : 'eu-west-2';
+
+            $this->textractClient = new TextractClient([
+                'region' => $region,
+                'version' => $this->version,
+                'credentials' => [
+                    'key' => $key,
+                    'secret' => $secret
+                ]
+            ]);
+        } catch (\Throwable $e) {
+            $this->textractClient = null;
+        }
     }
 
     /**
@@ -51,6 +67,13 @@ class IdExpiryDateExtractor extends Component
      */
     public function extractExpiryDate($documentName)
     {
+        if ($this->textractClient === null) {
+            return [
+                "operation" => "error",
+                "matches" => "Textract credentials not configured."
+            ];
+        }
+
         try {
             $result = $this->textractClient->detectDocumentText([
                 'Document' => [
@@ -103,7 +126,7 @@ class IdExpiryDateExtractor extends Component
                 "matches" => "Expiry Date not found."
             ];
 
-        } catch (AwsException $e) {
+        } catch (\Throwable $e) {
             return [
                 "operation" => "error",
                 "matches" => $e->getMessage()
