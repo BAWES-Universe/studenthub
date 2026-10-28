@@ -84,7 +84,7 @@ class CandidateWorkingHourController extends Controller
         ]);
 
         $query = $candidate->getCandidateWorkingHour()
-            ->addSelect('sum(total_time) as total_time,date, store_id, candidate_id')
+            ->addSelect('sum(total_time) as total_time, date, MAX(store_id) AS store_id, MAX(candidate_id) AS candidate_id')
             ->groupBy('date')
             ->orderBy('date DESC');
 
