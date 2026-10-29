@@ -151,12 +151,6 @@ class S3ResourceManager extends Component
     }
 
     /**
-     * Checks whether a file exists or not. This method only works for public resources, private resources will throw
-     * a 403 error exception.
-     * @param string $filenameOrUrl the name or url of the file
-     * @return boolean
-     */
-    /**
      * Authenticated existence check. Anonymous HEAD cannot prove a private object exists.
      *
      * @param string $key
@@ -194,6 +188,12 @@ class S3ResourceManager extends Component
         ];
     }
 
+    /**
+     * Checks whether a file exists or not. This method only works for public resources, private resources will throw
+     * a 403 error exception.
+     * @param string $filenameOrUrl the name or url of the file
+     * @return boolean
+     */
     public function fileExists($filenameOrUrl)
     {
         $isUrl = false;
