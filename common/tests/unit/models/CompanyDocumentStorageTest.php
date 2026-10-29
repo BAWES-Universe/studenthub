@@ -261,6 +261,60 @@ class CompanyDocumentStorageTest extends TestCase
         $this->assertSame('commercial-licence/old.jpg', $company->commercial_licence);
     }
 
+    public function testCompanyNotificationUsesTheResolvedLogoAndFileTransport()
+    {
+        $company = $this->company(null, 'dev/company-logos/a&b.png');
+        $company->company_name = 'Local Logo';
+        $this->installManagers();
+        $dir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'company-logo-mail-' . uniqid('', true);
+        mkdir($dir, 0775, true);
+        Yii::$app->set('mailer', [
+            'class' => \yii\symfonymailer\Mailer::class,
+            'useFileTransport' => true,
+            'fileTransportPath' => $dir,
+            'viewPath' => '@common/mail',
+            'htmlLayout' => false,
+        ]);
+
+        $sent = Yii::$app->mailer->compose('report-company-crud', [
+            'model' => $company,
+            'logo' => 'https://example.test/brand.png',
+            'title' => 'Local notice',
+            'staff_name' => 'Local Staff',
+            'type' => 'created',
+        ])->setFrom('local@example.test')
+            ->setTo('logo-check@example.test')
+            ->setSubject('Local notice')
+            ->send();
+
+        $this->assertTrue($sent);
+        $files = glob($dir . DIRECTORY_SEPARATOR . '*.eml');
+        $this->assertCount(1, $files);
+        $body = file_get_contents($files[0]);
+        $this->assertStringContainsString('logo-check@example.test', $body);
+        $this->assertStringContainsString('https://uploads.example/dev/company-logos/a&amp;b.png', $body);
+        $this->assertStringNotContainsString('res.cloudinary.com', $body);
+        $this->assertStringNotContainsString('candidate_photo', $body);
+    }
+
+    public function testCompanyNotificationOmitsAnUnavailableLogo()
+    {
+        $company = $this->company(null, null);
+        $company->company_name = 'Local Logo';
+        $this->installManagers();
+        $html = Yii::$app->view->renderFile('@common/mail/report-company-crud.php', [
+            'model' => $company,
+            'logo' => 'https://example.test/brand.png',
+            'title' => 'Local notice',
+            'staff_name' => 'Local Staff',
+            'type' => 'created',
+        ]);
+
+        $this->assertStringNotContainsString('width="100"', $html);
+        $this->assertStringNotContainsString('res.cloudinary.com', $html);
+        $this->assertStringContainsString('https://example.test/brand.png', $html);
+    }
+
     public function testCommercialLicenceUrlIsLimitedToStaffAdminAndEmployer()
     {
         $company = $this->company('commercial-licence/old.jpg', 'company-logo/old.jpg');
@@ -356,6 +410,17 @@ class CompanyDocumentStorageTest extends TestCase
                 company_id INTEGER PRIMARY KEY,
                 commercial_licence TEXT,
                 company_logo TEXT,
+                company_name TEXT,
+                company_common_name_en TEXT,
+                company_common_name_ar TEXT,
+                company_status INTEGER,
+                company_followup INTEGER,
+                company_hourly_rate TEXT,
+                company_bonus_commission TEXT,
+                company_email TEXT,
+                company_website TEXT,
+                company_description_en TEXT,
+                company_description_ar TEXT,
                 currency_code TEXT,
                 company_last_followup_datetime TEXT,
                 company_followup_interval_weeks INTEGER,
