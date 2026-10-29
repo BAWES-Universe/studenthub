@@ -116,20 +116,7 @@ class Company extends \yii\db\ActiveRecord
             /**
              *  Amazon S3 Temporary Bucket, validate that uploaded files exist if their values have been changed.
              */
-            [
-                ['commercial_licence'],
-                '\common\components\S3FileExistValidator',
-                'filePath' => '',
-                'message' => Yii::t('app',"Please upload commercial licence"),
-                'resourceManager' => Yii::$app->temporaryBucketResourceManager,
-                'when' => function ($model) {
-                    return self::shouldValidateTemporaryUpload(
-                        $model->commercial_licence,
-                        $model->getOldAttribute('commercial_licence'),
-                        'licence'
-                    );
-                }
-            ],
+            [['commercial_licence'], 'validatePrivateTemporaryLicence'],
             [['commercial_licence'], 'validateDocumentReplacement', 'params' => ['kind' => 'licence']],
             /**
              *  Amazon S3 Temporary Bucket, validate that uploaded files exist if their values have been changed.
@@ -264,10 +251,6 @@ class Company extends \yii\db\ActiveRecord
 
         if (!self::exposesCommercialLicence()) {
             unset($fields['commercial_licence']);
-        } else {
-            $fields['commercial_licence_url'] = function ($model) {
-                return $model->getCommercialLicenceUrl();
-            };
         }
         $fields['company_logo_url'] = function ($model) {
             return $model->getCompanyLogoUrl();
@@ -899,6 +882,7 @@ class Company extends \yii\db\ActiveRecord
     }
 
     public const COMMERCIAL_LICENCE_S3_PREFIX = 'company-commercial-licences/';
+    public const PRIVATE_COMMERCIAL_LICENCE_S3_PREFIX = 'private/company-commercial-licences/';
     public const LEGACY_COMMERCIAL_LICENCE_PREFIX = 'commercial-licence/';
     public const COMPANY_LOGO_S3_PREFIX = 'company-logos/';
     public const LEGACY_COMPANY_LOGO_PREFIX = 'company-logo/';
@@ -941,7 +925,7 @@ class Company extends \yii\db\ActiveRecord
      */
     public function getCommercialLicenceUrl(): ?string
     {
-        return self::resolveStoredDocumentUrl($this->commercial_licence, 'licence');
+        return null;
     }
 
     /**
@@ -976,6 +960,26 @@ class Company extends \yii\db\ActiveRecord
      * @param string $kind licence|logo
      * @return bool
      */
+    public function validatePrivateTemporaryLicence($attribute)
+    {
+        if (!self::shouldValidateTemporaryUpload(
+            $this->$attribute,
+            $this->getOldAttribute($attribute),
+            'licence'
+        )) {
+            return;
+        }
+
+        $stored = self::normalizeStoredDocument($this->$attribute);
+        if (self::classifyStoredDocument($stored, 'licence') !== 'temporary') {
+            return;
+        }
+
+        if (!Yii::$app->temporaryBucketResourceManager->storedObjectExists($stored)) {
+            $this->addError($attribute, Yii::t('app', 'Please upload commercial licence'));
+        }
+    }
+
     public static function shouldValidateTemporaryUpload($submitted, $existing, $kind): bool
     {
         $submitted = self::normalizeStoredDocument($submitted);
@@ -991,12 +995,6 @@ class Company extends \yii\db\ActiveRecord
     }
 
     /**
-     * Staff, Admin, and Employer responses include the licence. Other applications,
-     * including nested company objects serialized in those applications, do not.
-     *
-     * @return bool
-     */
-    /**
      * @param self $model
      * @param array $params
      * @param string $bodyKey
@@ -1010,11 +1008,46 @@ class Company extends \yii\db\ActiveRecord
         }
     }
 
+    /**
+     * Staff and Admin responses include the stored licence key. They do not include
+     * a retrieval URL. Employer, Candidate, and every other application omit the key.
+     * The authenticated reader checks the signed-in identity again.
+     *
+     * @return bool
+     */
     public static function exposesCommercialLicence(): bool
     {
-        $appId = Yii::$app->id ?? '';
+        return self::identityMayReadCompanyLicence();
+    }
 
-        return in_array($appId, ['app-staff', 'app-admin', 'app-company'], true);
+    /**
+     * @return bool
+     */
+    public static function identityMayChangeCompanyDocuments(): bool
+    {
+        return self::currentIdentity() instanceof \common\models\Staff;
+    }
+
+    /**
+     * @return bool
+     */
+    public static function identityMayReadCompanyLicence(): bool
+    {
+        $identity = self::currentIdentity();
+
+        return $identity instanceof \common\models\Staff || $identity instanceof \common\models\Admin;
+    }
+
+    /**
+     * @return \yii\web\IdentityInterface|null
+     */
+    private static function currentIdentity()
+    {
+        if (!Yii::$app->has('user', true) || Yii::$app->user->getIsGuest()) {
+            return null;
+        }
+
+        return Yii::$app->user->getIdentity();
     }
 
     /**
@@ -1049,7 +1082,7 @@ class Company extends \yii\db\ActiveRecord
      */
     public static function permanentDocumentPrefix($kind): string
     {
-        $prefix = $kind === 'logo' ? self::COMPANY_LOGO_S3_PREFIX : self::COMMERCIAL_LICENCE_S3_PREFIX;
+        $prefix = $kind === 'logo' ? self::COMPANY_LOGO_S3_PREFIX : self::PRIVATE_COMMERCIAL_LICENCE_S3_PREFIX;
 
         return (YII_ENV == 'prod' ? '' : 'dev/') . $prefix;
     }
@@ -1061,6 +1094,10 @@ class Company extends \yii\db\ActiveRecord
     public function beforeSave($insert)
     {
         if (!parent::beforeSave($insert)) {
+            return false;
+        }
+
+        if (!$this->guardDocumentMutation()) {
             return false;
         }
 
@@ -1315,6 +1352,33 @@ class Company extends \yii\db\ActiveRecord
      * @param string $kind
      * @return bool
      */
+    /**
+     * A non-staff caller may resend the current key. A different key, including
+     * an empty value that would remove the file, is rejected and restored.
+     *
+     * @return bool
+     */
+    protected function guardDocumentMutation(): bool
+    {
+        if (self::identityMayChangeCompanyDocuments()) {
+            return true;
+        }
+
+        $allowed = true;
+        foreach (['company_logo', 'commercial_licence'] as $attribute) {
+            $submitted = self::normalizeStoredDocument($this->$attribute);
+            $existing = self::normalizeStoredDocument($this->getOldAttribute($attribute));
+            if ($submitted === $existing) {
+                continue;
+            }
+            $this->$attribute = $existing === '' ? null : $this->getOldAttribute($attribute);
+            $this->addError($attribute, Yii::t('app', 'You cannot change this file.'));
+            $allowed = false;
+        }
+
+        return $allowed;
+    }
+
     protected function promoteTemporaryDocument($attribute, $kind)
     {
         $submitted = self::normalizeStoredDocument($this->$attribute);
@@ -1328,7 +1392,7 @@ class Company extends \yii\db\ActiveRecord
 
         $class = self::classifyStoredDocument($submitted, $kind);
 
-        if ($class === 'permanent' || $class === 'legacy') {
+        if ($class === 'permanent' || $class === 'public-copy' || $class === 'legacy') {
             $this->$attribute = $existing === '' ? $submitted : $existing;
             if ($submitted !== $existing) {
                 $this->addError($attribute, Yii::t('app', 'Please upload the file again.'));
@@ -1346,7 +1410,11 @@ class Company extends \yii\db\ActiveRecord
             return false;
         }
 
-        if (!Yii::$app->temporaryBucketResourceManager->fileExists($submitted)) {
+        $temporary = Yii::$app->temporaryBucketResourceManager;
+        $exists = $kind === 'licence'
+            ? $temporary->storedObjectExists($submitted)
+            : $temporary->fileExists($submitted);
+        if (!$exists) {
             $this->$attribute = $existing === '' ? null : $existing;
             $this->addError($attribute, Yii::t('app', 'The file could not be saved. Please upload it again.'));
 
@@ -1363,12 +1431,12 @@ class Company extends \yii\db\ActiveRecord
         }
 
         try {
-            // copy() merges ACL public-read. This does not make the object private,
-            // and this change does not alter the bucket policy.
+            $copyOptions = $kind === 'licence' ? ['ACL' => 'private'] : [];
             Yii::$app->resourceManager->copy(
                 $submitted,
                 $target,
-                Yii::$app->temporaryBucketResourceManager->bucket
+                Yii::$app->temporaryBucketResourceManager->bucket,
+                $copyOptions
             );
         } catch (\Throwable $e) {
             Yii::error($e->getMessage(), 'company');
@@ -1449,7 +1517,7 @@ class Company extends \yii\db\ActiveRecord
     {
         $stored = self::normalizeStoredDocument($stored);
 
-        if ($stored === '') {
+        if ($stored === '' || $kind === 'licence') {
             return null;
         }
 
@@ -1491,12 +1559,19 @@ class Company extends \yii\db\ActiveRecord
             return 'unknown';
         }
 
-        $base = $kind === 'logo' ? self::COMPANY_LOGO_S3_PREFIX : self::COMMERCIAL_LICENCE_S3_PREFIX;
+        $base = $kind === 'logo' ? self::COMPANY_LOGO_S3_PREFIX : self::PRIVATE_COMMERCIAL_LICENCE_S3_PREFIX;
         $legacy = $kind === 'logo' ? self::LEGACY_COMPANY_LOGO_PREFIX : self::LEGACY_COMMERCIAL_LICENCE_PREFIX;
         $legacyDev = 'dev/' . $legacy;
 
         if (strpos($stored, $base) === 0 || strpos($stored, 'dev/' . $base) === 0) {
             return 'permanent';
+        }
+
+        if ($kind === 'licence') {
+            $public = self::COMMERCIAL_LICENCE_S3_PREFIX;
+            if (strpos($stored, $public) === 0 || strpos($stored, 'dev/' . $public) === 0) {
+                return 'public-copy';
+            }
         }
 
         if (strpos($stored, $legacy) === 0 || strpos($stored, $legacyDev) === 0) {

@@ -237,6 +237,17 @@ class CompanyController extends Controller
     }
 
     /**
+     * The stored licence for a company this staff user can already view.
+     *
+     * @param int $id
+     * @return \yii\web\Response
+     */
+    public function actionCommercialLicence($id)
+    {
+        return \common\components\CompanyLicenceReader::send($this->findModel((int) $id));
+    }
+
+    /**
      * add followup note
      * @return array
      */

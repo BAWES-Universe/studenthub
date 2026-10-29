@@ -156,6 +156,44 @@ class S3ResourceManager extends Component
      * @param string $filenameOrUrl the name or url of the file
      * @return boolean
      */
+    /**
+     * Authenticated existence check. Anonymous HEAD cannot prove a private object exists.
+     *
+     * @param string $key
+     * @return bool
+     */
+    public function storedObjectExists($key)
+    {
+        try {
+            $this->getClient()->headObject([
+                'Bucket' => $this->bucket,
+                'Key' => $key,
+            ]);
+
+            return true;
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
+    /**
+     * @param string $key
+     * @return array{bytes: string, contentType: string}
+     */
+    public function readStoredObject($key)
+    {
+        $result = $this->getClient()->getObject([
+            'Bucket' => $this->bucket,
+            'Key' => $key,
+        ]);
+        $type = isset($result['ContentType']) ? $result['ContentType'] : 'application/octet-stream';
+
+        return [
+            'bytes' => (string) $result['Body'],
+            'contentType' => $type,
+        ];
+    }
+
     public function fileExists($filenameOrUrl)
     {
         $isUrl = false;

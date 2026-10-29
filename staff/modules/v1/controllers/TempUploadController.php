@@ -81,10 +81,14 @@ class TempUploadController extends Controller
         $body = Yii::$app->request->getBodyParams();
 
         try {
-            return (new TempUploadPresigner())->presign(
+            $presigner = new TempUploadPresigner();
+            $purpose = isset($body['purpose']) ? $body['purpose'] : null;
+
+            return $presigner->presign(
                 isset($body['filename']) ? $body['filename'] : null,
                 isset($body['content_type']) ? $body['content_type'] : null,
-                isset($body['file_size']) ? $body['file_size'] : null
+                isset($body['file_size']) ? $body['file_size'] : null,
+                TempUploadPresigner::aclForPurpose($purpose)
             );
         } catch (TempUploadValidationException $e) {
             throw new BadRequestHttpException($e->getMessage());

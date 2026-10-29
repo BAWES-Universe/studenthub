@@ -2,7 +2,6 @@
 
 namespace company\tests;
 
-use common\components\ActivationPresignAuthorizer;
 use common\components\TempUploadPresigner;
 use common\fixtures\CompanyContactFixture;
 use common\fixtures\CompanyFixture;
@@ -10,17 +9,14 @@ use common\fixtures\ContactFixture;
 use common\fixtures\ContactTokenFixture;
 use common\models\Company;
 use common\models\ContactToken;
-use company\models\Contact;
 use Codeception\Util\HttpCode;
 use PHPUnit\Framework\Assert;
-use Yii;
 
 /**
  * Employer temp-upload endpoint.
  *
  * Signer credentials used here are fake and process-local only.
- * Company 1 in the shared fixture is operating, so this test zeroes
- * that disposable row before treating it as a pending activation.
+ * The logged-in employer upload stays public. Licence uploads are not accepted here.
  */
 class TempUploadCest
 {
@@ -82,124 +78,22 @@ class TempUploadCest
         $I->seeResponseCodeIs(HttpCode::UNAUTHORIZED);
     }
 
-    public function tryValidPendingActivationPresignsLogoAndLicenceWithoutConsumingTheKey(FunctionalTester $I)
+    public function tryRetiredActivationRouteIsNotAvailable(FunctionalTester $I)
     {
         $this->setSignerEnv();
-        $this->resetBudget();
-
-        $I->sendPOST('http://localhost/index-test.php/v1/temp-upload/activate', $this->activationPayload('logo.png', 'image/png'));
-        $I->seeResponseCodeIs(HttpCode::OK);
-        $this->assertPresign($I, 'image/png');
-
-        $I->sendPOST('http://localhost/index-test.php/v1/temp-upload/activate', $this->activationPayload('licence.png', 'image/png'));
-        $I->seeResponseCodeIs(HttpCode::OK);
-        $this->assertPresign($I, 'image/png');
-
-        $contact = Contact::findOne(['contact_email' => self::CONTACT_EMAIL]);
-        Assert::assertSame(self::CONTACT_KEY, $contact->contact_auth_key);
-    }
-
-    public function tryPrivateProxyUsesTheRawForwardedClient(FunctionalTester $I)
-    {
-        $this->setSignerEnv();
-        $this->resetBudget();
-        $I->haveServerParameter('REMOTE_ADDR', '10.0.0.8');
-        $I->haveServerParameter('HTTP_X_FORWARDED_FOR', '203.0.113.50');
-
-        $I->sendPOST('http://localhost/index-test.php/v1/temp-upload/activate', $this->activationPayload('logo.png', 'image/png'));
-        $I->seeResponseCodeIs(HttpCode::OK);
-        $this->assertPresign($I, 'image/png');
-    }
-
-    public function tryPrivateProxyWithoutForwardedClientIsUnavailable(FunctionalTester $I)
-    {
-        $this->setSignerEnv();
-        $this->resetBudget();
-        $I->haveServerParameter('REMOTE_ADDR', '10.0.0.8');
-        $I->haveServerParameter('HTTP_X_FORWARDED_FOR', '');
-
-        $I->sendPOST('http://localhost/index-test.php/v1/temp-upload/activate', $this->activationPayload('logo.png', 'image/png'));
-        $I->seeResponseCodeIs(503);
-    }
-
-    public function tryDirectPublicCallerIgnoresForwardedAddress(FunctionalTester $I)
-    {
-        $this->setSignerEnv();
-        $this->resetBudget();
-        $I->haveServerParameter('REMOTE_ADDR', '203.0.113.10');
-        $I->haveServerParameter('HTTP_X_FORWARDED_FOR', '198.51.100.4');
-
-        for ($attempt = 1; $attempt <= ActivationPresignAuthorizer::IP_FAILURE_LIMIT; $attempt++) {
-            $I->sendPOST(
-                'http://localhost/index-test.php/v1/temp-upload/activate',
-                $this->activationGuess('direct-' . $attempt . '@example.test')
-            );
-            $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
-        }
-
-        $I->haveServerParameter('HTTP_X_FORWARDED_FOR', '198.51.100.77');
-        $I->sendPOST(
-            'http://localhost/index-test.php/v1/temp-upload/activate',
-            $this->activationGuess('direct-after-spoof@example.test')
-        );
-        $I->seeResponseCodeIs(HttpCode::TOO_MANY_REQUESTS);
-
-        $I->haveServerParameter('REMOTE_ADDR', '198.51.100.4');
-        $I->haveServerParameter('HTTP_X_FORWARDED_FOR', '203.0.113.10');
-        $I->sendPOST(
-            'http://localhost/index-test.php/v1/temp-upload/activate',
-            $this->activationGuess('forwarded-has-its-own-counter@example.test')
-        );
+        $I->sendPOST('v1/temp-upload/activate', $this->filePayload('logo.png', 'image/png'));
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
     }
 
-    public function trySpoofedForwardedPrefixDoesNotResetTheIpBudget(FunctionalTester $I)
+    public function tryLoggedInPresignStaysPublicEvenWhenALicencePurposeIsPosted(FunctionalTester $I)
     {
         $this->setSignerEnv();
-        $this->resetBudget();
-        $I->haveServerParameter('REMOTE_ADDR', '10.0.0.8');
-        $I->haveServerParameter('HTTP_X_FORWARDED_FOR', '198.51.100.4, 203.0.113.70');
-
-        for ($attempt = 1; $attempt <= ActivationPresignAuthorizer::IP_FAILURE_LIMIT; $attempt++) {
-            $I->sendPOST(
-                'http://localhost/index-test.php/v1/temp-upload/activate',
-                $this->activationGuess('proxy-' . $attempt . '@example.test')
-            );
-            $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
-        }
-
-        $I->haveServerParameter('HTTP_X_FORWARDED_FOR', '203.0.113.99, 203.0.113.70');
-        $I->sendPOST(
-            'http://localhost/index-test.php/v1/temp-upload/activate',
-            $this->activationGuess('proxy-prefix-changed@example.test')
-        );
-        $I->seeResponseCodeIs(HttpCode::TOO_MANY_REQUESTS);
-
-        $I->haveServerParameter('HTTP_X_FORWARDED_FOR', '198.51.100.4, 203.0.113.71');
-        $I->sendPOST(
-            'http://localhost/index-test.php/v1/temp-upload/activate',
-            $this->activationGuess('proxy-different-client@example.test')
-        );
-        $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
-    }
-
-    public function tryInvalidActivationIsRejectedAndThenLimited(FunctionalTester $I)
-    {
-        $this->setSignerEnv();
-        $this->resetBudget();
-        $payload = $this->activationPayload('logo.png', 'image/png');
-        $payload['contact_auth_key'] = '0000';
-
-        for ($attempt = 0; $attempt < ActivationPresignAuthorizer::FAILURE_LIMIT; $attempt++) {
-            $I->sendPOST('http://localhost/index-test.php/v1/temp-upload/activate', $payload);
-            $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
-        }
-
-        $I->sendPOST('http://localhost/index-test.php/v1/temp-upload/activate', $payload);
-        $I->seeResponseCodeIs(HttpCode::TOO_MANY_REQUESTS);
-
-        $contact = Contact::findOne(['contact_email' => self::CONTACT_EMAIL]);
-        Assert::assertSame(self::CONTACT_KEY, $contact->contact_auth_key);
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
+        $payload = $this->filePayload('logo.png', 'image/png');
+        $payload['purpose'] = 'commercial-licence';
+        $I->sendPOST('v1/temp-upload/url', $payload);
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $this->assertPresign($I, 'image/png');
     }
 
     public function tryOptionsFromEmployerOrigin(FunctionalTester $I)
@@ -207,7 +101,7 @@ class TempUploadCest
         $I->haveHttpHeader('Origin', 'https://employer.studenthub.co');
         $I->haveHttpHeader('Access-Control-Request-Method', 'POST');
         $I->haveHttpHeader('Access-Control-Request-Headers', 'authorization,content-type');
-        $I->sendOPTIONS('v1/temp-upload/activate');
+        $I->sendOPTIONS('v1/temp-upload/url');
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeHttpHeader('Access-Control-Allow-Origin', 'https://employer.studenthub.co');
         $I->seeHttpHeader('Access-Control-Allow-Methods');
@@ -273,41 +167,6 @@ class TempUploadCest
      * @param string $filename
      * @param string $contentType
      * @return array
-     */
-    private function activationPayload($filename, $contentType)
-    {
-        return $this->filePayload($filename, $contentType) + [
-            'contact_email' => self::CONTACT_EMAIL,
-            'contact_auth_key' => self::CONTACT_KEY,
-            'company_id' => self::COMPANY_ID,
-        ];
-    }
-
-    /**
-     * @param string $email
-     * @return array
-     */
-    private function activationGuess($email)
-    {
-        return $this->filePayload('logo.png', 'image/png') + [
-            'contact_email' => $email,
-            'contact_auth_key' => '0000',
-            'company_id' => self::COMPANY_ID,
-        ];
-    }
-
-    /**
-     * @return void
-     */
-    private function resetBudget()
-    {
-        if (Yii::$app->has('cache')) {
-            Yii::$app->cache->flush();
-        }
-    }
-
-    /**
-     * @return void
      */
     private function setSignerEnv()
     {

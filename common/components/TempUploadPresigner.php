@@ -225,6 +225,9 @@ class TempUploadPresigner
     /** @var string */
     private $limitName = 'Staff';
 
+    /** @var string */
+    private $objectAcl = self::ACL;
+
     /** @var string|null */
     private $candidatePurpose;
 
@@ -260,7 +263,28 @@ class TempUploadPresigner
      * @throws TempUploadValidationException
      * @throws TempUploadConfigurationException
      */
-    public function presign($filename, $contentType, $fileSize)
+    public function presign($filename, $contentType, $fileSize, $acl = self::ACL)
+    {
+        if ($acl !== self::ACL && $acl !== 'private') {
+            throw new TempUploadValidationException('Invalid upload.');
+        }
+        $this->objectAcl = $acl;
+
+        return $this->presignBody($filename, $contentType, $fileSize);
+    }
+
+    /**
+     * Only a Staff commercial-licence upload is private. Every other caller stays public-read.
+     *
+     * @param mixed $purpose
+     * @return string
+     */
+    public static function aclForPurpose($purpose)
+    {
+        return $purpose === 'commercial-licence' ? 'private' : self::ACL;
+    }
+
+    public function presignBody($filename, $contentType, $fileSize)
     {
         if ($this->limitName === 'Candidate') {
             throw new TempUploadValidationException('Invalid upload purpose.');
@@ -290,6 +314,7 @@ class TempUploadPresigner
             throw new TempUploadValidationException('Invalid upload purpose.');
         }
 
+        $this->objectAcl = self::ACL;
         $this->applyCandidatePurpose($purpose);
 
         return $this->issuePresign($filename, $contentType, $fileSize);
@@ -327,7 +352,7 @@ class TempUploadPresigner
             $command = $client->getCommand('PutObject', [
                 'Bucket' => self::BUCKET,
                 'Key' => $objectKey,
-                'ACL' => self::ACL,
+                'ACL' => $this->objectAcl,
                 'ContentType' => $validatedContentType,
             ]);
             $request = $client->createPresignedRequest($command, '+' . self::EXPIRES_IN . ' seconds');
@@ -345,7 +370,7 @@ class TempUploadPresigner
             'public_url' => $publicUrl,
             'headers' => [
                 'Content-Type' => $validatedContentType,
-                'x-amz-acl' => self::ACL,
+                'x-amz-acl' => $this->objectAcl,
             ],
             'expires_in' => self::EXPIRES_IN,
         ];

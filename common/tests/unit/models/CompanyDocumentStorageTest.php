@@ -38,8 +38,9 @@ class CompanyDocumentStorageTest extends TestCase
     public function testClassificationKeepsLegacyReferencesDistinctFromPermanentKeys()
     {
         $this->assertSame('legacy', Company::classifyCommercialLicence('commercial-licence/old.jpg'));
-        $this->assertSame('permanent', Company::classifyCommercialLicence('company-commercial-licences/new.jpg'));
-        $this->assertSame('permanent', Company::classifyCommercialLicence('dev/company-commercial-licences/new.jpg'));
+        $this->assertSame('public-copy', Company::classifyCommercialLicence('company-commercial-licences/new.jpg'));
+        $this->assertSame('public-copy', Company::classifyCommercialLicence('dev/company-commercial-licences/new.jpg'));
+        $this->assertSame('permanent', Company::classifyCommercialLicence(Company::permanentDocumentPrefix('licence') . 'new.jpg'));
         $this->assertSame('temporary', Company::classifyCommercialLicence('licence-1.png'));
         $this->assertSame('unknown', Company::classifyCommercialLicence('https://res.cloudinary.com/studenthub/image/upload/commercial-licence/old.jpg'));
         $this->assertSame('legacy', Company::classifyCompanyLogo('company-logo/old.jpg'));
@@ -56,7 +57,12 @@ class CompanyDocumentStorageTest extends TestCase
 
         $this->assertTrue($company->updateLicence());
         $this->assertSame(Company::permanentDocumentPrefix('licence') . 'licence-1.png', $company->commercial_licence);
-        $this->assertSame(['licence-1.png', Company::permanentDocumentPrefix('licence') . 'licence-1.png', 'temp-bucket'], $managers->copies[0]);
+        $this->assertSame([
+            'licence-1.png',
+            Company::permanentDocumentPrefix('licence') . 'licence-1.png',
+            'temp-bucket',
+            ['ACL' => 'private'],
+        ], $managers->copies[0]);
         $this->assertSame([], $managers->cloudinaryDeletes);
         $this->assertSame('commercial-licence/old.jpg', $company->getOldAttribute('commercial_licence'));
     }
@@ -89,12 +95,9 @@ class CompanyDocumentStorageTest extends TestCase
         $this->installManagers();
         Yii::$app->cloudinaryManager->cloud_name = 'test-cloud';
 
-        $url = $company->getCommercialLicenceUrl();
-
-        $this->assertStringContainsString('res.cloudinary.com/test-cloud/image/upload/', $url);
-        $this->assertStringContainsString('commercial-licence/old.jpg', $url);
-        $this->assertStringNotContainsString('company-commercial-licences/', $url);
+        $this->assertNull($company->getCommercialLicenceUrl());
         $this->assertSame('commercial-licence/old.jpg', $company->commercial_licence);
+        $this->assertStringContainsString('res.cloudinary.com/test-cloud/image/upload/', $company->getCompanyLogoUrl());
     }
 
     public function testLegacyLicenceWithoutCloudNameHasNoDisplayUrl()
@@ -113,7 +116,8 @@ class CompanyDocumentStorageTest extends TestCase
         $company = $this->company($key, null);
         $this->installManagers();
 
-        $this->assertSame('https://uploads.example/' . $key, $company->getCommercialLicenceUrl());
+        $this->assertNull($company->getCommercialLicenceUrl());
+        $this->assertSame('https://uploads.example/company-logos/kept.jpg', $this->company(null, 'company-logos/kept.jpg')->getCompanyLogoUrl());
     }
 
     public function testReplacingALicenceKeepsThePreviousObject()
@@ -315,11 +319,56 @@ class CompanyDocumentStorageTest extends TestCase
         $this->assertStringContainsString('https://example.test/brand.png', $html);
     }
 
-    public function testCommercialLicenceUrlIsLimitedToStaffAdminAndEmployer()
+    public function testOnlyStaffCanReplaceOrRemoveCompanyDocuments()
+    {
+        $managers = $this->installManagers();
+        Yii::$app->user->switchIdentity(new \common\models\Admin());
+        $company = $this->company('commercial-licence/old.jpg', 'company-logos/kept.jpg');
+        $company->commercial_licence = 'licence-2.png';
+        $company->company_logo = 'logo-new.png';
+
+        $this->assertFalse($company->beforeSave(false));
+        $this->assertSame('commercial-licence/old.jpg', $company->commercial_licence);
+        $this->assertSame('company-logos/kept.jpg', $company->company_logo);
+        $this->assertSame([], $managers->copies);
+
+        Yii::$app->user->switchIdentity(null);
+        $cleared = $this->company('commercial-licence/old.jpg', 'company-logos/kept.jpg');
+        $cleared->commercial_licence = '';
+        $this->assertFalse($cleared->beforeSave(false));
+        $this->assertSame('commercial-licence/old.jpg', $cleared->commercial_licence);
+
+        Yii::$app->user->switchIdentity(new \common\models\Admin());
+        $same = $this->company('commercial-licence/old.jpg', 'company-logos/kept.jpg');
+        $this->assertTrue($same->beforeSave(false));
+        $this->assertSame([], $managers->copies);
+    }
+
+    public function testAuthenticatedReaderReturnsStoredBytesAndNotAPublicUrl()
+    {
+        $this->installManagers();
+        $company = $this->company(Company::permanentDocumentPrefix('licence') . 'licence-1.png', null);
+        $response = \common\components\CompanyLicenceReader::send($company);
+
+        $this->assertSame('licence-bytes', $response->content);
+        $this->assertSame('private, no-store', $response->headers->get('Cache-Control'));
+        $this->assertStringNotContainsString('http', $response->content);
+
+        $publicCopy = $this->company('company-commercial-licences/old-public.jpg', null);
+        $publicResponse = \common\components\CompanyLicenceReader::send($publicCopy);
+        $this->assertSame('licence-bytes', $publicResponse->content);
+
+        $legacy = $this->company('commercial-licence/old.jpg', null);
+        $this->expectException(\yii\web\NotFoundHttpException::class);
+        \common\components\CompanyLicenceReader::send($legacy);
+    }
+
+    public function testCommercialLicenceKeyIsLimitedToStaffAndAdmin()
     {
         $company = $this->company('commercial-licence/old.jpg', 'company-logo/old.jpg');
         $this->installManagers();
         Yii::$app->cloudinaryManager->cloud_name = 'test-cloud';
+        Yii::$app->user->switchIdentity(null);
 
         Yii::$app->id = 'app-candidate';
         $root = dirname(__DIR__, 4);
@@ -340,23 +389,28 @@ class CompanyDocumentStorageTest extends TestCase
         $this->assertArrayHasKey('company_logo_url', $nestedFields);
 
         Yii::$app->id = 'app-staff';
+        Yii::$app->user->switchIdentity(new \common\models\Staff());
         $staffCompany = new \staff\models\Company();
         $staffCompany->commercial_licence = 'commercial-licence/old.jpg';
         $staffCompany->company_logo = 'company-logo/old.jpg';
         $staffFields = $staffCompany->fields();
         $this->assertArrayHasKey('commercial_licence', $staffFields);
-        $this->assertArrayHasKey('commercial_licence_url', $staffFields);
+        $this->assertArrayNotHasKey('commercial_licence_url', $staffFields);
         $this->assertArrayHasKey('company_logo_url', $staffFields);
 
         Yii::$app->id = 'app-admin';
+        Yii::$app->user->switchIdentity(new \common\models\Admin());
         $adminCompany = new \admin\models\Company();
         $adminCompany->commercial_licence = 'commercial-licence/old.jpg';
-        $this->assertArrayHasKey('commercial_licence_url', $adminCompany->fields());
+        $adminFields = $adminCompany->fields();
+        $this->assertArrayHasKey('commercial_licence', $adminFields);
+        $this->assertArrayNotHasKey('commercial_licence_url', $adminFields);
 
         Yii::$app->id = 'app-company';
+        Yii::$app->user->switchIdentity(null);
         $employerFields = $this->fieldNames((new \company\models\Company())->fields());
-        $this->assertContains('commercial_licence', $employerFields);
-        $this->assertContains('commercial_licence_url', $employerFields);
+        $this->assertNotContains('commercial_licence', $employerFields);
+        $this->assertNotContains('commercial_licence_url', $employerFields);
         $this->assertContains('company_logo_url', $employerFields);
     }
 
@@ -376,10 +430,11 @@ class CompanyDocumentStorageTest extends TestCase
             $root = dirname(__DIR__, 4);
             require_once $root . '/vendor/autoload.php';
             require_once $root . '/vendor/yiisoft/yii2/Yii.php';
-            require_once $root . '/common/config/bootstrap.php';
             defined('YII_DEBUG') or define('YII_DEBUG', true);
             defined('YII_ENV') or define('YII_ENV', 'test');
         }
+        $root = dirname(__DIR__, 4);
+        include $root . '/common/config/bootstrap.php';
         $root = dirname(__DIR__, 4);
         require_once $root . '/common/components/S3FileExistValidator.php';
 
@@ -397,8 +452,14 @@ class CompanyDocumentStorageTest extends TestCase
                     'scriptFile' => __FILE__,
                     'scriptUrl' => '/index.php',
                 ],
+                'user' => [
+                    'identityClass' => \common\models\Staff::class,
+                    'enableSession' => false,
+                    'enableAutoLogin' => false,
+                ],
             ],
         ]);
+        Yii::$app->user->switchIdentity(new \common\models\Staff());
         Yii::$app->set('eventManager', new class extends \yii\base\Component {
             public function track($name, $attributes)
             {
@@ -469,7 +530,24 @@ class CompanyDocumentStorageTest extends TestCase
                 return $key !== 'missing.png';
             }
 
-            public function copy($oldFile, $newFile, $sourceBucket = '')
+            public function storedObjectExists($key)
+            {
+                return $this->fileExists($key);
+            }
+
+            public function readStoredObject($key)
+            {
+                if (!$this->storedObjectExists($key)) {
+                    throw new \RuntimeException('missing');
+                }
+
+                return [
+                    'bytes' => 'licence-bytes',
+                    'contentType' => 'image/png',
+                ];
+            }
+
+            public function copy($oldFile, $newFile, $sourceBucket = '', $options = [])
             {
                 if (
                     !$this->copySucceeds
@@ -478,7 +556,7 @@ class CompanyDocumentStorageTest extends TestCase
                 ) {
                     throw new \RuntimeException('copy failed');
                 }
-                $this->copies[] = [$oldFile, $newFile, $sourceBucket];
+                $this->copies[] = [$oldFile, $newFile, $sourceBucket, $options];
             }
 
             public function getUrl($name)

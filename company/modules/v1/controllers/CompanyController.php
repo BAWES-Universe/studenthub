@@ -131,93 +131,23 @@ class CompanyController extends BaseController
      */
     public function actionRemoveLogo()
     {
-        $model = Yii::$app->companyManager->getCompany();
-
-        $model->setScenario(\common\models\Company::SCENARIO_REPLACE_LOGO);
-        $model->company_logo = null;
-
-        if (!$model->save()) {
-            return [
-                'operation' => 'error',
-                'message' => $model->errors
-            ];
-        }
-
-        return [
-            'operation' => 'success',
-            'message' => Yii::t('company', 'Company Logo Removed Successfully')
-        ];
+        throw new \yii\web\ForbiddenHttpException('You cannot change this file.');
     }
 
     /**
-     * Allows user to change company logo
+     * Staff changes the logo.
      */
-    public function actionUpdateLogo() {
-
-        $company_logo = urldecode(Yii::$app->request->getBodyParam('company_logo'));
-
-        $model = Yii::$app->companyManager->getCompany();
-        $model->setScenario(\common\models\Company::SCENARIO_REPLACE_LOGO);
-        $model->company_logo = $company_logo;
-
-        if(!$model->company_logo || $model->company_logo == "undefined") {
-            return [
-                'operation' => 'error',
-                'message' => Yii::t('company', 'invalid_input', [
-                    'attribute' => 'company logo'
-                ])
-            ];
-        }
-
-        if (!$model->save()) {
-            return [
-                'operation' => 'error',
-                'message' => $model->errors
-            ];
-        }
-
-        return [
-            'operation' => 'success',
-            'logo' => $model->company_logo,
-            'company_logo_url' => $model->getCompanyLogoUrl(),
-            'message' => Yii::t('company', 'Company Logo Uploaded Successfully')
-        ];
+    public function actionUpdateLogo()
+    {
+        throw new \yii\web\ForbiddenHttpException('You cannot change this file.');
     }
 
     /**
-     * Allows user to change licence
+     * Staff changes the licence.
      */
-    public function actionUpdateLicence() {
-
-        $commercial_licence = urldecode(Yii::$app->request->getBodyParam('commercial_licence'));
-
-        $model = Yii::$app->companyManager->getCompany();
-        $model->setScenario(\common\models\Company::SCENARIO_REPLACE_LICENCE);
-        $model->commercial_licence = $commercial_licence;
-
-        if(!$model->commercial_licence) {
-            return [
-                'operation' => 'error',
-                'message' => Yii::t('company', 'invalid_input', [
-                    'attribute' => 'commercial licence'
-                ])
-            ];
-        }
-
-        if (!$model->save()) {
-            return [
-                'operation' => 'error',
-                'message' => $model->errors
-            ];
-        }
-
-        return [
-            'operation' => 'success',
-            'commercial_licence' => $model->commercial_licence,
-            'commercial_licence_url' => $model->getCommercialLicenceUrl(),
-            'logo' => $model->company_logo,
-            'message' => Yii::t('company', 'Commercial licence uploaded successfully')
-        ];
+    public function actionUpdateLicence()
+    {
+        throw new \yii\web\ForbiddenHttpException('You cannot change this file.');
     }
 
     /**
@@ -225,11 +155,6 @@ class CompanyController extends BaseController
      * @return array
      */
     public function actionActivate() {
-
-        $commercial_licence = urldecode(Yii::$app->request->getBodyParam('commercial_licence'));
-        $company_logo = urldecode(Yii::$app->request->getBodyParam('company_logo'));
-
-        //$agent = Yii::$app->user->identity;
 
         $contact_auth_key = Yii::$app->request->getBodyParam('contact_auth_key');
         $contact_email = Yii::$app->request->getBodyParam('contact_email');
@@ -280,8 +205,6 @@ class CompanyController extends BaseController
 
         $model->setScenario(\common\models\Company::SCENARIO_ACTIVATE);
 
-        $model->company_logo = $company_logo;
-        $model->commercial_licence = $commercial_licence;
         $model->company_website = Yii::$app->request->getBodyParam('website');
         $model->company_status_override = \common\models\Company::STATUS_ACTIVE;
 
@@ -289,19 +212,6 @@ class CompanyController extends BaseController
             $model->company_description_ar = Yii::$app->request->getBodyParam('description');
         } else {
             $model->company_description_en = Yii::$app->request->getBodyParam('description');
-        }
-
-        if(!$model->commercial_licence || $model->company_logo == "commercial_licence")
-        {
-            $transaction->rollBack();
-
-            return [
-                'operation' => 'error',
-                'code' => 1,
-                'message' => Yii::t('company', 'invalid_input', [
-                    'attribute' => 'commercial licence'
-                ])
-            ];
         }
 
         /*//upload logo

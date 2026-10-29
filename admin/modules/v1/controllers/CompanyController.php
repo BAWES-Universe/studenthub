@@ -347,6 +347,25 @@ class CompanyController extends Controller
     }
 
     /**
+     * Read-only licence for a company this admin can already view.
+     *
+     * @param int $id
+     * @return \yii\web\Response
+     */
+    public function actionCommercialLicence($id)
+    {
+        $company = Company::find()
+            ->filterCompany($id)
+            ->one();
+
+        if (!$company) {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
+
+        return \common\components\CompanyLicenceReader::send($company);
+    }
+
+    /**
      * Create a company account
      * @param $id
      * @return array

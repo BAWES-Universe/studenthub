@@ -30,10 +30,6 @@ class Company extends \common\models\Company {
             'company_logo_url' => function ($model) {
                 return $model->getCompanyLogoUrl();
             },
-            'commercial_licence',
-            'commercial_licence_url' => function ($model) {
-                return $model->getCommercialLicenceUrl();
-            },
             'company_website',
             'company_approved_to_hire',
             'company_status_override'=> 'company_status_override',
