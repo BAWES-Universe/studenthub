@@ -99,6 +99,29 @@ class TempUploadCest
         Assert::assertSame(self::CONTACT_KEY, $contact->contact_auth_key);
     }
 
+    public function tryPrivateProxyUsesTheRawForwardedClient(FunctionalTester $I)
+    {
+        $this->setSignerEnv();
+        $this->resetBudget();
+        $I->haveServerParameter('REMOTE_ADDR', '10.0.0.8');
+        $I->haveServerParameter('HTTP_X_FORWARDED_FOR', '203.0.113.50');
+
+        $I->sendPOST('http://localhost/index-test.php/v1/temp-upload/activate', $this->activationPayload('logo.png', 'image/png'));
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $this->assertPresign($I, 'image/png');
+    }
+
+    public function tryPrivateProxyWithoutForwardedClientIsUnavailable(FunctionalTester $I)
+    {
+        $this->setSignerEnv();
+        $this->resetBudget();
+        $I->haveServerParameter('REMOTE_ADDR', '10.0.0.8');
+        $I->haveServerParameter('HTTP_X_FORWARDED_FOR', '');
+
+        $I->sendPOST('http://localhost/index-test.php/v1/temp-upload/activate', $this->activationPayload('logo.png', 'image/png'));
+        $I->seeResponseCodeIs(503);
+    }
+
     public function tryInvalidActivationIsRejectedAndThenLimited(FunctionalTester $I)
     {
         $this->setSignerEnv();

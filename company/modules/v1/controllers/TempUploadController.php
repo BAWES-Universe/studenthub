@@ -71,13 +71,21 @@ class TempUploadController extends BaseController
         );
 
         try {
+            // Yii drops X-Forwarded-For from the header collection when trustedHosts
+            // is empty. This application does not configure trustedHosts, and the
+            // Railway peer is a private address, so the raw server value is required.
+            $forwardedFor = '';
+            if (isset($_SERVER['HTTP_X_FORWARDED_FOR']) && is_string($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+                $forwardedFor = $_SERVER['HTTP_X_FORWARDED_FOR'];
+            }
+
             $authorizer->authorize(
                 isset($body['contact_email']) ? $body['contact_email'] : null,
                 isset($body['contact_auth_key']) ? $body['contact_auth_key'] : null,
                 isset($body['company_id']) ? $body['company_id'] : null,
                 ActivationClientAddress::resolve(
                     Yii::$app->request->getRemoteIP(),
-                    Yii::$app->request->headers->get('X-Forwarded-For', '')
+                    $forwardedFor
                 )
             );
         } catch (ActivationPresignInputException $e) {
