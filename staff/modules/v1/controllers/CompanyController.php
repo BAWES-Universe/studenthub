@@ -492,8 +492,7 @@ class CompanyController extends Controller
         $model->company_description_en = Yii::$app->request->getBodyParam("description_en");
         $model->company_description_ar = Yii::$app->request->getBodyParam("description_ar");
         $model->company_website = Yii::$app->request->getBodyParam("website");
-        $model->company_logo = Yii::$app->request->getBodyParam("logo");
-        $model->commercial_licence = Yii::$app->request->getBodyParam("commercial_licence");
+        $this->assignPostedDocuments($model);
 
         $model->company_followup = Yii::$app->request->getBodyParam("followup");
         $model->company_followup_interval_weeks = Yii::$app->request->getBodyParam("followup_interval_weeks");
@@ -583,8 +582,7 @@ class CompanyController extends Controller
         $model->company_description_en = Yii::$app->request->getBodyParam("description_en");
         $model->company_description_ar = Yii::$app->request->getBodyParam("description_ar");
         $model->company_website = Yii::$app->request->getBodyParam("website");
-        $model->company_logo = Yii::$app->request->getBodyParam("logo");
-        $model->commercial_licence = Yii::$app->request->getBodyParam("commercial_licence");
+        $this->assignPostedDocuments($model);
         $model->company_followup = Yii::$app->request->getBodyParam("followup");
         $model->company_followup_interval_weeks = Yii::$app->request->getBodyParam("followup_interval_weeks");
         $model->company_approved_to_hire = Yii::$app->request->getBodyParam("approved_to_hire");
@@ -685,5 +683,18 @@ class CompanyController extends Controller
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');
         }
+    }
+
+    /**
+     * An omitted document field keeps the stored key. An empty posted value clears it.
+     *
+     * @param Company $model
+     * @return void
+     */
+    private function assignPostedDocuments($model)
+    {
+        $params = Yii::$app->request->getBodyParams();
+        Company::assignPostedDocumentValue($model, $params, 'logo', 'company_logo');
+        Company::assignPostedDocumentValue($model, $params, 'commercial_licence', 'commercial_licence');
     }
 }

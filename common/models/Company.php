@@ -72,6 +72,8 @@ class Company extends \yii\db\ActiveRecord
     const STATUS_INACTIVE = 0;
 
     const SCENARIO_ACTIVATE = "activate";
+    const SCENARIO_REPLACE_LOGO = 'replaceLogo';
+    const SCENARIO_REPLACE_LICENCE = 'replaceLicence';
     const SCENARIO_APPROVE = "approve";
     const SCENARIO_UPDATE = "update";
 
@@ -128,6 +130,7 @@ class Company extends \yii\db\ActiveRecord
                     );
                 }
             ],
+            [['commercial_licence'], 'validateDocumentReplacement', 'params' => ['kind' => 'licence']],
             /**
              *  Amazon S3 Temporary Bucket, validate that uploaded files exist if their values have been changed.
              */
@@ -145,6 +148,7 @@ class Company extends \yii\db\ActiveRecord
                     );
                 }
             ],
+            [['company_logo'], 'validateDocumentReplacement', 'params' => ['kind' => 'logo']],
             [['country_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::class, 'targetAttribute' => ['country_id' => 'country_id']],
         ];
     }
@@ -210,6 +214,8 @@ class Company extends \yii\db\ActiveRecord
             "company_description_en", "company_description_ar", "company_website",
             "company_email", "currency_code", "country_id"];
 
+        $scenarios[self::SCENARIO_REPLACE_LOGO] = ['company_logo'];
+        $scenarios[self::SCENARIO_REPLACE_LICENCE] = ['commercial_licence'];
         $scenarios['updateFollowup'] = ['company_followup'];
         $scenarios['updateStaff'] = ['staff_id'];
         $scenarios['updateStatus'] = ['company_status_override'];
@@ -256,9 +262,13 @@ class Company extends \yii\db\ActiveRecord
 
         unset($fields['deleted']);
 
-        $fields['commercial_licence_url'] = function ($model) {
-            return $model->getCommercialLicenceUrl();
-        };
+        if (!self::exposesCommercialLicence()) {
+            unset($fields['commercial_licence']);
+        } else {
+            $fields['commercial_licence_url'] = function ($model) {
+                return $model->getCommercialLicenceUrl();
+            };
+        }
         $fields['company_logo_url'] = function ($model) {
             return $model->getCompanyLogoUrl();
         };
@@ -512,21 +522,8 @@ class Company extends \yii\db\ActiveRecord
     {
         parent::afterSave($insert, $changedAttributes);
 
-        if (array_key_exists('commercial_licence', $changedAttributes)) {
-            $this->deleteReplacedStoredObject(
-                $changedAttributes['commercial_licence'],
-                $this->commercial_licence,
-                'licence'
-            );
-        }
-
-        if (array_key_exists('company_logo', $changedAttributes)) {
-            $this->deleteReplacedStoredObject(
-                $changedAttributes['company_logo'],
-                $this->company_logo,
-                'logo'
-            );
-        }
+        // Replaced licence and logo objects stay in storage. Deleting them here would run
+        // before an outer transaction commits, so a later rollback would lose the previous file.
 
         if (array_key_exists('company_status_override', $changedAttributes) &&
             $changedAttributes['company_status_override'] == self::STATUS_UNDER_REVIEW
@@ -929,16 +926,13 @@ class Company extends \yii\db\ActiveRecord
     }
 
     /**
-     * Remove the current logo after the caller has cleared it. Prefer deleting
-     * from afterSave(); this remains for the explicit remove action.
+     * Logo removal clears the stored key only. The object is retained so a rolled-back
+     * save cannot lose the previous file.
      *
      * @return bool
      */
     public function deleteProfilePhotoFromCloudinary()
     {
-        $stored = $this->oldAttributes['company_logo'] ?? $this->company_logo;
-        $this->deleteStoredCompanyObject($stored, 'logo');
-
         return true;
     }
 
@@ -997,6 +991,59 @@ class Company extends \yii\db\ActiveRecord
     }
 
     /**
+     * Staff, Admin, and Employer responses include the licence. Other applications,
+     * including nested company objects serialized in those applications, do not.
+     *
+     * @return bool
+     */
+    /**
+     * @param self $model
+     * @param array $params
+     * @param string $bodyKey
+     * @param string $attribute
+     * @return void
+     */
+    public static function assignPostedDocumentValue($model, array $params, $bodyKey, $attribute)
+    {
+        if (array_key_exists($bodyKey, $params)) {
+            $model->$attribute = $params[$bodyKey];
+        }
+    }
+
+    public static function exposesCommercialLicence(): bool
+    {
+        $appId = Yii::$app->id ?? '';
+
+        return in_array($appId, ['app-staff', 'app-admin', 'app-company'], true);
+    }
+
+    /**
+     * A replacement must be a new temporary upload. Another company's permanent key,
+     * a legacy reference, or any other path cannot be saved in place of an upload.
+     *
+     * @param string $attribute
+     * @param array $params
+     * @return void
+     */
+    public function validateDocumentReplacement($attribute, $params)
+    {
+        $submitted = self::normalizeStoredDocument($this->$attribute);
+        $existing = self::normalizeStoredDocument($this->getOldAttribute($attribute));
+
+        if ($submitted === '' || $submitted === $existing) {
+            return;
+        }
+
+        $class = self::classifyStoredDocument($submitted, $params['kind']);
+
+        if ($class === 'temporary') {
+            return;
+        }
+
+        $this->addError($attribute, Yii::t('app', 'Please upload the file again.'));
+    }
+
+    /**
      * @param string $kind
      * @return string
      */
@@ -1052,12 +1099,14 @@ class Company extends \yii\db\ActiveRecord
             $this->commercial_licence != $this->oldAttributes['commercial_licence'] &&
             !$this->updateLicence()
         ) {
+            $this->company_logo = $this->oldAttributes['company_logo'] ?? $this->company_logo;
             return false;
         }
 
         // in case create
 
         if ($this->isNewRecord && $this->commercial_licence && !$this->updateLicence()) {
+            $this->company_logo = $this->oldAttributes['company_logo'] ?? null;
             return false;
         }
 
@@ -1314,6 +1363,8 @@ class Company extends \yii\db\ActiveRecord
         }
 
         try {
+            // copy() merges ACL public-read. This does not make the object private,
+            // and this change does not alter the bucket policy.
             Yii::$app->resourceManager->copy(
                 $submitted,
                 $target,

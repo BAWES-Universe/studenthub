@@ -133,17 +133,15 @@ class CompanyController extends BaseController
     {
         $model = Yii::$app->companyManager->getCompany();
 
-        $previousLogo = $model->company_logo;
+        $model->setScenario(\common\models\Company::SCENARIO_REPLACE_LOGO);
         $model->company_logo = null;
 
-        if (!$model->save(false)) {
+        if (!$model->save()) {
             return [
                 'operation' => 'error',
                 'message' => $model->errors
             ];
         }
-
-        $model->deleteStoredCompanyObject($previousLogo, 'logo');
 
         return [
             'operation' => 'success',
@@ -159,7 +157,7 @@ class CompanyController extends BaseController
         $company_logo = urldecode(Yii::$app->request->getBodyParam('company_logo'));
 
         $model = Yii::$app->companyManager->getCompany();
-
+        $model->setScenario(\common\models\Company::SCENARIO_REPLACE_LOGO);
         $model->company_logo = $company_logo;
 
         if(!$model->company_logo || $model->company_logo == "undefined") {
@@ -171,7 +169,7 @@ class CompanyController extends BaseController
             ];
         }
 
-        if (!$model->save(false)) {
+        if (!$model->save()) {
             return [
                 'operation' => 'error',
                 'message' => $model->errors
@@ -194,10 +192,10 @@ class CompanyController extends BaseController
         $commercial_licence = urldecode(Yii::$app->request->getBodyParam('commercial_licence'));
 
         $model = Yii::$app->companyManager->getCompany();
-
+        $model->setScenario(\common\models\Company::SCENARIO_REPLACE_LICENCE);
         $model->commercial_licence = $commercial_licence;
 
-        if(!$model->commercial_licence || $model->company_logo == "commercial_licence") {
+        if(!$model->commercial_licence) {
             return [
                 'operation' => 'error',
                 'message' => Yii::t('company', 'invalid_input', [
@@ -206,7 +204,7 @@ class CompanyController extends BaseController
             ];
         }
 
-        if (!$model->save(false)) {
+        if (!$model->save()) {
             return [
                 'operation' => 'error',
                 'message' => $model->errors
