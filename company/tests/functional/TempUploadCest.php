@@ -122,6 +122,67 @@ class TempUploadCest
         $I->seeResponseCodeIs(503);
     }
 
+    public function tryDirectPublicCallerIgnoresForwardedAddress(FunctionalTester $I)
+    {
+        $this->setSignerEnv();
+        $this->resetBudget();
+        $I->haveServerParameter('REMOTE_ADDR', '203.0.113.10');
+        $I->haveServerParameter('HTTP_X_FORWARDED_FOR', '198.51.100.4');
+
+        for ($attempt = 1; $attempt <= ActivationPresignAuthorizer::IP_FAILURE_LIMIT; $attempt++) {
+            $I->sendPOST(
+                'http://localhost/index-test.php/v1/temp-upload/activate',
+                $this->activationGuess('direct-' . $attempt . '@example.test')
+            );
+            $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
+        }
+
+        $I->haveServerParameter('HTTP_X_FORWARDED_FOR', '198.51.100.77');
+        $I->sendPOST(
+            'http://localhost/index-test.php/v1/temp-upload/activate',
+            $this->activationGuess('direct-after-spoof@example.test')
+        );
+        $I->seeResponseCodeIs(HttpCode::TOO_MANY_REQUESTS);
+
+        $I->haveServerParameter('REMOTE_ADDR', '198.51.100.4');
+        $I->haveServerParameter('HTTP_X_FORWARDED_FOR', '203.0.113.10');
+        $I->sendPOST(
+            'http://localhost/index-test.php/v1/temp-upload/activate',
+            $this->activationGuess('forwarded-has-its-own-counter@example.test')
+        );
+        $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
+    }
+
+    public function trySpoofedForwardedPrefixDoesNotResetTheIpBudget(FunctionalTester $I)
+    {
+        $this->setSignerEnv();
+        $this->resetBudget();
+        $I->haveServerParameter('REMOTE_ADDR', '10.0.0.8');
+        $I->haveServerParameter('HTTP_X_FORWARDED_FOR', '198.51.100.4, 203.0.113.70');
+
+        for ($attempt = 1; $attempt <= ActivationPresignAuthorizer::IP_FAILURE_LIMIT; $attempt++) {
+            $I->sendPOST(
+                'http://localhost/index-test.php/v1/temp-upload/activate',
+                $this->activationGuess('proxy-' . $attempt . '@example.test')
+            );
+            $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
+        }
+
+        $I->haveServerParameter('HTTP_X_FORWARDED_FOR', '203.0.113.99, 203.0.113.70');
+        $I->sendPOST(
+            'http://localhost/index-test.php/v1/temp-upload/activate',
+            $this->activationGuess('proxy-prefix-changed@example.test')
+        );
+        $I->seeResponseCodeIs(HttpCode::TOO_MANY_REQUESTS);
+
+        $I->haveServerParameter('HTTP_X_FORWARDED_FOR', '198.51.100.4, 203.0.113.71');
+        $I->sendPOST(
+            'http://localhost/index-test.php/v1/temp-upload/activate',
+            $this->activationGuess('proxy-different-client@example.test')
+        );
+        $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
+    }
+
     public function tryInvalidActivationIsRejectedAndThenLimited(FunctionalTester $I)
     {
         $this->setSignerEnv();
@@ -218,6 +279,19 @@ class TempUploadCest
         return $this->filePayload($filename, $contentType) + [
             'contact_email' => self::CONTACT_EMAIL,
             'contact_auth_key' => self::CONTACT_KEY,
+            'company_id' => self::COMPANY_ID,
+        ];
+    }
+
+    /**
+     * @param string $email
+     * @return array
+     */
+    private function activationGuess($email)
+    {
+        return $this->filePayload('logo.png', 'image/png') + [
+            'contact_email' => $email,
+            'contact_auth_key' => '0000',
             'company_id' => self::COMPANY_ID,
         ];
     }
