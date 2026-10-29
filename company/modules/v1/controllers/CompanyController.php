@@ -133,10 +133,7 @@ class CompanyController extends BaseController
     {
         $model = Yii::$app->companyManager->getCompany();
 
-        if ($model->company_logo) {
-            $model->deleteProfilePhotoFromCloudinary();
-        }
-
+        $previousLogo = $model->company_logo;
         $model->company_logo = null;
 
         if (!$model->save(false)) {
@@ -145,6 +142,8 @@ class CompanyController extends BaseController
                 'message' => $model->errors
             ];
         }
+
+        $model->deleteStoredCompanyObject($previousLogo, 'logo');
 
         return [
             'operation' => 'success',
@@ -172,20 +171,19 @@ class CompanyController extends BaseController
             ];
         }
 
-        $result = $model->updateCompanyLogo();
-
-        if ($result) {
-            return [
-                'operation' => 'success',
-                'logo' => $model->company_logo,
-                'message' => Yii::t('company', 'Company Logo Uploaded Successfully')
-            ];
-        } else {
+        if (!$model->save(false)) {
             return [
                 'operation' => 'error',
                 'message' => $model->errors
             ];
         }
+
+        return [
+            'operation' => 'success',
+            'logo' => $model->company_logo,
+            'company_logo_url' => $model->getCompanyLogoUrl(),
+            'message' => Yii::t('company', 'Company Logo Uploaded Successfully')
+        ];
     }
 
     /**
@@ -208,20 +206,20 @@ class CompanyController extends BaseController
             ];
         }
 
-        $result = $model->updateLicence();
-
-        if ($result) {
-            return [
-                'operation' => 'success',
-                'logo' => $model->company_logo,
-                'message' => Yii::t('company', 'Company Logo Uploaded Successfully')
-            ];
-        } else {
+        if (!$model->save(false)) {
             return [
                 'operation' => 'error',
                 'message' => $model->errors
             ];
         }
+
+        return [
+            'operation' => 'success',
+            'commercial_licence' => $model->commercial_licence,
+            'commercial_licence_url' => $model->getCommercialLicenceUrl(),
+            'logo' => $model->company_logo,
+            'message' => Yii::t('company', 'Commercial licence uploaded successfully')
+        ];
     }
 
     /**

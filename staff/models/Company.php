@@ -31,6 +31,7 @@ class Company extends \common\models\Company {
             'company_common_name_ar', 'company_description_en', 'company_description_ar',
             'company_website',
             'company_logo',
+            'commercial_licence',
             'company_followup',
             'company_followup_interval_weeks',
             'company_last_followup_datetime'
