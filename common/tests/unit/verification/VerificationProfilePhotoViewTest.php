@@ -14,33 +14,33 @@ use yii\web\Application;
  */
 class VerificationProfilePhotoViewTest extends TestCase
 {
-    /** @var array<string, mixed> */
-    private $originalComponents = [];
+    /** @var Application|null */
+    private $previousApp;
 
-    /** @var bool */
-    private $bootedApplication = false;
+    /** @var array */
+    private $previousAliases = [];
+
+    /** @var Application|null */
+    private $application;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->bootApplication();
-        foreach (['resourceManager', 'cloudinaryManager'] as $id) {
-            $this->originalComponents[$id] = Yii::$app->has($id, true) ? Yii::$app->get($id) : null;
-        }
+        $this->ensureFramework();
+        $this->previousApp = Yii::$app;
+        $this->previousAliases = Yii::$aliases;
+        $this->application = $this->createApplication('verification-photo-view-test', $this->fixtureComponents());
+        $this->createCandidateTable();
     }
 
     protected function tearDown(): void
     {
-        foreach ($this->originalComponents as $id => $component) {
-            if ($component === null) {
-                Yii::$app->set($id, null);
-            } else {
-                Yii::$app->set($id, $component);
-            }
-        }
-        if ($this->bootedApplication && Yii::$app !== null) {
-            Yii::$app = null;
-        }
+        $this->releaseApplication($this->application);
+        $this->application = null;
+        Yii::$app = $this->previousApp;
+        Yii::$aliases = $this->previousAliases;
+        $this->previousApp = null;
+        $this->previousAliases = [];
         parent::tearDown();
     }
 
@@ -169,9 +169,79 @@ class VerificationProfilePhotoViewTest extends TestCase
         $this->assertStringContainsString("'<candidate_uid:[A-Za-z0-9\\_-]+>' => 'site/index'", $rules);
     }
 
-    private function bootApplication(): void
+    public function testConfiguredPhotoManagersStayUninstantiatedOnTheExistingApplication()
     {
-        if (class_exists(Yii::class, false) && Yii::$app !== null) {
+        $fixtureApp = $this->application;
+        $fixtureAliases = Yii::$aliases;
+        $host = null;
+        $nested = null;
+
+        try {
+            $host = $this->createApplication('verification-photo-host', [
+                'request' => [
+                    'cookieValidationKey' => 'verification-photo-host',
+                    'scriptFile' => __FILE__,
+                    'scriptUrl' => '/index.php',
+                ],
+                'resourceManager' => [
+                    'class' => S3ResourceManager::class,
+                    'authMethod' => S3ResourceManager::AUTH_VIA_ANONYMOUS,
+                    'region' => 'eu-west-2',
+                    'bucket' => 'studenthub-uploads',
+                ],
+                'cloudinaryManager' => [
+                    'class' => \common\components\CloudinaryManager::class,
+                ],
+            ]);
+            $hostAliases = Yii::$aliases;
+            $resourceDefinition = $host->getComponents(true)['resourceManager'];
+            $cloudinaryDefinition = $host->getComponents(true)['cloudinaryManager'];
+            $this->assertFalse($host->has('resourceManager', true));
+            $this->assertFalse($host->has('cloudinaryManager', true));
+            $this->assertFalse($host->has('db', false));
+
+            $nested = $this->createApplication('verification-photo-nested', $this->fixtureComponents());
+            $this->createCandidateTable();
+            $this->useRealAnonymousUploadsManager();
+            Yii::$app->set('cloudinaryManager', new \yii\base\Component());
+            $html = $this->render($this->candidate('candidate-profile-photos/unit-test.jpg'), null);
+            $this->assertNotSame($host, Yii::$app);
+            $this->assertStringContainsString('candidate-profile-photos/unit-test.jpg', $html);
+
+            $this->releaseApplication($nested);
+            $nested = null;
+            Yii::$app = $host;
+            Yii::$aliases = $hostAliases;
+
+            $this->assertSame($host, Yii::$app);
+            $this->assertTrue($host->has('resourceManager', false));
+            $this->assertFalse($host->has('resourceManager', true));
+            $this->assertTrue($host->has('cloudinaryManager', false));
+            $this->assertFalse($host->has('cloudinaryManager', true));
+            $this->assertSame($resourceDefinition, $host->getComponents(true)['resourceManager']);
+            $this->assertSame($cloudinaryDefinition, $host->getComponents(true)['cloudinaryManager']);
+            $this->assertArrayNotHasKey('resourceManager', $host->getComponents(false));
+            $this->assertArrayNotHasKey('cloudinaryManager', $host->getComponents(false));
+            $this->assertFalse($host->has('db', false));
+        } finally {
+            if ($nested instanceof Application) {
+                $this->releaseApplication($nested);
+            }
+            if ($host instanceof Application) {
+                if (Yii::$app !== $host) {
+                    Yii::$app = $host;
+                }
+                $this->releaseApplication($host);
+            }
+            Yii::$app = $fixtureApp;
+            Yii::$aliases = $fixtureAliases;
+            $this->application = $fixtureApp;
+        }
+    }
+
+    private function ensureFramework(): void
+    {
+        if (class_exists(Yii::class, false)) {
             return;
         }
 
@@ -182,32 +252,51 @@ class VerificationProfilePhotoViewTest extends TestCase
 
         defined('YII_DEBUG') or define('YII_DEBUG', true);
         defined('YII_ENV') or define('YII_ENV', 'test');
+    }
 
+    /**
+     * @return array<string, mixed>
+     */
+    private function fixtureComponents(): array
+    {
         $assetPath = sys_get_temp_dir() . '/sh-verify-assets';
         if (!is_dir($assetPath)) {
             mkdir($assetPath, 0775, true);
         }
 
-        new Application([
-            'id' => 'verification-photo-view-test',
+        return [
+            'db' => [
+                'class' => \yii\db\Connection::class,
+                'dsn' => 'sqlite::memory:',
+            ],
+            'request' => [
+                'cookieValidationKey' => 'verification-photo-view-test',
+                'scriptFile' => __FILE__,
+                'scriptUrl' => '/index.php',
+            ],
+            'assetManager' => [
+                'basePath' => $assetPath,
+            ],
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $components
+     */
+    private function createApplication(string $id, array $components): Application
+    {
+        $root = dirname(__DIR__, 4);
+
+        return new Application([
+            'id' => $id,
             'basePath' => $root . '/verification',
             'vendorPath' => $root . '/vendor',
-            'components' => [
-                'db' => [
-                    'class' => \yii\db\Connection::class,
-                    'dsn' => 'sqlite::memory:',
-                ],
-                'request' => [
-                    'cookieValidationKey' => 'verification-photo-view-test',
-                    'scriptFile' => __FILE__,
-                    'scriptUrl' => '/index.php',
-                ],
-                'assetManager' => [
-                    'basePath' => $assetPath,
-                ],
-            ],
+            'components' => $components,
         ]);
-        $this->bootedApplication = true;
+    }
+
+    private function createCandidateTable(): void
+    {
         Yii::$app->db->createCommand(
             'CREATE TABLE candidate (
                 candidate_id INTEGER PRIMARY KEY,
@@ -218,6 +307,20 @@ class VerificationProfilePhotoViewTest extends TestCase
                 university_id INTEGER
             )'
         )->execute();
+    }
+
+    private function releaseApplication(?Application $application): void
+    {
+        if (!$application instanceof Application) {
+            return;
+        }
+
+        if ($application->has('errorHandler', true)) {
+            $application->getErrorHandler()->unregister();
+        }
+        if (Yii::$app === $application) {
+            Yii::$app = null;
+        }
     }
 
     private function useRealAnonymousUploadsManager(): void
