@@ -883,6 +883,7 @@ class Company extends \yii\db\ActiveRecord
 
     public const COMMERCIAL_LICENCE_S3_PREFIX = 'company-commercial-licences/';
     public const PRIVATE_COMMERCIAL_LICENCE_S3_PREFIX = 'private/company-commercial-licences/';
+    public const PRIVATE_TEMPORARY_LICENCE_PREFIX = 'privatelicence-';
     public const LEGACY_COMMERCIAL_LICENCE_PREFIX = 'commercial-licence/';
     public const COMPANY_LOGO_S3_PREFIX = 'company-logos/';
     public const LEGACY_COMPANY_LOGO_PREFIX = 'company-logo/';
@@ -955,10 +956,10 @@ class Company extends \yii\db\ActiveRecord
     }
 
     /**
-     * @param mixed $submitted
-     * @param mixed $existing
-     * @param string $kind licence|logo
-     * @return bool
+     * Reject a temporary licence that is public, missing, or not a private upload issued by this server.
+     *
+     * @param string $attribute
+     * @return void
      */
     public function validatePrivateTemporaryLicence($attribute)
     {
@@ -975,11 +976,61 @@ class Company extends \yii\db\ActiveRecord
             return;
         }
 
-        if (!Yii::$app->temporaryBucketResourceManager->storedObjectExists($stored)) {
+        if (!$this->privateTemporaryLicenceExists($stored)) {
             $this->addError($attribute, Yii::t('app', 'Please upload commercial licence'));
         }
     }
 
+    /**
+     * A promotable licence is a bare temporary key issued for a private upload.
+     * Public temporary names, including objects from cached Staff clients, are rejected.
+     *
+     * @param mixed $stored
+     * @return bool
+     */
+    public static function isPrivateTemporaryLicenceKey($stored): bool
+    {
+        $stored = self::normalizeStoredDocument($stored);
+        if (self::classifyStoredDocument($stored, 'licence') !== 'temporary') {
+            return false;
+        }
+
+        return strpos($stored, self::PRIVATE_TEMPORARY_LICENCE_PREFIX) === 0;
+    }
+
+    /**
+     * Anonymous HEAD success means the temp object is public and must not be stored.
+     * A following authenticated HeadObject uses the permanent resourceManager principal
+     * (AWS_S3_RAILWAY_ACCESS_KEY_ID / AWS_S3_RAILWAY_SECRET_ACCESS_KEY, bucket studenthub-uploads)
+     * against the temporary bucket. That principal needs s3:HeadObject and s3:GetObject
+     * on studenthub-public-anyone-can-upload-24hr-expiry, and s3:PutObject plus s3:GetObject
+     * on studenthub-uploads. The temp upload signer only signs the browser PUT.
+     * The anonymous temporaryBucketResourceManager stays in place for public logos.
+     *
+     * @param mixed $stored
+     * @return bool
+     */
+    public function privateTemporaryLicenceExists($stored): bool
+    {
+        $stored = self::normalizeStoredDocument($stored);
+        if (!self::isPrivateTemporaryLicenceKey($stored)) {
+            return false;
+        }
+
+        $temporary = Yii::$app->temporaryBucketResourceManager;
+        if ($temporary->anonymouslyReadable($stored)) {
+            return false;
+        }
+
+        return Yii::$app->resourceManager->objectExistsInBucket($temporary->bucket, $stored);
+    }
+
+    /**
+     * @param mixed $submitted
+     * @param mixed $existing
+     * @param string $kind licence|logo
+     * @return bool
+     */
     public static function shouldValidateTemporaryUpload($submitted, $existing, $kind): bool
     {
         $submitted = self::normalizeStoredDocument($submitted);
@@ -1412,7 +1463,7 @@ class Company extends \yii\db\ActiveRecord
 
         $temporary = Yii::$app->temporaryBucketResourceManager;
         $exists = $kind === 'licence'
-            ? $temporary->storedObjectExists($submitted)
+            ? $this->privateTemporaryLicenceExists($submitted)
             : $temporary->fileExists($submitted);
         if (!$exists) {
             $this->$attribute = $existing === '' ? null : $existing;

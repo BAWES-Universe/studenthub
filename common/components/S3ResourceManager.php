@@ -151,7 +151,8 @@ class S3ResourceManager extends Component
     }
 
     /**
-     * Authenticated existence check. Anonymous HEAD cannot prove a private object exists.
+     * Existence check with this component's own client.
+     * On the anonymous temporary manager this cannot prove a private object exists.
      *
      * @param string $key
      * @return bool
@@ -208,6 +209,43 @@ class S3ResourceManager extends Component
             return false;
         }
         return $response->getStatusCode() == 200;
+    }
+
+    /**
+     * True only when an anonymous public HEAD can read the object.
+     * Private and missing objects return false.
+     *
+     * @param string $key
+     * @return bool
+     */
+    public function anonymouslyReadable($key)
+    {
+        return $this->fileExists($key);
+    }
+
+    /**
+     * HeadObject with this component's client against an explicit bucket.
+     * Private temporary licences call this on the permanent resourceManager,
+     * whose principal is AWS_S3_RAILWAY_ACCESS_KEY_ID, and pass the temporary
+     * bucket. That principal needs s3:HeadObject and s3:GetObject on the
+     * source bucket and s3:PutObject plus s3:GetObject on studenthub-uploads.
+     *
+     * @param string $bucket
+     * @param string $key
+     * @return bool
+     */
+    public function objectExistsInBucket($bucket, $key)
+    {
+        try {
+            $this->getClient()->headObject([
+                'Bucket' => $bucket,
+                'Key' => $key,
+            ]);
+
+            return true;
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 
     /**

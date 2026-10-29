@@ -21,7 +21,6 @@ class CompanyLicenceReader
     public static function send(Company $company)
     {
         $response = Yii::$app->response;
-        $response->format = Response::FORMAT_RAW;
         $headers = $response->headers;
         $headers->set('Cache-Control', 'private, no-store');
         $headers->set('Pragma', 'no-cache');
@@ -56,6 +55,7 @@ class CompanyLicenceReader
 
         $headers->set('Content-Type', $type);
         $headers->set('Content-Disposition', 'inline; filename="' . $name . '"');
+        $response->format = Response::FORMAT_RAW;
         $response->content = $bytes;
 
         return $response;

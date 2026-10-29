@@ -42,6 +42,12 @@ class CompanyDocumentStorageTest extends TestCase
         $this->assertSame('public-copy', Company::classifyCommercialLicence('dev/company-commercial-licences/new.jpg'));
         $this->assertSame('permanent', Company::classifyCommercialLicence(Company::permanentDocumentPrefix('licence') . 'new.jpg'));
         $this->assertSame('temporary', Company::classifyCommercialLicence('licence-1.png'));
+        $this->assertFalse(Company::isPrivateTemporaryLicenceKey('licence-1.png'));
+        $this->assertTrue(Company::isPrivateTemporaryLicenceKey(Company::PRIVATE_TEMPORARY_LICENCE_PREFIX . 'licence-1.png'));
+        $this->assertSame(
+            \common\components\TempUploadPresigner::PRIVATE_LICENCE_KEY_PREFIX,
+            Company::PRIVATE_TEMPORARY_LICENCE_PREFIX
+        );
         $this->assertSame('unknown', Company::classifyCommercialLicence('https://res.cloudinary.com/studenthub/image/upload/commercial-licence/old.jpg'));
         $this->assertSame('legacy', Company::classifyCompanyLogo('company-logo/old.jpg'));
         $this->assertSame('permanent', Company::classifyCompanyLogo('company-logos/new.jpg'));
@@ -52,19 +58,59 @@ class CompanyDocumentStorageTest extends TestCase
     public function testNewLicenceIsCopiedToThePermanentPrefixWithoutCloudinary()
     {
         $company = $this->company('commercial-licence/old.jpg', 'company-logo/old.jpg');
-        $company->commercial_licence = 'licence-1.png';
+        $tempKey = Company::PRIVATE_TEMPORARY_LICENCE_PREFIX . 'licence-1.png';
+        $company->commercial_licence = $tempKey;
         $managers = $this->installManagers();
 
         $this->assertTrue($company->updateLicence());
-        $this->assertSame(Company::permanentDocumentPrefix('licence') . 'licence-1.png', $company->commercial_licence);
+        $this->assertSame(Company::permanentDocumentPrefix('licence') . $tempKey, $company->commercial_licence);
         $this->assertSame([
-            'licence-1.png',
-            Company::permanentDocumentPrefix('licence') . 'licence-1.png',
+            $tempKey,
+            Company::permanentDocumentPrefix('licence') . $tempKey,
             'temp-bucket',
             ['ACL' => 'private'],
         ], $managers->copies[0]);
+        $this->assertSame([['temp-bucket', $tempKey]], $managers->authenticatedHeads);
+        $this->assertSame([], $managers->sdkHeads);
         $this->assertSame([], $managers->cloudinaryDeletes);
         $this->assertSame('commercial-licence/old.jpg', $company->getOldAttribute('commercial_licence'));
+    }
+
+    public function testPublicTemporaryLicenceIsNotPromoted()
+    {
+        $company = $this->company('commercial-licence/old.jpg', null);
+        $company->commercial_licence = 'licence-public.png';
+        $managers = $this->installManagers();
+
+        $this->assertFalse($company->updateLicence());
+        $this->assertSame('commercial-licence/old.jpg', $company->commercial_licence);
+        $this->assertSame([], $managers->authenticatedHeads);
+        $this->assertSame([], $managers->copies);
+    }
+
+    public function testAnonymouslyReadableLicenceIsNotPromoted()
+    {
+        $company = $this->company('commercial-licence/old.jpg', null);
+        $tempKey = Company::PRIVATE_TEMPORARY_LICENCE_PREFIX . 'public-temp-licence.png';
+        $company->commercial_licence = $tempKey;
+        $managers = $this->installManagers();
+
+        $this->assertFalse($company->updateLicence());
+        $this->assertSame('commercial-licence/old.jpg', $company->commercial_licence);
+        $this->assertSame([$tempKey], $managers->anonymousChecks);
+        $this->assertSame([], $managers->authenticatedHeads);
+    }
+
+    public function testLogoPromotionStillUsesThePublicExistenceCheck()
+    {
+        $company = $this->company(null, 'company-logo/old.jpg');
+        $company->company_logo = 'logo-new.png';
+        $managers = $this->installManagers();
+
+        $this->assertTrue($company->updateCompanyLogo());
+        $this->assertSame([], $managers->authenticatedHeads);
+        $this->assertSame([], $managers->anonymousChecks);
+        $this->assertSame(Company::permanentDocumentPrefix('logo') . 'logo-new.png', $company->company_logo);
     }
 
     public function testFailedCopyKeepsThePreviousLicence()
@@ -123,14 +169,15 @@ class CompanyDocumentStorageTest extends TestCase
     public function testReplacingALicenceKeepsThePreviousObject()
     {
         $company = $this->company('commercial-licence/old.jpg', null);
-        $company->commercial_licence = 'licence-2.png';
+        $tempKey = Company::PRIVATE_TEMPORARY_LICENCE_PREFIX . 'licence-2.png';
+        $company->commercial_licence = $tempKey;
         $managers = $this->installManagers();
 
         $this->assertTrue($company->updateLicence());
         $company->afterSave(false, ['commercial_licence' => 'commercial-licence/old.jpg']);
 
         $this->assertSame([], $managers->cloudinaryDeletes);
-        $this->assertSame(Company::permanentDocumentPrefix('licence') . 'licence-2.png', $company->commercial_licence);
+        $this->assertSame(Company::permanentDocumentPrefix('licence') . $tempKey, $company->commercial_licence);
     }
 
     public function testOuterTransactionRollbackKeepsThePreviousLicence()
@@ -159,7 +206,7 @@ class CompanyDocumentStorageTest extends TestCase
         $company->detachBehaviors();
 
         $transaction = Yii::$app->db->beginTransaction();
-        $company->commercial_licence = 'licence-2.png';
+        $company->commercial_licence = Company::PRIVATE_TEMPORARY_LICENCE_PREFIX . 'licence-2.png';
         $this->assertTrue($company->save(false));
         $this->assertNotEmpty($managers->copies);
         $transaction->rollBack();
@@ -243,10 +290,11 @@ class CompanyDocumentStorageTest extends TestCase
     public function testCopyThrowOnAnExistingTemporaryObjectKeepsThePreviousLicence()
     {
         $company = $this->company('commercial-licence/old.jpg', 'company-logo/old.jpg');
-        $company->commercial_licence = 'licence-exists.png';
-        $managers = $this->installManagers(true, ['licence-exists.png']);
+        $tempKey = Company::PRIVATE_TEMPORARY_LICENCE_PREFIX . 'licence-exists.png';
+        $company->commercial_licence = $tempKey;
+        $managers = $this->installManagers(true, [$tempKey]);
 
-        $this->assertTrue($managers->fileExists('licence-exists.png'));
+        $this->assertTrue($managers->fileExists($tempKey));
         $this->assertFalse($company->updateLicence());
         $this->assertSame('commercial-licence/old.jpg', $company->commercial_licence);
         $this->assertArrayHasKey('commercial_licence', $company->getErrors());
@@ -257,8 +305,9 @@ class CompanyDocumentStorageTest extends TestCase
     {
         $company = $this->company('commercial-licence/old.jpg', null);
         $company->company_logo = 'logo-new.png';
-        $company->commercial_licence = 'licence-exists.png';
-        $this->installManagers(true, ['licence-exists.png']);
+        $tempKey = Company::PRIVATE_TEMPORARY_LICENCE_PREFIX . 'licence-exists.png';
+        $company->commercial_licence = $tempKey;
+        $this->installManagers(true, [$tempKey]);
 
         $this->assertFalse($company->beforeSave(false));
         $this->assertNull($company->company_logo);
@@ -351,6 +400,7 @@ class CompanyDocumentStorageTest extends TestCase
         $response = \common\components\CompanyLicenceReader::send($company);
 
         $this->assertSame('licence-bytes', $response->content);
+        $this->assertSame(\yii\web\Response::FORMAT_RAW, $response->format);
         $this->assertSame('private, no-store', $response->headers->get('Cache-Control'));
         $this->assertStringNotContainsString('http', $response->content);
 
@@ -359,8 +409,36 @@ class CompanyDocumentStorageTest extends TestCase
         $this->assertSame('licence-bytes', $publicResponse->content);
 
         $legacy = $this->company('commercial-licence/old.jpg', null);
-        $this->expectException(\yii\web\NotFoundHttpException::class);
-        \common\components\CompanyLicenceReader::send($legacy);
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        try {
+            \common\components\CompanyLicenceReader::send($legacy);
+            $this->fail('A legacy licence must stay unavailable.');
+        } catch (\yii\web\NotFoundHttpException $e) {
+            $this->assertSame(\yii\web\Response::FORMAT_JSON, Yii::$app->response->format);
+        }
+    }
+
+    public function testPinnedRawErrorHandlerKeepsNotFoundStatus()
+    {
+        $handler = file_get_contents(dirname(__DIR__, 4) . '/vendor/yiisoft/yii2/web/ErrorHandler.php');
+        $this->assertIsString($handler);
+        $this->assertStringContainsString(
+            "\$response->format === Response::FORMAT_RAW",
+            $handler
+        );
+        $this->assertStringContainsString(
+            'convertExceptionToString($exception)',
+            $handler
+        );
+
+        $response = new \yii\web\Response();
+        $response->format = \yii\web\Response::FORMAT_RAW;
+        $exception = new \yii\web\NotFoundHttpException('The licence file is unavailable. Upload a replacement.');
+        $response->setStatusCodeByException($exception);
+
+        $this->assertSame(404, $response->getStatusCode());
+        $this->assertNotSame(500, $response->getStatusCode());
+        $this->assertIsString(\yii\web\ErrorHandler::convertExceptionToString($exception));
     }
 
     public function testCommercialLicenceKeyIsLimitedToStaffAndAdmin()
@@ -514,6 +592,9 @@ class CompanyDocumentStorageTest extends TestCase
         $managers = new class($copySucceeds, $existingKeysThatFailCopy) {
             public $copies = [];
             public $cloudinaryDeletes = [];
+            public $authenticatedHeads = [];
+            public $anonymousChecks = [];
+            public $sdkHeads = [];
             public $bucket = 'temp-bucket';
             public $cloud_name;
             private $copySucceeds;
@@ -530,8 +611,24 @@ class CompanyDocumentStorageTest extends TestCase
                 return $key !== 'missing.png';
             }
 
+            public function anonymouslyReadable($key)
+            {
+                $this->anonymousChecks[] = $key;
+
+                return strpos((string) $key, 'public-temp-') !== false;
+            }
+
+            public function objectExistsInBucket($bucket, $key)
+            {
+                $this->authenticatedHeads[] = [$bucket, $key];
+
+                return $this->fileExists($key);
+            }
+
             public function storedObjectExists($key)
             {
+                $this->sdkHeads[] = $key;
+
                 return $this->fileExists($key);
             }
 

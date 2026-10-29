@@ -12,7 +12,16 @@ return [
             'bucket' => 'studenthub-public-anyone-can-upload-24hr-expiry',
             /**
              * Public reads pass credentials => false so the SDK does not
-             * search the default credential chain.
+             * search the default credential chain. Logo and other public
+             * uploads keep using this anonymous client.
+             *
+             * Private temporary licences are not checked here. Company uses
+             * the permanent resourceManager principal
+             * (AWS_S3_RAILWAY_ACCESS_KEY_ID / AWS_S3_RAILWAY_SECRET_ACCESS_KEY)
+             * to head and copy objects in this bucket. That principal needs
+             * s3:HeadObject and s3:GetObject here, plus s3:PutObject and
+             * s3:GetObject on studenthub-uploads. The temp upload signer only
+             * signs the browser PUT.
              *
              * You can access the Temporary bucket with:
              * https://studenthub-public-anyone-can-upload-24hr-expiry.s3.amazonaws.com/

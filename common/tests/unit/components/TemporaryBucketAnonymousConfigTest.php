@@ -37,6 +37,8 @@ class TemporaryBucketAnonymousConfigTest extends \PHPUnit\Framework\TestCase
             'AWS_SESSION_TOKEN',
             'AWS_PROFILE',
             'AWS_EC2_METADATA_DISABLED',
+            'AWS_S3_RAILWAY_ACCESS_KEY_ID',
+            'AWS_S3_RAILWAY_SECRET_ACCESS_KEY',
         ]);
         $this->setEnv('AWS_ACCESS_KEY_ID', self::DEFAULT_CHAIN_KEY);
         $this->setEnv('AWS_SECRET_ACCESS_KEY', self::DEFAULT_CHAIN_SECRET);
@@ -145,6 +147,65 @@ class TemporaryBucketAnonymousConfigTest extends \PHPUnit\Framework\TestCase
         $this->assertSame(self::DEFAULT_CHAIN_SECRET, $credentials->getSecretKey());
     }
 
+    public function testPrivateLicenceHeadUsesThePermanentPrincipalOnTheTemporaryBucket()
+    {
+        $this->setEnv('AWS_S3_RAILWAY_ACCESS_KEY_ID', self::FAKE_KEY);
+        $this->setEnv('AWS_S3_RAILWAY_SECRET_ACCESS_KEY', self::FAKE_SECRET);
+
+        $temporary = $this->productionTemporaryConfig();
+        $permanent = $this->productionPermanentConfig();
+        $key = $permanent['key'];
+        $secret = $permanent['secret'];
+        $bucket = $permanent['bucket'];
+        $region = $permanent['region'];
+        $authMethod = $permanent['authMethod'];
+        unset($permanent);
+
+        $this->assertSame(S3ResourceManager::AUTH_VIA_ANONYMOUS, $temporary['authMethod']);
+        $this->assertSame(self::BUCKET, $temporary['bucket']);
+        $this->assertNull($temporary['key']);
+        $this->assertSame(S3ResourceManager::AUTH_VIA_KEY_AND_SECRET, $authMethod);
+        $this->assertSame('studenthub-uploads', $bucket);
+        $this->assertSame('eu-west-2', $region);
+        if ($key !== self::FAKE_KEY || $secret !== self::FAKE_SECRET) {
+            unset($key, $secret);
+            $this->fail('permanent resourceManager did not receive the test credentials');
+        }
+
+        $anonymous = new S3ResourceManager($this->componentConfig($temporary));
+        $anonymousCredentials = $anonymous->getClient()->getCredentials()->wait();
+        $this->assertSame('', $anonymousCredentials->getAccessKeyId());
+        $this->assertSame('anonymous', $anonymous->getClient()->getConfig('signature_version'));
+
+        $manager = new S3ResourceManager([
+            'authMethod' => $authMethod,
+            'key' => $key,
+            'secret' => $secret,
+            'region' => $region,
+            'bucket' => $bucket,
+        ]);
+        unset($key, $secret);
+
+        $client = $manager->getClient();
+        $captured = null;
+        $client->getHandlerList()->setHandler(function () {
+            return \GuzzleHttp\Promise\Create::rejectionFor(new \RuntimeException('offline'));
+        });
+        $client->getHandlerList()->appendSign(
+            \Aws\Middleware::tap(function ($command, $request) use (&$captured) {
+                $captured = $request;
+            })
+        );
+
+        $this->assertFalse($manager->objectExistsInBucket(self::BUCKET, 'privatelicence-licence.png'));
+        if (!$captured || strpos($captured->getHeaderLine('Authorization'), self::FAKE_KEY) === false) {
+            $this->fail('private licence HeadObject was not signed by the permanent storage principal');
+        }
+        $this->assertStringContainsString(self::BUCKET, (string) $captured->getUri());
+        $this->assertStringNotContainsString(self::DEFAULT_CHAIN_KEY, $captured->getHeaderLine('Authorization'));
+        $this->assertStringContainsString('privatelicence-licence.png', (string) $captured->getUri());
+    }
+
     private function assertTemporaryConfigHasNoHardcodedKey()
     {
         $path = dirname(__DIR__, 4) . '/common/config/main.php';
@@ -217,6 +278,36 @@ class TemporaryBucketAnonymousConfigTest extends \PHPUnit\Framework\TestCase
             'key' => null,
             'secret' => null,
         ];
+    }
+
+    /**
+     * Copies only the permanent storage client fields. The rest of the
+     * production file, including database settings, is discarded immediately.
+     *
+     * @return array<string, mixed>
+     */
+    private function productionPermanentConfig()
+    {
+        $main = require dirname(__DIR__, 4) . '/common/config/main.php';
+        $local = require dirname(__DIR__, 4) . '/environments/prod-railway/common/config/main-local.php';
+        $merged = ArrayHelper::merge($main, $local);
+        unset($main, $local);
+        if (!isset($merged['components']['resourceManager']) || !is_array($merged['components']['resourceManager'])) {
+            unset($merged);
+            $this->fail('production resourceManager config is missing');
+        }
+        $component = $merged['components']['resourceManager'];
+        unset($merged);
+        $config = [
+            'authMethod' => isset($component['authMethod']) ? $component['authMethod'] : null,
+            'region' => isset($component['region']) ? $component['region'] : null,
+            'bucket' => isset($component['bucket']) ? $component['bucket'] : null,
+            'key' => isset($component['key']) ? $component['key'] : null,
+            'secret' => isset($component['secret']) ? $component['secret'] : null,
+        ];
+        unset($component);
+
+        return $config;
     }
 
     /**

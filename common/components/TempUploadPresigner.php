@@ -20,8 +20,10 @@ use Aws\S3\S3Client;
  *
  * aws-sdk-php 3.339.9 blacklists Content-Type from SigV4, so Content-Type is
  * application-level validation, not a cryptographically signed header.
- * x-amz-acl=public-read remains part of the signed PutObject request.
- * The response still tells the future browser to send both headers.
+ * Public uploads sign x-amz-acl=public-read.
+ * A commercial-licence upload signs x-amz-acl=private and prefixes the key
+ * with privatelicence-. A cached Staff client that still receives public-read
+ * does not get that prefix, and Company will not promote that object.
  *
  * file_size is request validation / abuse reduction only. A normal presigned
  * PUT does not cryptographically enforce a content-length-range the way a
@@ -37,6 +39,12 @@ class TempUploadPresigner
     const REGION = 'eu-west-2';
     const EXPIRES_IN = 600;
     const ACL = 'public-read';
+
+    /**
+     * Bare prefix for a private commercial-licence object.
+     * A slash would make Company classify the key as unknown.
+     */
+    const PRIVATE_LICENCE_KEY_PREFIX = 'privatelicence-';
 
     /**
      * Staff ceiling. This is the default when the server does not pass a ceiling.
@@ -342,6 +350,9 @@ class TempUploadPresigner
         $declaredContentType = $this->normalizeDeclaredContentType($contentType);
         $validatedFileSize = $this->validateFileSize($fileSize, $this->maximum);
         $objectKey = $this->generateObjectKey($filename, $declaredContentType);
+        if ($this->objectAcl === 'private') {
+            $objectKey = self::PRIVATE_LICENCE_KEY_PREFIX . $objectKey;
+        }
         $validatedContentType = $this->canonicalContentTypeForKey($objectKey);
 
         // file_size is not signed into the PUT. It is request validation only.

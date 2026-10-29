@@ -93,6 +93,8 @@ class TempUploadPresignerTest extends \PHPUnit\Framework\TestCase
         $private = $this->presigner()->presign('licence.png', 'image/png', 2048, 'private');
         $this->assertSame('private', $private['headers']['x-amz-acl']);
         $this->assertStringContainsString('x-amz-acl=private', strtolower(urldecode($private['upload_url'])));
+        $this->assertSame(0, strpos($private['key'], TempUploadPresigner::PRIVATE_LICENCE_KEY_PREFIX));
+        $this->assertStringNotContainsString('/', $private['key']);
         $this->assertSame(
             'private',
             TempUploadPresigner::aclForPurpose('commercial-licence')
@@ -102,6 +104,7 @@ class TempUploadPresignerTest extends \PHPUnit\Framework\TestCase
 
         $public = $this->presigner()->presign('logo.png', 'image/png', 2048, 'public-read');
         $this->assertSame('public-read', $public['headers']['x-amz-acl']);
+        $this->assertNotSame(0, strpos($public['key'], TempUploadPresigner::PRIVATE_LICENCE_KEY_PREFIX));
     }
 
     public function testPresignRejectsAClientChosenAclOtherThanPrivate()
