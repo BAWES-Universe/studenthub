@@ -42,12 +42,14 @@ $nameSections = mb_split(' ', $candidate->candidate_name_ar);
     <div class="id-container id-detail">
        
         <div class="image">
-            <?php if ($candidate->candidate_personal_photo) {
-                $path = (YII_ENV == 'prod') ? "candidate-photo/" : "dev/candidate-photo/" ;
-                ?>
-                <img onerror="this.src='<?= Yii::getAlias("@web") ?>/images/no_image.png';"  src="https://res.cloudinary.com/studenthub/image/upload/w_319,h_319,c_thumb,g_face/v1596453482/<?= $path.$candidate->candidate_personal_photo; ?>" style="width: 100%;min-height: : 100%">
-            <?php } else  {
-                echo \yii\helpers\Html::img('@web/images/no_image.png',['style'=>'width: 100%;min-height: : 100%']);
+            <?php
+            // Resolved on each request from the stored key. Do not persist this URL.
+            $photoUrl = $candidate->getPersonalPhotoUrl();
+            $placeholder = Yii::getAlias('@web') . '/images/no_image.png';
+            if ($photoUrl) { ?>
+                <img onerror="this.onerror=null;this.src='<?= \yii\helpers\Html::encode($placeholder) ?>';" src="<?= \yii\helpers\Html::encode($photoUrl) ?>" style="width: 100%;min-height: : 100%">
+            <?php } else {
+                echo \yii\helpers\Html::img('@web/images/no_image.png', ['style' => 'width: 100%;min-height: : 100%']);
             } ?>
         </div>
 
