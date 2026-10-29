@@ -220,6 +220,47 @@ class CompanyDocumentStorageTest extends TestCase
         $this->assertNotContains('company_logo', $scenarios[Company::SCENARIO_UPDATE]);
     }
 
+    public function testAdminUpdateWithoutLicenceKeepsTheStoredLicence()
+    {
+        $company = $this->company('commercial-licence/kept.jpg', 'company-logo/old.jpg');
+        $this->installManagers();
+        $params = [
+            'name' => 'Acme',
+            'logo' => 'company-logo/old.jpg',
+        ];
+
+        Company::assignPostedDocumentValue($company, $params, 'logo', 'company_logo');
+        Company::assignPostedDocumentValue($company, $params, 'commercial_licence', 'commercial_licence');
+
+        $this->assertSame('commercial-licence/kept.jpg', $company->commercial_licence);
+        $this->assertSame('company-logo/old.jpg', $company->company_logo);
+    }
+
+    public function testCopyThrowOnAnExistingTemporaryObjectKeepsThePreviousLicence()
+    {
+        $company = $this->company('commercial-licence/old.jpg', 'company-logo/old.jpg');
+        $company->commercial_licence = 'licence-exists.png';
+        $managers = $this->installManagers(true, ['licence-exists.png']);
+
+        $this->assertTrue($managers->fileExists('licence-exists.png'));
+        $this->assertFalse($company->updateLicence());
+        $this->assertSame('commercial-licence/old.jpg', $company->commercial_licence);
+        $this->assertArrayHasKey('commercial_licence', $company->getErrors());
+        $this->assertSame([], $managers->copies);
+    }
+
+    public function testFailedLicencePromotionRestoresAnOriginallyNullLogo()
+    {
+        $company = $this->company('commercial-licence/old.jpg', null);
+        $company->company_logo = 'logo-new.png';
+        $company->commercial_licence = 'licence-exists.png';
+        $this->installManagers(true, ['licence-exists.png']);
+
+        $this->assertFalse($company->beforeSave(false));
+        $this->assertNull($company->company_logo);
+        $this->assertSame('commercial-licence/old.jpg', $company->commercial_licence);
+    }
+
     public function testCommercialLicenceUrlIsLimitedToStaffAdminAndEmployer()
     {
         $company = $this->company('commercial-licence/old.jpg', 'company-logo/old.jpg');
@@ -342,18 +383,20 @@ class CompanyDocumentStorageTest extends TestCase
         return $company;
     }
 
-    private function installManagers(bool $copySucceeds = true)
+    private function installManagers(bool $copySucceeds = true, array $existingKeysThatFailCopy = [])
     {
-        $managers = new class($copySucceeds) {
+        $managers = new class($copySucceeds, $existingKeysThatFailCopy) {
             public $copies = [];
             public $cloudinaryDeletes = [];
             public $bucket = 'temp-bucket';
             public $cloud_name;
             private $copySucceeds;
+            private $existingKeysThatFailCopy;
 
-            public function __construct($copySucceeds)
+            public function __construct($copySucceeds, $existingKeysThatFailCopy)
             {
                 $this->copySucceeds = $copySucceeds;
+                $this->existingKeysThatFailCopy = $existingKeysThatFailCopy;
             }
 
             public function fileExists($key)
@@ -363,7 +406,11 @@ class CompanyDocumentStorageTest extends TestCase
 
             public function copy($oldFile, $newFile, $sourceBucket = '')
             {
-                if (!$this->copySucceeds || $oldFile === 'missing.png') {
+                if (
+                    !$this->copySucceeds
+                    || $oldFile === 'missing.png'
+                    || in_array($oldFile, $this->existingKeysThatFailCopy, true)
+                ) {
                     throw new \RuntimeException('copy failed');
                 }
                 $this->copies[] = [$oldFile, $newFile, $sourceBucket];

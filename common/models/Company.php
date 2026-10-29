@@ -1099,14 +1099,14 @@ class Company extends \yii\db\ActiveRecord
             $this->commercial_licence != $this->oldAttributes['commercial_licence'] &&
             !$this->updateLicence()
         ) {
-            $this->company_logo = $this->oldAttributes['company_logo'] ?? $this->company_logo;
+            $this->company_logo = $this->getOldAttribute('company_logo');
             return false;
         }
 
         // in case create
 
         if ($this->isNewRecord && $this->commercial_licence && !$this->updateLicence()) {
-            $this->company_logo = $this->oldAttributes['company_logo'] ?? null;
+            $this->company_logo = $this->getOldAttribute('company_logo');
             return false;
         }
 
