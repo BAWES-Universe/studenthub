@@ -61,8 +61,6 @@ return [
                     'patterns' => [
                         'POST url' => 'url',
                         'OPTIONS url' => 'options',
-                        'POST activate' => 'activate',
-                        'OPTIONS activate' => 'options',
                     ]
                 ],
                 [// ContractController
@@ -263,6 +261,7 @@ return [
                         'GET <id>' => 'view',
                         'PATCH activate' => 'activate',
                         'PATCH update-logo' => 'update-logo',
+                        'PATCH update-licence' => 'update-licence',
                         'PATCH' => 'update',
                         'DELETE remove-logo' => 'remove-logo',
                         // OPTIONS VERBS
@@ -271,6 +270,7 @@ return [
                         'OPTIONS list-child' => 'options',
                         'OPTIONS remove-logo' => 'options',
                         'OPTIONS update-logo' => 'options',
+                        'OPTIONS update-licence' => 'options',
                         'OPTIONS <id>' => 'options',
                     ]
                 ],

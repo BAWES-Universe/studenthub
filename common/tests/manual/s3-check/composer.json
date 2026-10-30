@@ -1,0 +1,28 @@
+{
+    "name": "studenthub/company-docs-s3-check",
+    "description": "Disposable runner for the synthetic company storage check. Not the application.",
+    "require": {
+        "php": ">=8.2",
+        "yiisoft/yii2": "2.0.51",
+        "aws/aws-sdk-php": "3.339.9",
+        "guzzlehttp/guzzle": "7.9.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "common\\": "common/"
+        }
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://asset-packagist.org"
+        }
+    ],
+    "config": {
+        "allow-plugins": {
+            "yiisoft/yii2-composer": true,
+            "php-http/discovery": false
+        },
+        "sort-packages": true
+    }
+}

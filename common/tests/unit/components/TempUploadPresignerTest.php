@@ -88,6 +88,31 @@ class TempUploadPresignerTest extends \PHPUnit\Framework\TestCase
         $this->assertStringNotContainsString(self::FAKE_SECRET, $result['public_url']);
     }
 
+    public function testCommercialLicencePresignIsPrivateAndOtherPurposesStayPublic()
+    {
+        $private = $this->presigner()->presign('licence.png', 'image/png', 2048, 'private');
+        $this->assertSame('private', $private['headers']['x-amz-acl']);
+        $this->assertStringContainsString('x-amz-acl=private', strtolower(urldecode($private['upload_url'])));
+        $this->assertSame(0, strpos($private['key'], TempUploadPresigner::PRIVATE_LICENCE_KEY_PREFIX));
+        $this->assertStringNotContainsString('/', $private['key']);
+        $this->assertSame(
+            'private',
+            TempUploadPresigner::aclForPurpose('commercial-licence')
+        );
+        $this->assertSame('public-read', TempUploadPresigner::aclForPurpose('logo'));
+        $this->assertSame('public-read', TempUploadPresigner::aclForPurpose(null));
+
+        $public = $this->presigner()->presign('logo.png', 'image/png', 2048, 'public-read');
+        $this->assertSame('public-read', $public['headers']['x-amz-acl']);
+        $this->assertNotSame(0, strpos($public['key'], TempUploadPresigner::PRIVATE_LICENCE_KEY_PREFIX));
+    }
+
+    public function testPresignRejectsAClientChosenAclOtherThanPrivate()
+    {
+        $this->expectException(TempUploadValidationException::class);
+        $this->presigner()->presign('logo.png', 'image/png', 2048, 'public-read-write');
+    }
+
     public function testSecretDuplicatedIntoBothSignerFieldsFailsBeforeSigning()
     {
         $secret = 'synthetic-secret-shaped-value-not-an-access-key-0001';
@@ -276,12 +301,16 @@ class TempUploadPresignerTest extends \PHPUnit\Framework\TestCase
         $aws = file_get_contents(dirname(__DIR__, 4) . '/company/modules/v1/controllers/AwsController.php');
         $this->assertStringContainsString('TempUploadPresigner::COMPANY_MAX_FILE_SIZE', $controller);
         $this->assertStringContainsString("'Employer'", $controller);
-        $this->assertStringContainsString("'activate', 'options'", $controller);
+        $this->assertStringContainsString("['options']", $controller);
+        $this->assertStringNotContainsString("'activate'", $controller);
+        $this->assertStringNotContainsString('function actionActivate', $controller);
         $this->assertStringNotContainsString("body['max_file_size']", $controller);
         $this->assertStringNotContainsString("body['maximum']", $controller);
         $this->assertStringNotContainsString('contact_auth_key =', $controller);
         $this->assertStringNotContainsString("params['user_ip_address']", $controller);
-        $this->assertStringContainsString('ActivationClientAddress::resolve', $controller);
+        $this->assertStringNotContainsString('ActivationClientAddress', $controller);
+        $this->assertStringNotContainsString('HTTP_X_FORWARDED_FOR', $controller);
+        $this->assertStringNotContainsString('aclForPurpose', $controller);
         $this->assertStringNotContainsString('function actionConfig', $controller);
         $this->assertStringContainsString('function actionConfig', $aws);
         $this->assertStringNotContainsString('TempUpload', $aws);
@@ -301,6 +330,8 @@ class TempUploadPresignerTest extends \PHPUnit\Framework\TestCase
         $this->assertStringNotContainsString("Yii::\$app->params['aws_temp_access_key_id']", $controller);
         $this->assertStringNotContainsString('ADMIN_MAX_FILE_SIZE', $staff);
         $this->assertStringContainsString('new TempUploadPresigner()', $staff);
+        $this->assertStringContainsString('aclForPurpose', $staff);
+        $this->assertStringNotContainsString('aclForPurpose', $controller);
         $this->assertStringContainsString('function actionConfig', $aws);
         $this->assertStringNotContainsString('TempUpload', $aws);
         $this->assertStringNotContainsString('HttpBearerAuth', $aws);

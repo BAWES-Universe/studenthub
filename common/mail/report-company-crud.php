@@ -1,5 +1,5 @@
 <?php
-$path = (YII_ENV == 'prod') ?  "/" : "dev/";
+$companyLogoUrl = $model->getCompanyLogoUrl();
 ?>
 <!doctype html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -272,9 +272,11 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
                                                         <tr>
                                                             <td  style="width:100px;">
 
+                                                                <?php if ($companyLogoUrl) { ?>
                                                                 <img
-                                                                        height="auto" src="<?=Yii::$app->params['candidate_photo'].$path.$model->company_logo?>" style="border:0;display:block;outline:none;text-decoration:none;height:auto;width:100%;" width="100"
+                                                                        height="auto" src="<?= htmlspecialchars($companyLogoUrl, ENT_QUOTES, 'UTF-8') ?>" style="border:0;display:block;outline:none;text-decoration:none;height:auto;width:100%;" width="100"
                                                                 />
+                                                                <?php } ?>
 
                                                             </td>
                                                         </tr>

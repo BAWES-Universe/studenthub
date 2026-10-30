@@ -20,8 +20,13 @@ use Aws\S3\S3Client;
  *
  * aws-sdk-php 3.339.9 blacklists Content-Type from SigV4, so Content-Type is
  * application-level validation, not a cryptographically signed header.
- * x-amz-acl=public-read remains part of the signed PutObject request.
- * The response still tells the future browser to send both headers.
+ * Public uploads sign x-amz-acl=public-read.
+ * A commercial-licence upload signs x-amz-acl=private and prefixes the key
+ * with privatelicence-. A cached Staff client that still receives public-read
+ * does not get that prefix, and Company will not promote that object.
+ * The signer needs s3:PutObject and s3:PutObjectAcl on the temporary bucket
+ * because the presign sets a canned ACL. A condition that allows only
+ * public-read denies the private licence upload.
  *
  * file_size is request validation / abuse reduction only. A normal presigned
  * PUT does not cryptographically enforce a content-length-range the way a
@@ -37,6 +42,12 @@ class TempUploadPresigner
     const REGION = 'eu-west-2';
     const EXPIRES_IN = 600;
     const ACL = 'public-read';
+
+    /**
+     * Bare prefix for a private commercial-licence object.
+     * A slash would make Company classify the key as unknown.
+     */
+    const PRIVATE_LICENCE_KEY_PREFIX = 'privatelicence-';
 
     /**
      * Staff ceiling. This is the default when the server does not pass a ceiling.
@@ -225,6 +236,9 @@ class TempUploadPresigner
     /** @var string */
     private $limitName = 'Staff';
 
+    /** @var string */
+    private $objectAcl = self::ACL;
+
     /** @var string|null */
     private $candidatePurpose;
 
@@ -260,7 +274,28 @@ class TempUploadPresigner
      * @throws TempUploadValidationException
      * @throws TempUploadConfigurationException
      */
-    public function presign($filename, $contentType, $fileSize)
+    public function presign($filename, $contentType, $fileSize, $acl = self::ACL)
+    {
+        if ($acl !== self::ACL && $acl !== 'private') {
+            throw new TempUploadValidationException('Invalid upload.');
+        }
+        $this->objectAcl = $acl;
+
+        return $this->presignBody($filename, $contentType, $fileSize);
+    }
+
+    /**
+     * Only a Staff commercial-licence upload is private. Every other caller stays public-read.
+     *
+     * @param mixed $purpose
+     * @return string
+     */
+    public static function aclForPurpose($purpose)
+    {
+        return $purpose === 'commercial-licence' ? 'private' : self::ACL;
+    }
+
+    public function presignBody($filename, $contentType, $fileSize)
     {
         if ($this->limitName === 'Candidate') {
             throw new TempUploadValidationException('Invalid upload purpose.');
@@ -290,6 +325,7 @@ class TempUploadPresigner
             throw new TempUploadValidationException('Invalid upload purpose.');
         }
 
+        $this->objectAcl = self::ACL;
         $this->applyCandidatePurpose($purpose);
 
         return $this->issuePresign($filename, $contentType, $fileSize);
@@ -317,6 +353,9 @@ class TempUploadPresigner
         $declaredContentType = $this->normalizeDeclaredContentType($contentType);
         $validatedFileSize = $this->validateFileSize($fileSize, $this->maximum);
         $objectKey = $this->generateObjectKey($filename, $declaredContentType);
+        if ($this->objectAcl === 'private') {
+            $objectKey = self::PRIVATE_LICENCE_KEY_PREFIX . $objectKey;
+        }
         $validatedContentType = $this->canonicalContentTypeForKey($objectKey);
 
         // file_size is not signed into the PUT. It is request validation only.
@@ -327,7 +366,7 @@ class TempUploadPresigner
             $command = $client->getCommand('PutObject', [
                 'Bucket' => self::BUCKET,
                 'Key' => $objectKey,
-                'ACL' => self::ACL,
+                'ACL' => $this->objectAcl,
                 'ContentType' => $validatedContentType,
             ]);
             $request = $client->createPresignedRequest($command, '+' . self::EXPIRES_IN . ' seconds');
@@ -345,7 +384,7 @@ class TempUploadPresigner
             'public_url' => $publicUrl,
             'headers' => [
                 'Content-Type' => $validatedContentType,
-                'x-amz-acl' => self::ACL,
+                'x-amz-acl' => $this->objectAcl,
             ],
             'expires_in' => self::EXPIRES_IN,
         ];

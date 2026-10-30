@@ -72,6 +72,8 @@ class Company extends \yii\db\ActiveRecord
     const STATUS_INACTIVE = 0;
 
     const SCENARIO_ACTIVATE = "activate";
+    const SCENARIO_REPLACE_LOGO = 'replaceLogo';
+    const SCENARIO_REPLACE_LICENCE = 'replaceLicence';
     const SCENARIO_APPROVE = "approve";
     const SCENARIO_UPDATE = "update";
 
@@ -114,16 +116,8 @@ class Company extends \yii\db\ActiveRecord
             /**
              *  Amazon S3 Temporary Bucket, validate that uploaded files exist if their values have been changed.
              */
-            [
-                ['commercial_licence'],
-                '\common\components\S3FileExistValidator',
-                'filePath' => '',
-                'message' => Yii::t('app',"Please upload commercial licence"),
-                'resourceManager' => Yii::$app->temporaryBucketResourceManager,
-                'when' => function($model, $attribute) {
-                    return $model->{$attribute} !== $model->getOldAttribute($attribute);
-                }
-            ],
+            [['commercial_licence'], 'validatePrivateTemporaryLicence'],
+            [['commercial_licence'], 'validateDocumentReplacement', 'params' => ['kind' => 'licence']],
             /**
              *  Amazon S3 Temporary Bucket, validate that uploaded files exist if their values have been changed.
              */
@@ -133,10 +127,15 @@ class Company extends \yii\db\ActiveRecord
                 'filePath' => '',
                 'message' => Yii::t('app',"Please upload a Company Logo"),
                 'resourceManager' => Yii::$app->temporaryBucketResourceManager,
-                'when' => function($model, $attribute) {
-                    return $model->{$attribute} !== $model->getOldAttribute($attribute);
+                'when' => function ($model) {
+                    return self::shouldValidateTemporaryUpload(
+                        $model->company_logo,
+                        $model->getOldAttribute('company_logo'),
+                        'logo'
+                    );
                 }
             ],
+            [['company_logo'], 'validateDocumentReplacement', 'params' => ['kind' => 'logo']],
             [['country_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::class, 'targetAttribute' => ['country_id' => 'country_id']],
         ];
     }
@@ -202,6 +201,8 @@ class Company extends \yii\db\ActiveRecord
             "company_description_en", "company_description_ar", "company_website",
             "company_email", "currency_code", "country_id"];
 
+        $scenarios[self::SCENARIO_REPLACE_LOGO] = ['company_logo'];
+        $scenarios[self::SCENARIO_REPLACE_LICENCE] = ['commercial_licence'];
         $scenarios['updateFollowup'] = ['company_followup'];
         $scenarios['updateStaff'] = ['staff_id'];
         $scenarios['updateStatus'] = ['company_status_override'];
@@ -247,6 +248,13 @@ class Company extends \yii\db\ActiveRecord
         $fields = parent::fields();
 
         unset($fields['deleted']);
+
+        if (!self::exposesCommercialLicence()) {
+            unset($fields['commercial_licence']);
+        }
+        $fields['company_logo_url'] = function ($model) {
+            return $model->getCompanyLogoUrl();
+        };
 
         $fields['company_status'] = function($model) {
 
@@ -497,13 +505,8 @@ class Company extends \yii\db\ActiveRecord
     {
         parent::afterSave($insert, $changedAttributes);
 
-        /*if (array_key_exists('company_logo', $changedAttributes)) {
-            $this->updateCompanyLogo();
-        }
-
-        if (array_key_exists('commercial_licence', $changedAttributes)) {
-            $this->updateLicence();
-        }*/
+        // Replaced licence and logo objects stay in storage. Deleting them here would run
+        // before an outer transaction commits, so a later rollback would lose the previous file.
 
         if (array_key_exists('company_status_override', $changedAttributes) &&
             $changedAttributes['company_status_override'] == self::STATUS_UNDER_REVIEW
@@ -878,221 +881,265 @@ class Company extends \yii\db\ActiveRecord
             ->sum('store_total_candidates');
     }
 
+    public const COMMERCIAL_LICENCE_S3_PREFIX = 'company-commercial-licences/';
+    public const PRIVATE_COMMERCIAL_LICENCE_S3_PREFIX = 'private/company-commercial-licences/';
+    public const PRIVATE_TEMPORARY_LICENCE_PREFIX = 'privatelicence-';
+    public const LEGACY_COMMERCIAL_LICENCE_PREFIX = 'commercial-licence/';
+    public const COMPANY_LOGO_S3_PREFIX = 'company-logos/';
+    public const LEGACY_COMPANY_LOGO_PREFIX = 'company-logo/';
+
     /**
-     * Update licence photo from temp s3 bucket
-     * @return type
+     * Copy a new commercial licence from the temporary bucket into permanent storage.
+     * The previous value stays in place until this copy succeeds. The old object is
+     * removed only after the database save, from afterSave().
+     *
+     * @return bool
      */
-    public function updateLicence() {
+    public function updateLicence()
+    {
+        return $this->promoteTemporaryDocument('commercial_licence', 'licence');
+    }
 
-        try {
+    /**
+     * Copy a new company logo from the temporary bucket into permanent storage.
+     *
+     * @return bool
+     */
+    public function updateCompanyLogo()
+    {
+        return $this->promoteTemporaryDocument('company_logo', 'logo');
+    }
 
-            $url = Yii::$app->temporaryBucketResourceManager->getUrl($this->commercial_licence);
+    /**
+     * Logo removal clears the stored key only. The object is retained so a rolled-back
+     * save cannot lose the previous file.
+     *
+     * @return bool
+     */
+    public function deleteProfilePhotoFromCloudinary()
+    {
+        return true;
+    }
 
-            return $this->setLicence($url);
+    /**
+     * @return string|null
+     */
+    public function getCommercialLicenceUrl(): ?string
+    {
+        return null;
+    }
 
-        } catch (\Exception $e) {
+    /**
+     * @return string|null
+     */
+    public function getCompanyLogoUrl(): ?string
+    {
+        return self::resolveStoredDocumentUrl($this->company_logo, 'logo');
+    }
 
-            Yii::error($e->getMessage(), 'company');
+    /**
+     * @param string|null $stored
+     * @return string empty|permanent|legacy|temporary|unknown
+     */
+    public static function classifyCommercialLicence($stored): string
+    {
+        return self::classifyStoredDocument($stored, 'licence');
+    }
 
-            $this->addError('commercial_licence', Yii::t('app', $e->getMessage() . ': Image not available to save.'));//
+    /**
+     * @param string|null $stored
+     * @return string
+     */
+    public static function classifyCompanyLogo($stored): string
+    {
+        return self::classifyStoredDocument($stored, 'logo');
+    }
 
-            return false;
+    /**
+     * Reject a temporary licence that is public, missing, or not a private upload issued by this server.
+     *
+     * @param string $attribute
+     * @return void
+     */
+    public function validatePrivateTemporaryLicence($attribute)
+    {
+        if (!self::shouldValidateTemporaryUpload(
+            $this->$attribute,
+            $this->getOldAttribute($attribute),
+            'licence'
+        )) {
+            return;
+        }
+
+        $stored = self::normalizeStoredDocument($this->$attribute);
+        if (self::classifyStoredDocument($stored, 'licence') !== 'temporary') {
+            return;
+        }
+
+        if (!$this->privateTemporaryLicenceExists($stored)) {
+            $this->addError($attribute, Yii::t('app', 'Please upload commercial licence'));
         }
     }
 
     /**
-     * Set licence photo by url
-     * @param string $url
+     * A promotable licence is a bare temporary key issued for a private upload.
+     * Public temporary names, including objects from cached Staff clients, are rejected.
+     *
+     * @param mixed $stored
+     * @return bool
      */
-    public function setLicence($url) {
-
-        $filename = Yii::$app->security->generateRandomString();
-
-        // deleting old pic
-
-        if ($this->commercial_licence) {
-            $this->deleteLicenceFromCloudinary();
+    public static function isPrivateTemporaryLicenceKey($stored): bool
+    {
+        $stored = self::normalizeStoredDocument($stored);
+        if (self::classifyStoredDocument($stored, 'licence') !== 'temporary') {
+            return false;
         }
 
-        try {
-            $path = (YII_ENV == 'prod') ?  "commercial-licence/" : "dev/commercial-licence/";
+        return strpos($stored, self::PRIVATE_TEMPORARY_LICENCE_PREFIX) === 0;
+    }
 
-            $result = Yii::$app->cloudinaryManager->upload(
-                $url,
-                [
-                    'public_id' => $path . $filename,
-                    "eager" => [
-                        [
-                            //id card thumbnail
-                            "width" => 319, "height" => 319, "crop" => "thumb", "gravity" => "face",
-                        ],
-                        [
-                            //profile pic in apps
-                            "width" => 200, "height" => 200, "crop" => "thumb", "gravity" => "face"
-                        ]
-                    ]
-                ]
-            );
-
-            if ($result) {
-                $this->commercial_licence = "commercial-licence/" . basename($result['url']);
-
-                return true;
-            }
-
-        } catch (\Cloudinary\Exception\Error $e) {
-
-            Yii::error($e->getMessage(), 'company');
-
-            $this->addError('commercial_licence', Yii::t('app', 'Please try again.'));
-
+    /**
+     * Anonymous 200 means the temp object is public and must not be stored.
+     * A timeout, transport failure, or unexpected status is uncertain and also rejects promotion.
+     * Only an explicit 403 or 404 continues to the authenticated existence check.
+     * That check uses the permanent resourceManager principal
+     * (AWS_S3_RAILWAY_ACCESS_KEY_ID / AWS_S3_RAILWAY_SECRET_ACCESS_KEY, bucket studenthub-uploads)
+     * against the temporary bucket. S3 authorizes the HEAD and the source read with
+     * s3:GetObject. The copy sets ACL private, so the same principal also needs
+     * s3:PutObject and s3:PutObjectAcl on studenthub-uploads. The temp upload signer
+     * only signs the browser PUT and needs s3:PutObject plus s3:PutObjectAcl on the
+     * temporary bucket. An existing condition that allows only public-read would deny
+     * the private licence ACL. The anonymous temporary client stays in place for public logos.
+     *
+     * @param mixed $stored
+     * @return bool
+     */
+    public function privateTemporaryLicenceExists($stored): bool
+    {
+        $stored = self::normalizeStoredDocument($stored);
+        if (!self::isPrivateTemporaryLicenceKey($stored)) {
             return false;
+        }
 
-        } catch (\Exception $e) {
-
-            Yii::error($e->getMessage(), 'company');
-
-            $this->addError('commercial_licence', Yii::t('app', $e->getMessage() . ': Image not available to save.'));
-
+        $temporary = Yii::$app->temporaryBucketResourceManager;
+        if ($temporary->anonymousObjectPrivacy($stored) !== \common\components\S3ResourceManager::ANONYMOUS_NOT_PUBLIC) {
             return false;
+        }
+
+        return Yii::$app->resourceManager->objectExistsInBucket($temporary->bucket, $stored);
+    }
+
+    /**
+     * @param mixed $submitted
+     * @param mixed $existing
+     * @param string $kind licence|logo
+     * @return bool
+     */
+    public static function shouldValidateTemporaryUpload($submitted, $existing, $kind): bool
+    {
+        $submitted = self::normalizeStoredDocument($submitted);
+        $existing = self::normalizeStoredDocument($existing);
+
+        if ($submitted === '' || $submitted === $existing) {
+            return false;
+        }
+
+        $class = self::classifyStoredDocument($submitted, $kind);
+
+        return $class === 'temporary' || $class === 'unknown';
+    }
+
+    /**
+     * @param self $model
+     * @param array $params
+     * @param string $bodyKey
+     * @param string $attribute
+     * @return void
+     */
+    public static function assignPostedDocumentValue($model, array $params, $bodyKey, $attribute)
+    {
+        if (array_key_exists($bodyKey, $params)) {
+            $model->$attribute = $params[$bodyKey];
         }
     }
 
     /**
-     * delete old licence photo from cloudinary
-     * @return boolean
+     * Staff and Admin responses include the stored licence key. They do not include
+     * a retrieval URL. Employer, Candidate, and every other application omit the key.
+     * The authenticated reader checks the signed-in identity again.
+     *
+     * @return bool
      */
-    public function deleteLicenceFromCloudinary() {
-
-        try {
-            $path = (YII_ENV == 'prod') ? "" : "dev/";
-
-            if(isset($this->oldAttributes['commercial_licence'])) {
-                return Yii::$app->cloudinaryManager->delete($path . $this->oldAttributes['commercial_licence']);
-            } else {
-                return Yii::$app->cloudinaryManager->delete($path . $this->commercial_licence);
-            }
-
-        } catch (\Cloudinary\Exception\Error $e) {
-
-            Yii::error($e->getMessage(), 'company');
-
-            return false;
-
-        } catch (\Exception $e) {
-
-            Yii::error($e->getMessage(), 'company');
-            return false;
-        }
+    public static function exposesCommercialLicence(): bool
+    {
+        return self::identityMayReadCompanyLicence();
     }
 
     /**
-     * Update profile photo from temp s3 bucket
-     * @return type
+     * @return bool
      */
-    public function updateCompanyLogo() {
-
-        try {
-
-            $url = Yii::$app->temporaryBucketResourceManager->getUrl($this->company_logo);
-
-            return $this->setCompanyLogo($url);
-
-        } catch (\Exception $e) {
-
-            Yii::error($e->getMessage(), 'company');
-
-            $this->addError('company_logo', Yii::t('app', $e->getMessage(). ': Image not available to save.'));
-
-            return false;
-        }
+    public static function identityMayChangeCompanyDocuments(): bool
+    {
+        return self::currentIdentity() instanceof \common\models\Staff;
     }
 
     /**
-     * Set profile photo by url
-     * @param string $url
+     * @return bool
      */
-    public function setCompanyLogo($url) {
+    public static function identityMayReadCompanyLicence(): bool
+    {
+        $identity = self::currentIdentity();
 
-        $filename = Yii::$app->security->generateRandomString();
-
-        // deleting old pic
-
-        if ($this->company_logo) {
-            $this->deleteProfilePhotoFromCloudinary();
-        }
-
-        try {
-            $path = (YII_ENV == 'prod') ?  "company-logo/" : "dev/company-logo/";
-
-            $result = Yii::$app->cloudinaryManager->upload(
-                $url,
-                [
-                    'public_id' => $path . $filename,
-                    "eager" => [
-                        [
-                            //id card thumbnail
-                            "width" => 319, "height" => 319, "crop" => "thumb", "gravity" => "face",
-                        ],
-                        [
-                            //profile pic in apps
-                            "width" => 200, "height" => 200, "crop" => "thumb", "gravity" => "face"
-                        ]
-                    ]
-                ]
-            );
-
-            if ($result) {
-                $this->company_logo = "company-logo/" . basename($result['url']);
-
-                return true;
-            }
-
-        } catch (\Cloudinary\Exception\Error $e) {
-
-            Yii::error($e->getMessage(), 'company');
-
-            $this->addError('company_logo', Yii::t('app', 'Please try again.'));
-
-            return false;
-
-        } catch (\Exception $e) {
-
-            Yii::error($e->getMessage(), 'company');
-
-            $this->addError('company_logo', Yii::t('app', $e->getMessage(). ': Image not available to save.'));
-
-            return false;
-        }
+        return $identity instanceof \common\models\Staff || $identity instanceof \common\models\Admin;
     }
 
     /**
-     * delete old profile photo from cloudinary
-     * @return boolean
+     * @return \yii\web\IdentityInterface|null
      */
-    public function deleteProfilePhotoFromCloudinary() {
-
-        try {
-
-            $path = (YII_ENV == 'prod') ? "" : "dev/";
-
-            if(isset($this->oldAttributes['company_logo'])) {
-                return Yii::$app->cloudinaryManager->delete($path . $this->oldAttributes['company_logo']);
-            } else {
-                return Yii::$app->cloudinaryManager->delete($path . $this->company_logo);
-            }
-            
-        } catch (\Cloudinary\Exception\Error $e) {
-
-            Yii::error($e->getMessage(), 'company');
-
-            return false;
-
-        } catch (\Exception $e) {
-
-            Yii::error($e->getMessage(), 'company');
-            return false;
+    private static function currentIdentity()
+    {
+        if (!Yii::$app->has('user', true) || Yii::$app->user->getIsGuest()) {
+            return null;
         }
+
+        return Yii::$app->user->getIdentity();
+    }
+
+    /**
+     * A replacement must be a new temporary upload. Another company's permanent key,
+     * a legacy reference, or any other path cannot be saved in place of an upload.
+     *
+     * @param string $attribute
+     * @param array $params
+     * @return void
+     */
+    public function validateDocumentReplacement($attribute, $params)
+    {
+        $submitted = self::normalizeStoredDocument($this->$attribute);
+        $existing = self::normalizeStoredDocument($this->getOldAttribute($attribute));
+
+        if ($submitted === '' || $submitted === $existing) {
+            return;
+        }
+
+        $class = self::classifyStoredDocument($submitted, $params['kind']);
+
+        if ($class === 'temporary') {
+            return;
+        }
+
+        $this->addError($attribute, Yii::t('app', 'Please upload the file again.'));
+    }
+
+    /**
+     * @param string $kind
+     * @return string
+     */
+    public static function permanentDocumentPrefix($kind): string
+    {
+        $prefix = $kind === 'logo' ? self::COMPANY_LOGO_S3_PREFIX : self::PRIVATE_COMMERCIAL_LICENCE_S3_PREFIX;
+
+        return (YII_ENV == 'prod' ? '' : 'dev/') . $prefix;
     }
 
     /**
@@ -1105,12 +1152,16 @@ class Company extends \yii\db\ActiveRecord
             return false;
         }
 
+        if (!$this->guardDocumentMutation()) {
+            return false;
+        }
+
         // in case update
 
         if(
             !$insert && (
-                $this->company_last_followup_datetime != $this->oldAttributes['company_last_followup_datetime'] ||
-                $this->company_followup_interval_weeks != $this->oldAttributes['company_followup_interval_weeks']
+                $this->company_last_followup_datetime != ($this->oldAttributes['company_last_followup_datetime'] ?? null) ||
+                $this->company_followup_interval_weeks != ($this->oldAttributes['company_followup_interval_weeks'] ?? null)
             )
         ) {
             $this->company_next_followup_datetime = new Expression("DATE_ADD(company_last_followup_datetime,INTERVAL company_followup_interval_weeks WEEK)");
@@ -1140,12 +1191,14 @@ class Company extends \yii\db\ActiveRecord
             $this->commercial_licence != $this->oldAttributes['commercial_licence'] &&
             !$this->updateLicence()
         ) {
+            $this->company_logo = $this->getOldAttribute('company_logo');
             return false;
         }
 
         // in case create
 
         if ($this->isNewRecord && $this->commercial_licence && !$this->updateLicence()) {
+            $this->company_logo = $this->getOldAttribute('company_logo');
             return false;
         }
 
@@ -1347,5 +1400,256 @@ class Company extends \yii\db\ActiveRecord
     {
         return $this->hasMany($modelClass::className(), ['company_id' => 'company_id'])
             ->orderBy("contract.created_at DESC");
+    }
+
+    /**
+     * @param string $attribute
+     * @param string $kind
+     * @return bool
+     */
+    /**
+     * A non-staff caller may resend the current key. A different key, including
+     * an empty value that would remove the file, is rejected and restored.
+     *
+     * @return bool
+     */
+    protected function guardDocumentMutation(): bool
+    {
+        if (self::identityMayChangeCompanyDocuments()) {
+            return true;
+        }
+
+        $allowed = true;
+        foreach (['company_logo', 'commercial_licence'] as $attribute) {
+            $submitted = self::normalizeStoredDocument($this->$attribute);
+            $existing = self::normalizeStoredDocument($this->getOldAttribute($attribute));
+            if ($submitted === $existing) {
+                continue;
+            }
+            $this->$attribute = $existing === '' ? null : $this->getOldAttribute($attribute);
+            $this->addError($attribute, Yii::t('app', 'You cannot change this file.'));
+            $allowed = false;
+        }
+
+        return $allowed;
+    }
+
+    protected function promoteTemporaryDocument($attribute, $kind)
+    {
+        $submitted = self::normalizeStoredDocument($this->$attribute);
+        $existing = self::normalizeStoredDocument($this->oldAttributes[$attribute] ?? '');
+
+        if ($submitted === '' || $submitted === $existing) {
+            $this->$attribute = $existing === '' ? null : $existing;
+
+            return true;
+        }
+
+        $class = self::classifyStoredDocument($submitted, $kind);
+
+        if ($class === 'permanent' || $class === 'public-copy' || $class === 'legacy') {
+            $this->$attribute = $existing === '' ? $submitted : $existing;
+            if ($submitted !== $existing) {
+                $this->addError($attribute, Yii::t('app', 'Please upload the file again.'));
+
+                return false;
+            }
+
+            return true;
+        }
+
+        if ($class !== 'temporary') {
+            $this->$attribute = $existing === '' ? null : $existing;
+            $this->addError($attribute, Yii::t('app', 'Please upload the file again.'));
+
+            return false;
+        }
+
+        $temporary = Yii::$app->temporaryBucketResourceManager;
+        $exists = $kind === 'licence'
+            ? $this->privateTemporaryLicenceExists($submitted)
+            : $temporary->fileExists($submitted);
+        if (!$exists) {
+            $this->$attribute = $existing === '' ? null : $existing;
+            $this->addError($attribute, Yii::t('app', 'The file could not be saved. Please upload it again.'));
+
+            return false;
+        }
+
+        $target = self::permanentDocumentPrefix($kind) . basename($submitted);
+
+        if ($target === self::permanentDocumentPrefix($kind)) {
+            $this->$attribute = $existing === '' ? null : $existing;
+            $this->addError($attribute, Yii::t('app', 'The file could not be saved. Please upload it again.'));
+
+            return false;
+        }
+
+        try {
+            $copyOptions = $kind === 'licence' ? ['ACL' => 'private'] : [];
+            Yii::$app->resourceManager->copy(
+                $submitted,
+                $target,
+                Yii::$app->temporaryBucketResourceManager->bucket,
+                $copyOptions
+            );
+        } catch (\Throwable $e) {
+            Yii::error($e->getMessage(), 'company');
+            $this->$attribute = $existing === '' ? null : $existing;
+            $this->addError($attribute, Yii::t('app', 'The file could not be saved. Please upload it again.'));
+
+            return false;
+        }
+
+        $this->$attribute = $target;
+
+        return true;
+    }
+
+    /**
+     * @param mixed $previous
+     * @param mixed $current
+     * @param string $kind
+     * @return void
+     */
+    protected function deleteReplacedStoredObject($previous, $current, $kind)
+    {
+        $previous = self::normalizeStoredDocument($previous);
+        $current = self::normalizeStoredDocument($current);
+
+        if ($previous === '' || $previous === $current) {
+            return;
+        }
+
+        if (self::classifyStoredDocument($current, $kind) !== 'permanent') {
+            return;
+        }
+
+        $this->deleteStoredCompanyObject($previous, $kind);
+    }
+
+    /**
+     * @param mixed $stored
+     * @param string $kind
+     * @return void
+     */
+    public function deleteStoredCompanyObject($stored, $kind)
+    {
+        $stored = self::normalizeStoredDocument($stored);
+
+        if ($stored === '') {
+            return;
+        }
+
+        if (self::classifyStoredDocument($stored, $kind) === 'permanent') {
+            try {
+                Yii::$app->resourceManager->delete($stored);
+            } catch (\Throwable $e) {
+                Yii::warning($e->getMessage(), 'company');
+            }
+
+            return;
+        }
+
+        if (self::classifyStoredDocument($stored, $kind) !== 'legacy') {
+            return;
+        }
+
+        try {
+            $path = (YII_ENV == 'prod') ? '' : 'dev/';
+            Yii::$app->cloudinaryManager->delete($path . $stored);
+        } catch (\Throwable $e) {
+            Yii::warning($e->getMessage(), 'company');
+        }
+    }
+
+    /**
+     * @param mixed $stored
+     * @param string $kind
+     * @return string|null
+     */
+    public static function resolveStoredDocumentUrl($stored, $kind): ?string
+    {
+        $stored = self::normalizeStoredDocument($stored);
+
+        if ($stored === '' || $kind === 'licence') {
+            return null;
+        }
+
+        if (self::classifyStoredDocument($stored, $kind) === 'permanent') {
+            return Yii::$app->resourceManager->getUrl($stored);
+        }
+
+        if (self::classifyStoredDocument($stored, $kind) !== 'legacy') {
+            return null;
+        }
+
+        $cloudName = Yii::$app->cloudinaryManager->cloud_name ?? null;
+        if ($cloudName === null || $cloudName === '') {
+            return null;
+        }
+
+        $publicId = ((YII_ENV == 'prod') ? '' : 'dev/') . $stored;
+
+        return 'https://res.cloudinary.com/'
+            . rawurlencode($cloudName)
+            . '/image/upload/'
+            . str_replace('%2F', '/', rawurlencode($publicId));
+    }
+
+    /**
+     * @param mixed $stored
+     * @param string $kind
+     * @return string
+     */
+    public static function classifyStoredDocument($stored, $kind): string
+    {
+        $stored = self::normalizeStoredDocument($stored);
+
+        if ($stored === '') {
+            return 'empty';
+        }
+
+        if (preg_match('#^https?://#i', $stored)) {
+            return 'unknown';
+        }
+
+        $base = $kind === 'logo' ? self::COMPANY_LOGO_S3_PREFIX : self::PRIVATE_COMMERCIAL_LICENCE_S3_PREFIX;
+        $legacy = $kind === 'logo' ? self::LEGACY_COMPANY_LOGO_PREFIX : self::LEGACY_COMMERCIAL_LICENCE_PREFIX;
+        $legacyDev = 'dev/' . $legacy;
+
+        if (strpos($stored, $base) === 0 || strpos($stored, 'dev/' . $base) === 0) {
+            return 'permanent';
+        }
+
+        if ($kind === 'licence') {
+            $public = self::COMMERCIAL_LICENCE_S3_PREFIX;
+            if (strpos($stored, $public) === 0 || strpos($stored, 'dev/' . $public) === 0) {
+                return 'public-copy';
+            }
+        }
+
+        if (strpos($stored, $legacy) === 0 || strpos($stored, $legacyDev) === 0) {
+            return 'legacy';
+        }
+
+        if (strpos($stored, '/') !== false) {
+            return 'unknown';
+        }
+
+        return 'temporary';
+    }
+
+    /**
+     * @param mixed $stored
+     * @return string
+     */
+    protected static function normalizeStoredDocument($stored): string
+    {
+        if ($stored === null) {
+            return '';
+        }
+
+        return ltrim(trim((string) $stored), '/');
     }
 }
