@@ -1236,16 +1236,38 @@ class AccountController extends Controller
             throw new \yii\web\HttpException(404, Yii::t('candidate', 'The requested Item could not be found.'));
         }
         
-        $candidate->candidate_civil_id = Yii::$app->request->getBodyParam('civil_id');
+        $candidate_civil_id = Yii::$app->request->getBodyParam('civil_id');
+
+        if (!is_string($candidate_civil_id) || trim($candidate_civil_id) === '') {
+            return [
+                'operation' => 'error',
+                'message' => Yii::t('candidate', 'Civil ID is required.'),
+            ];
+        }
+
+        $candidate->candidate_civil_id = trim($candidate_civil_id);
         $candidate->candidate_civil_need_verification = true;
 
         $candidate->scenario = "updateCivilId";
 
-        if (!$candidate->save()) {
+        try {
+            if (!$candidate->save()) {
+                return [
+                    "operation" => "error",
+                    "message" => $candidate->errors
+                ];
+            }
+        } catch (\Throwable $e) {
+            Yii::error([
+                'action'       => 'actionUpdateCivilId',
+                'candidate_id' => $candidate->candidate_id,
+                'exception'    => get_class($e),
+                'message'      => $e->getMessage(),
+            ], 'candidate.civil-id');
 
             return [
                 "operation" => "error",
-                "message" => $candidate->errors
+                "message" => Yii::t('candidate', "Could not update civil id."),
             ];
         }
 
@@ -1481,16 +1503,38 @@ class AccountController extends Controller
             ];
         }
         
-        $model->updateCivilId('back');
+        $previousBackPhoto = $model->getOldAttribute('candidate_civil_photo_back');
+
+        if (!$model->updateCivilId('back', false)) {
+            return [
+                'operation' => 'error',
+                'message' => $model->getErrors()
+            ];
+        }
 
         //reset to remove old id's data
         $model->candidate_civil_expiry_date = null;
         $model->candidate_civil_id = null;
 
-        if (!$model->save()) {
+        try {
+            if (!$model->save()) {
+                return [
+                    'operation' => 'error',
+                    'message' => $model->getErrors()
+                ];
+            }
+            $model->cleanupPreviousCivilIdPhoto('back', $previousBackPhoto, $model->candidate_civil_photo_back);
+        } catch (\Throwable $e) {
+            Yii::error([
+                'action'       => 'actionUpdateCivilPhotoBack',
+                'candidate_id' => $model->candidate_id,
+                'exception'    => get_class($e),
+                'message'      => $e->getMessage(),
+            ], 'candidate.civil-id');
+
             return [
                 'operation' => 'error',
-                'message' => $model->getErrors()
+                'message' => Yii::t('candidate', 'Could not update civil photo back.')
             ];
         }
 
@@ -1533,16 +1577,38 @@ class AccountController extends Controller
             ];
         }
         
-        $model->updateCivilId('front');
+        $previousFrontPhoto = $model->getOldAttribute('candidate_civil_photo_front');
+
+        if (!$model->updateCivilId('front', false)) {
+            return [
+                'operation' => 'error',
+                'message' => $model->getErrors()
+            ];
+        }
 
         //reset to remove old id's data
         $model->candidate_civil_expiry_date = null;
         $model->candidate_civil_id = null;
 
-        if (!$model->save()) {
+        try {
+            if (!$model->save()) {
+                return [
+                    'operation' => 'error',
+                    'message' => $model->getErrors()
+                ];
+            }
+            $model->cleanupPreviousCivilIdPhoto('front', $previousFrontPhoto, $model->candidate_civil_photo_front);
+        } catch (\Throwable $e) {
+            Yii::error([
+                'action'       => 'actionUpdateCivilPhotoFront',
+                'candidate_id' => $model->candidate_id,
+                'exception'    => get_class($e),
+                'message'      => $e->getMessage(),
+            ], 'candidate.civil-id');
+
             return [
                 'operation' => 'error',
-                'message' => $model->getErrors()
+                'message' => Yii::t('candidate', 'Could not update civil photo front.')
             ];
         }
 
@@ -1596,11 +1662,24 @@ class AccountController extends Controller
 
         $candidate->scenario = "updateCivilExpiryDate";
 
-        if (!$candidate->save()) {
+        try {
+            if (!$candidate->save()) {
+                return [
+                    "operation" => "error",
+                    "message" => $candidate->errors
+                ];
+            }
+        } catch (\Throwable $e) {
+            Yii::error([
+                'action'       => 'actionUpdateCivilExpiryDate',
+                'candidate_id' => $candidate->candidate_id,
+                'exception'    => get_class($e),
+                'message'      => $e->getMessage(),
+            ], 'candidate.civil-id');
 
             return [
                 "operation" => "error",
-                "message" => $candidate->errors
+                "message" => Yii::t('candidate', "Could not update civil id expiry date."),
             ];
         }
 

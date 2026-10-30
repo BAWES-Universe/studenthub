@@ -62,17 +62,17 @@ return [
             'class' => 'common\components\MediaConvert',
             'region' => 'eu-west-2', // based in London
             'endpoint' => 'https://ey3xqwxpb.mediaconvert.eu-west-2.amazonaws.com',
-            'key' => 'AKIAWMITDJRKWKGYOFLT',
-            'secret' => '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',
+            'authMethod' => \common\components\S3ResourceManager::AUTH_VIA_KEY_AND_SECRET,
+            'key' => getenv('AWS_MEDIACONVERT_RAILWAY_ACCESS_KEY_ID') ?: null,
+            'secret' => getenv('AWS_MEDIACONVERT_RAILWAY_SECRET_ACCESS_KEY') ?: null,
             'role' => 'arn:aws:iam::438663597141:role/MediaConvertPermissions',
             'jobQueue' =>  "arn:aws:mediaconvert:eu-west-2:438663597141:queues/Default"
         ],
         //for testing purpose
         'resourceManager' => [
             'class' => 'common\components\S3ResourceManager',
+            'authMethod' => \common\components\S3ResourceManager::AUTH_VIA_ANONYMOUS,
             'region' => 'eu-west-2', // Bucket based in London
-            'key' => 'AKIAWMITDJRKVN5ODY2X',
-            'secret' => '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',
             'bucket' => 'studenthub-public-anyone-can-upload-24hr-expiry'
             /**
              * You can access the Temporary bucket with:

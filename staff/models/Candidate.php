@@ -240,32 +240,32 @@ class Candidate extends \common\models\Candidate {
         else 
         {
             if (
-                isset($this->oldAttributes['candidate_personal_photo']) &&
-                $this->candidate_personal_photo != $this->oldAttributes['candidate_personal_photo'] &&
+                $this->candidate_personal_photo &&
+                $this->candidate_personal_photo != ($this->oldAttributes['candidate_personal_photo'] ?? null) &&
                 !$this->updatePersonalPhoto()
             ) {
                 return false;
             }
 
             if (
-                isset($this->oldAttributes['candidate_resume']) && 
-                $this->candidate_resume != $this->oldAttributes['candidate_resume'] &&
+                $this->candidate_resume &&
+                $this->candidate_resume != ($this->oldAttributes['candidate_resume'] ?? null) &&
                 !$this->updateResume()
             ) {
                 return false;
             }
 
             if (
-                isset($this->oldAttributes['candidate_civil_photo_front']) && 
-                $this->candidate_civil_photo_front != $this->oldAttributes['candidate_civil_photo_front'] &&
+                $this->candidate_civil_photo_front &&
+                $this->candidate_civil_photo_front != ($this->oldAttributes['candidate_civil_photo_front'] ?? null) &&
                 !$this->updateCivilId('front')
             ) {
                 return false;
             }
 
             if (
-                isset($this->oldAttributes['candidate_civil_photo_back']) && 
-                $this->candidate_civil_photo_back != $this->oldAttributes['candidate_civil_photo_back'] &&
+                $this->candidate_civil_photo_back &&
+                $this->candidate_civil_photo_back != ($this->oldAttributes['candidate_civil_photo_back'] ?? null) &&
                 !$this->updateCivilId('back')
             ) {
                 return false;
