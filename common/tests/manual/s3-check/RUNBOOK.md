@@ -1,14 +1,13 @@
 # Proposed service: company-docs-s3-check
 
-This runbook describes a temporary Railway service. It does not create that service, deploy it, or run AWS. Production service `studenthub` stays on deployed commit `ad96583`. Staging isolation is still unverified. Do not point this runner at staging and do not give it a database.
-
-Real AWS verification stays pending until an operator runs the confirmed command below and the expected lines appear.
+This runbook describes the temporary Railway service used for one synthetic storage check. It does not authorize another run, a production deploy, or a merge. Production service `studenthub` stays on deployed commit `ad96583` until the release plan is approved. Staging isolation is still unverified. Do not point this runner at staging and do not give it a database.
 
 ## Source and build
 
 - Repository: the backend repository used by the `studenthub` service.
 - Branch: `fix/company-s3-documents`.
-- Reviewed source commit: `47ea407b22f5b7009132b1acec248f039dfabf96`. That commit contains `Dockerfile.company-docs-s3-check` and the cleanup change in `common/tests/manual/SyntheticCompanyStorageCheck.php`. Build the head of backend pull request 131. If that head is only this runbook line on top of `47ea407b22f5b7009132b1acec248f039dfabf96`, the Dockerfile and the check script are the same. Do not build `ad96583`, `master`, or any other commit.
+- Tested source: that feature branch at `0657d7a649400fb3b745a52164a4569e8741f8f8`. Railway ran the synthetic check against that exact commit. Do not build `ad96583`, `master`, or any other commit for this check.
+- A later commit on the pull request may only correct this runbook. That commit is not a new AWS test. The application code covered by run `0cd0c573-659f-4751-bd2c-d05cc5d835be` remains `0657d7a649400fb3b745a52164a4569e8741f8f8`.
 - Builder: Dockerfile.
 - Dockerfile path: `Dockerfile.company-docs-s3-check`.
 - Root directory: the repository root, the directory that contains that Dockerfile.
@@ -45,7 +44,9 @@ Runtime resolution must succeed without revealing values. Do not print a variabl
 
 ## Commands
 
-Dry-run, and the image default when the start command is left empty:
+Railway uses the service start command as the complete process. It does not append a flag to the image entrypoint. Set the whole PHP command.
+
+Dry-run:
 
 ```
 php common/tests/manual/SyntheticCompanyStorageCheck.php
@@ -53,19 +54,13 @@ php common/tests/manual/SyntheticCompanyStorageCheck.php
 
 Expected: the plan text, exit 0, and no AWS request.
 
-Confirmed test. On Railway, set the start command to only:
-
-```
---confirm-buckets
-```
-
-That argument is appended to the image entrypoint. The resulting process is:
+Confirmed test. The start command is the complete command, including the PHP binary and the script path:
 
 ```
 php common/tests/manual/SyntheticCompanyStorageCheck.php --confirm-buckets
 ```
 
-Do not set a start command that launches PHP again. That would run the script path as a PHP argument.
+Do not set the start command to `--confirm-buckets` alone. Railway will not append that flag to the image entrypoint.
 
 ## Synthetic objects
 
@@ -80,9 +75,22 @@ The exact names are chosen when the process runs. The log prints each `key=` lin
 
 The body is a 1x1 PNG. The temporary licence is registered, then uploaded with ACL `private`, before promotion. The temporary logo is registered, then uploaded with ACL `public-read`, before promotion. Promotion uses `Company::updateLicence` and `Company::updateCompanyLogo`. No company row is read or saved. If the process can see a database, it stops with category `database refused`.
 
-## Expected confirmed result
+## Observed result
 
-This result is not yet observed. When an operator runs the confirmed command, the log should show:
+Railway run `0cd0c573-659f-4751-bd2c-d05cc5d835be` executed the confirmed command against feature-branch commit `0657d7a649400fb3b745a52164a4569e8741f8f8`.
+
+- Anonymous HEAD and GET were denied for the temporary licence and for the promoted licence.
+- Authenticated reads returned the uploaded bytes for both licence copies.
+- The temporary logo and the promoted logo were publicly readable.
+- All four synthetic keys were deleted, and the authenticated HEAD for each returned 404.
+- The process exit code was not exposed.
+- This verifies storage and promotion. It does not verify browser CORS, image decoding, or a Staff or Admin session.
+
+The sanitized log is held by the Railway agent at `/app/evidence/company-docs-s3-check-0cd0c573.log`. That file was not copied into this repository. Do not request Railway access or credentials to retrieve it. Attach the log here when it is supplied.
+
+## Expected confirmed lines
+
+A passing log shows:
 
 - `presign put synthetic-licence-check.png status=200` with `acl=private`
 - anonymous temporary licence HEAD and GET `status=403`
@@ -96,7 +104,8 @@ This result is not yet observed. When an operator runs the confirmed command, th
 - anonymous permanent logo HEAD `status=200` and GET `match=yes`
 - permanent stored logo read `match=yes`
 - one `deleted key=` line for each of the four keys, each after a HEAD 404
-- exit 0
+
+Run `0cd0c573-659f-4751-bd2c-d05cc5d835be` reported those storage outcomes. Its process exit code was not exposed, so exit 0 is not recorded for that run.
 
 A line that would contain a URL, an access key, or a signature is replaced with `redacted output suppressed`. The log must not contain those values.
 
@@ -112,6 +121,4 @@ Each successful delete prints `deleted key=` only after a following HEAD returns
 
 ## Remove the service
 
-After the confirmed log shows four `deleted key=` lines and exit 0, delete the `company-docs-s3-check` service. Do not leave it deployed. Do not change the `studenthub` service, its variables, or its deployed commit.
-
-This runbook does not authorize creating the service, deploying it, or executing the confirmed command.
+If `company-docs-s3-check` still exists, delete it. Do not leave it deployed. Do not change the `studenthub` service, its variables, or its deployed commit. This runbook does not delete the service and does not authorize a second run.
