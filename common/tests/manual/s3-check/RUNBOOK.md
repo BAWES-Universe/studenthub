@@ -8,7 +8,7 @@ Real AWS verification stays pending until an operator runs the confirmed command
 
 - Repository: the backend repository used by the `studenthub` service.
 - Branch: `fix/company-s3-documents`.
-- Reviewed source commit: the head of backend pull request 131 named there as the S3 check runner commit. That commit contains this runbook, `Dockerfile.company-docs-s3-check`, and the cleanup change in `common/tests/manual/SyntheticCompanyStorageCheck.php`. Do not build `ad96583`, `master`, or any other commit.
+- Reviewed source commit: `47ea407b22f5b7009132b1acec248f039dfabf96`. That commit contains `Dockerfile.company-docs-s3-check` and the cleanup change in `common/tests/manual/SyntheticCompanyStorageCheck.php`. Build the head of backend pull request 131. If that head is only this runbook line on top of `47ea407b22f5b7009132b1acec248f039dfabf96`, the Dockerfile and the check script are the same. Do not build `ad96583`, `master`, or any other commit.
 - Builder: Dockerfile.
 - Dockerfile path: `Dockerfile.company-docs-s3-check`.
 - Root directory: the repository root, the directory that contains that Dockerfile.
