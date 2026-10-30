@@ -281,8 +281,7 @@ class CompanyController extends Controller
         $model->company_description_en = Yii::$app->request->getBodyParam("description_en");
         $model->company_description_ar = Yii::$app->request->getBodyParam("description_ar");
         $model->company_website = Yii::$app->request->getBodyParam("website");
-        $model->company_logo = Yii::$app->request->getBodyParam("logo");
-        $model->commercial_licence = Yii::$app->request->getBodyParam("commercial_licence");
+        $this->assignPostedDocuments($model);
         $model->company_approved_to_hire = Yii::$app->request->getBodyParam("approved_to_hire");
 
         if (!$model->save()) {
@@ -348,6 +347,25 @@ class CompanyController extends Controller
     }
 
     /**
+     * Read-only licence for a company this admin can already view.
+     *
+     * @param int $id
+     * @return \yii\web\Response
+     */
+    public function actionCommercialLicence($id)
+    {
+        $company = Company::find()
+            ->filterCompany($id)
+            ->one();
+
+        if (!$company) {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
+
+        return \common\components\CompanyLicenceReader::send($company);
+    }
+
+    /**
      * Create a company account
      * @param $id
      * @return array
@@ -381,8 +399,7 @@ class CompanyController extends Controller
         $model->company_description_en = Yii::$app->request->getBodyParam("description_en");
         $model->company_description_ar = Yii::$app->request->getBodyParam("description_ar");
         $model->company_website = Yii::$app->request->getBodyParam("website");
-        $model->company_logo = Yii::$app->request->getBodyParam("logo");
-        $model->commercial_licence = Yii::$app->request->getBodyParam("commercial_licence");
+        $this->assignPostedDocuments($model);
         $model->company_approved_to_hire = Yii::$app->request->getBodyParam("approved_to_hire");
 
         if (!$model->save()) {
@@ -1046,5 +1063,19 @@ class CompanyController extends Controller
                 "last_payment_datetime"
             ]
         ]);
+    }
+
+    /**
+     * An omitted document field keeps the stored key. An empty posted value clears it.
+     * Admin company updates omit commercial_licence, so the stored licence stays.
+     *
+     * @param Company $model
+     * @return void
+     */
+    private function assignPostedDocuments($model)
+    {
+        $params = Yii::$app->request->getBodyParams();
+        Company::assignPostedDocumentValue($model, $params, 'logo', 'company_logo');
+        Company::assignPostedDocumentValue($model, $params, 'commercial_licence', 'commercial_licence');
     }
 }

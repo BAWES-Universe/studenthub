@@ -1,0 +1,31 @@
+# Disposable CLI runner for the synthetic company-document check.
+# Build from the repository root:
+#   docker build -f Dockerfile.company-docs-s3-check -t company-docs-s3-check:local .
+# The default command is the dry-run. AWS writes require --confirm-buckets.
+# This image does not start Nginx, PHP-FPM, cron, init, or migrations.
+
+FROM php:8.2-cli-bookworm
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates unzip \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=composer:2.8 /usr/bin/composer /usr/bin/composer
+
+WORKDIR /opt/company-docs-s3-check
+
+COPY common/tests/manual/s3-check/composer.json /opt/company-docs-s3-check/composer.json
+COPY common/tests/manual/s3-check/composer.lock /opt/company-docs-s3-check/composer.lock
+RUN composer install --no-dev --no-interaction --no-scripts --no-progress --prefer-dist \
+    && rm -rf /root/.composer /usr/bin/composer vendor/bower-asset
+
+COPY common/config/bootstrap.php /opt/company-docs-s3-check/common/config/bootstrap.php
+COPY common/components/S3ResourceManager.php /opt/company-docs-s3-check/common/components/S3ResourceManager.php
+COPY common/components/TempUploadPresigner.php /opt/company-docs-s3-check/common/components/TempUploadPresigner.php
+COPY common/models/Company.php /opt/company-docs-s3-check/common/models/Company.php
+COPY common/tests/manual/SyntheticCompanyStorageCheck.php /opt/company-docs-s3-check/common/tests/manual/SyntheticCompanyStorageCheck.php
+COPY common/tests/manual/SyntheticCompanyStorageTimeoutTest.php /opt/company-docs-s3-check/common/tests/manual/SyntheticCompanyStorageTimeoutTest.php
+
+USER nobody
+
+ENTRYPOINT ["php", "common/tests/manual/SyntheticCompanyStorageCheck.php"]
