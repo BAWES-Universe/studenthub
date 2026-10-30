@@ -129,7 +129,7 @@ class S3ResourceManager extends Component
             'Bucket' => $this->bucket,
             'Key' => $newFile,
             'CopySource' => urlencode($sourceBucket . "/" . $oldFile),
-            'ACL' => 'public-read', // default to ACL public read - allows public to open file
+            'ACL' => 'public-read', // default canned ACL; a private override needs s3:PutObjectAcl
         ], $options);
 
         return $this->getClient()->copyObject($options);
@@ -211,24 +211,109 @@ class S3ResourceManager extends Component
         return $response->getStatusCode() == 200;
     }
 
+    const ANONYMOUS_PUBLIC = 'public';
+    const ANONYMOUS_NOT_PUBLIC = 'not-public';
+    const ANONYMOUS_UNCERTAIN = 'uncertain';
+
+    /** @var array{category: string, status: int|null}|null */
+    private $anonymousPrivacyLog;
+
     /**
-     * True only when an anonymous public HEAD can read the object.
-     * Private and missing objects return false.
+     * Anonymous HEAD of the object URL built from this bucket and key.
+     * A filename containing "http" is still that key. It is not used as a URL.
+     * 200 is public. 403 and 404 are not public. Transport failures, timeouts,
+     * and any other status are uncertain and must not be treated as private.
+     *
+     * S3 authorizes this HEAD with s3:GetObject.
      *
      * @param string $key
-     * @return bool
+     * @return string public|not-public|uncertain
      */
-    public function anonymouslyReadable($key)
+    public function anonymousObjectPrivacy($key)
     {
-        return $this->fileExists($key);
+        try {
+            $url = $this->getUrl((string) $key);
+            $response = $this->httpClient($url)->request('HEAD', '', [
+                'timeout' => 4,
+                'connect_timeout' => 2,
+                'http_errors' => false,
+                'allow_redirects' => false,
+            ]);
+        } catch (\Throwable $e) {
+            $category = $this->anonymousFailureCategory($e);
+            $this->recordAnonymousPrivacy($category, null);
+
+            return self::ANONYMOUS_UNCERTAIN;
+        }
+
+        $status = (int) $response->getStatusCode();
+        if ($status === 200) {
+            return self::ANONYMOUS_PUBLIC;
+        }
+        if ($status === 403 || $status === 404) {
+            return self::ANONYMOUS_NOT_PUBLIC;
+        }
+
+        $this->recordAnonymousPrivacy('unexpected', $status);
+
+        return self::ANONYMOUS_UNCERTAIN;
     }
 
     /**
-     * HeadObject with this component's client against an explicit bucket.
-     * Private temporary licences call this on the permanent resourceManager,
-     * whose principal is AWS_S3_RAILWAY_ACCESS_KEY_ID, and pass the temporary
-     * bucket. That principal needs s3:HeadObject and s3:GetObject on the
-     * source bucket and s3:PutObject plus s3:GetObject on studenthub-uploads.
+     * @return array{category: string, status: int|null}|null
+     */
+    public function anonymousPrivacyLog()
+    {
+        return $this->anonymousPrivacyLog;
+    }
+
+    /**
+     * The exception message can contain a URL, so only the category is kept.
+     * Curl errno 28 is the bounded connect or request timeout.
+     *
+     * @param \Throwable $e
+     * @return string
+     */
+    private function anonymousFailureCategory(\Throwable $e)
+    {
+        if (method_exists($e, 'getHandlerContext')) {
+            $context = $e->getHandlerContext();
+            if (is_array($context) && isset($context['errno']) && (int) $context['errno'] === 28) {
+                return 'timeout';
+            }
+        }
+
+        return 'transport';
+    }
+
+    /**
+     * @param string $category
+     * @param int|null $status
+     * @return void
+     */
+    private function recordAnonymousPrivacy($category, $status)
+    {
+        $status = $status === null ? null : (int) $status;
+        $this->anonymousPrivacyLog = [
+            'category' => (string) $category,
+            'status' => $status,
+        ];
+        if (!class_exists(\Yii::class, false) || \Yii::$app === null) {
+            return;
+        }
+        $statusText = $status === null ? 'none' : (string) $status;
+        \Yii::warning(
+            'anonymous licence privacy ' . $category . ' status=' . $statusText,
+            'company'
+        );
+    }
+
+    /**
+     * Authenticated HEAD with this component's client against an explicit bucket.
+     * Private temporary licences call this on the permanent resourceManager
+     * and pass the temporary bucket. S3 authorizes that HEAD with s3:GetObject.
+     * Copying the object with an explicit ACL also needs s3:PutObject and
+     * s3:PutObjectAcl on studenthub-uploads.
      *
      * @param string $bucket
      * @param string $key
@@ -244,8 +329,47 @@ class S3ResourceManager extends Component
 
             return true;
         } catch (\Throwable $e) {
+            $this->recordAuthenticatedExistenceFailure($e);
+
             return false;
         }
+    }
+
+    /**
+     * The exception message can contain a key or a request URL.
+     * A 404 is the normal missing-object result and is not logged.
+     *
+     * @param \Throwable $e
+     * @return void
+     */
+    private function recordAuthenticatedExistenceFailure(\Throwable $e)
+    {
+        $category = 'transport';
+        $status = null;
+        if ($e instanceof \Aws\Exception\AwsException) {
+            $status = $e->getStatusCode();
+            if ($status === 404) {
+                return;
+            }
+            if ($status === 403) {
+                $category = 'access-denied';
+            } else {
+                $code = $e->getAwsErrorCode();
+                if (is_string($code) && preg_match('/^[A-Za-z0-9]+$/', $code)) {
+                    $category = $code;
+                } else {
+                    $category = 'unexpected';
+                }
+            }
+        }
+        if (!class_exists(\Yii::class, false) || \Yii::$app === null) {
+            return;
+        }
+        $statusText = $status === null ? 'none' : (string) (int) $status;
+        \Yii::warning(
+            'authenticated object check ' . $category . ' status=' . $statusText,
+            'company'
+        );
     }
 
     /**

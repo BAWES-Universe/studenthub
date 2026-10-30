@@ -15,13 +15,16 @@ return [
              * search the default credential chain. Logo and other public
              * uploads keep using this anonymous client.
              *
-             * Private temporary licences are not checked here. Company uses
-             * the permanent resourceManager principal
+             * Private temporary licences are not checked here. Company builds
+             * this bucket's object URL and sends an anonymous HEAD with short
+             * timeouts. Only 403 and 404 count as not public. The permanent
+             * resourceManager principal
              * (AWS_S3_RAILWAY_ACCESS_KEY_ID / AWS_S3_RAILWAY_SECRET_ACCESS_KEY)
-             * to head and copy objects in this bucket. That principal needs
-             * s3:HeadObject and s3:GetObject here, plus s3:PutObject and
-             * s3:GetObject on studenthub-uploads. The temp upload signer only
-             * signs the browser PUT.
+             * then reads the object with s3:GetObject. Copying it with a
+             * private ACL also needs s3:PutObject and s3:PutObjectAcl on
+             * studenthub-uploads. The temp upload signer needs those two
+             * actions on this bucket. A policy condition that allows only
+             * public-read would deny the private licence ACL.
              *
              * You can access the Temporary bucket with:
              * https://studenthub-public-anyone-can-upload-24hr-expiry.s3.amazonaws.com/

@@ -999,13 +999,17 @@ class Company extends \yii\db\ActiveRecord
     }
 
     /**
-     * Anonymous HEAD success means the temp object is public and must not be stored.
-     * A following authenticated HeadObject uses the permanent resourceManager principal
+     * Anonymous 200 means the temp object is public and must not be stored.
+     * A timeout, transport failure, or unexpected status is uncertain and also rejects promotion.
+     * Only an explicit 403 or 404 continues to the authenticated existence check.
+     * That check uses the permanent resourceManager principal
      * (AWS_S3_RAILWAY_ACCESS_KEY_ID / AWS_S3_RAILWAY_SECRET_ACCESS_KEY, bucket studenthub-uploads)
-     * against the temporary bucket. That principal needs s3:HeadObject and s3:GetObject
-     * on studenthub-public-anyone-can-upload-24hr-expiry, and s3:PutObject plus s3:GetObject
-     * on studenthub-uploads. The temp upload signer only signs the browser PUT.
-     * The anonymous temporaryBucketResourceManager stays in place for public logos.
+     * against the temporary bucket. S3 authorizes the HEAD and the source read with
+     * s3:GetObject. The copy sets ACL private, so the same principal also needs
+     * s3:PutObject and s3:PutObjectAcl on studenthub-uploads. The temp upload signer
+     * only signs the browser PUT and needs s3:PutObject plus s3:PutObjectAcl on the
+     * temporary bucket. An existing condition that allows only public-read would deny
+     * the private licence ACL. The anonymous temporary client stays in place for public logos.
      *
      * @param mixed $stored
      * @return bool
@@ -1018,7 +1022,7 @@ class Company extends \yii\db\ActiveRecord
         }
 
         $temporary = Yii::$app->temporaryBucketResourceManager;
-        if ($temporary->anonymouslyReadable($stored)) {
+        if ($temporary->anonymousObjectPrivacy($stored) !== \common\components\S3ResourceManager::ANONYMOUS_NOT_PUBLIC) {
             return false;
         }
 

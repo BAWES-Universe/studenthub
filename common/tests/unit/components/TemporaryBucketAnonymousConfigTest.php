@@ -199,11 +199,59 @@ class TemporaryBucketAnonymousConfigTest extends \PHPUnit\Framework\TestCase
 
         $this->assertFalse($manager->objectExistsInBucket(self::BUCKET, 'privatelicence-licence.png'));
         if (!$captured || strpos($captured->getHeaderLine('Authorization'), self::FAKE_KEY) === false) {
-            $this->fail('private licence HeadObject was not signed by the permanent storage principal');
+            $this->fail('private licence HEAD was not signed by the permanent storage principal');
         }
         $this->assertStringContainsString(self::BUCKET, (string) $captured->getUri());
         $this->assertStringNotContainsString(self::DEFAULT_CHAIN_KEY, $captured->getHeaderLine('Authorization'));
         $this->assertStringContainsString('privatelicence-licence.png', (string) $captured->getUri());
+    }
+
+    public function testAnonymousPrivacyUsesTheBucketUrlAndRejectsUncertainResults()
+    {
+        $key = 'privatelicence-http-file.png';
+
+        $public = $this->anonymousManager();
+        $public->status = 200;
+        $this->assertSame(S3ResourceManager::ANONYMOUS_PUBLIC, $public->anonymousObjectPrivacy($key));
+        $this->assertNull($public->anonymousPrivacyLog());
+        $this->assertStringStartsWith('https://', $public->uris[0]);
+        $this->assertStringContainsString(self::BUCKET, $public->uris[0]);
+        $this->assertStringContainsString($key, $public->uris[0]);
+        $this->assertNotSame($key, $public->uris[0]);
+        $this->assertSame(4, $public->requestOptions[0]['timeout']);
+        $this->assertSame(2, $public->requestOptions[0]['connect_timeout']);
+
+        $denied = $this->anonymousManager();
+        $denied->status = 403;
+        $this->assertSame(S3ResourceManager::ANONYMOUS_NOT_PUBLIC, $denied->anonymousObjectPrivacy($key));
+        $this->assertNull($denied->anonymousPrivacyLog());
+
+        $missing = $this->anonymousManager();
+        $missing->status = 404;
+        $this->assertSame(S3ResourceManager::ANONYMOUS_NOT_PUBLIC, $missing->anonymousObjectPrivacy($key));
+
+        $timeout = $this->anonymousManager();
+        $timeout->failure = 'timeout';
+        $this->assertSame(S3ResourceManager::ANONYMOUS_UNCERTAIN, $timeout->anonymousObjectPrivacy($key));
+        $this->assertSame(['category' => 'timeout', 'status' => null], $timeout->anonymousPrivacyLog());
+
+        $server = $this->anonymousManager();
+        $server->status = 500;
+        $this->assertSame(S3ResourceManager::ANONYMOUS_UNCERTAIN, $server->anonymousObjectPrivacy($key));
+        $this->assertSame(['category' => 'unexpected', 'status' => 500], $server->anonymousPrivacyLog());
+
+        $transport = $this->anonymousManager();
+        $transport->failure = 'transport';
+        $this->assertSame(S3ResourceManager::ANONYMOUS_UNCERTAIN, $transport->anonymousObjectPrivacy($key));
+        $this->assertSame(['category' => 'transport', 'status' => null], $transport->anonymousPrivacyLog());
+
+        foreach ([$timeout, $server, $transport] as $manager) {
+            $encoded = json_encode($manager->anonymousPrivacyLog());
+            $this->assertStringNotContainsString($key, $encoded);
+            $this->assertStringNotContainsString('https://', $encoded);
+            $this->assertStringNotContainsString(self::FAKE_KEY, $encoded);
+            $this->assertStringNotContainsString(self::FAKE_SECRET, $encoded);
+        }
     }
 
     private function assertTemporaryConfigHasNoHardcodedKey()
@@ -396,11 +444,17 @@ class TemporaryBucketHttpStub extends S3ResourceManager
     /** @var int 0 throws, any other value is the HTTP status */
     public $status = 200;
 
+    /** @var string|null timeout or transport */
+    public $failure;
+
     /** @var array<string, string[]> */
     public $headers = [];
 
     /** @var string[] */
     public $uris = [];
+
+    /** @var array<int, array<string, mixed>> */
+    public $requestOptions = [];
 
     /**
      * @param string $baseUri
@@ -411,21 +465,31 @@ class TemporaryBucketHttpStub extends S3ResourceManager
         $this->uris[] = $baseUri;
         $status = $this->status;
         $headers = $this->headers;
+        $failure = $this->failure;
+        $owner = $this;
 
-        return new class($status, $headers) {
+        return new class($status, $headers, $failure, $owner) {
             /** @var int */
             private $status;
             /** @var array<string, string[]> */
             private $headers;
+            /** @var string|null */
+            private $failure;
+            /** @var TemporaryBucketHttpStub */
+            private $owner;
 
             /**
              * @param int $status
              * @param array<string, string[]> $headers
+             * @param string|null $failure
+             * @param TemporaryBucketHttpStub $owner
              */
-            public function __construct($status, $headers)
+            public function __construct($status, $headers, $failure, $owner)
             {
                 $this->status = $status;
                 $this->headers = $headers;
+                $this->failure = $failure;
+                $this->owner = $owner;
             }
 
             /**
@@ -436,7 +500,16 @@ class TemporaryBucketHttpStub extends S3ResourceManager
              */
             public function request($method, $uri = '', $options = [])
             {
-                if ($this->status === 0) {
+                $this->owner->requestOptions[] = $options;
+                if ($this->failure === 'timeout') {
+                    throw new \GuzzleHttp\Exception\ConnectException(
+                        'operation timed out',
+                        new \GuzzleHttp\Psr7\Request('HEAD', 'https://bucket.example.test/object'),
+                        null,
+                        ['errno' => 28]
+                    );
+                }
+                if ($this->failure === 'transport' || $this->status === 0) {
                     throw new \RuntimeException('connection failed');
                 }
                 $status = $this->status;

@@ -101,6 +101,20 @@ class CompanyDocumentStorageTest extends TestCase
         $this->assertSame([], $managers->authenticatedHeads);
     }
 
+    public function testUncertainAnonymousCheckDoesNotPromote()
+    {
+        $company = $this->company('commercial-licence/old.jpg', null);
+        $tempKey = Company::PRIVATE_TEMPORARY_LICENCE_PREFIX . 'uncertain-licence.png';
+        $company->commercial_licence = $tempKey;
+        $managers = $this->installManagers();
+
+        $this->assertFalse($company->updateLicence());
+        $this->assertSame('commercial-licence/old.jpg', $company->commercial_licence);
+        $this->assertSame([$tempKey], $managers->anonymousChecks);
+        $this->assertSame([], $managers->authenticatedHeads);
+        $this->assertSame([], $managers->copies);
+    }
+
     public function testLogoPromotionStillUsesThePublicExistenceCheck()
     {
         $company = $this->company(null, 'company-logo/old.jpg');
@@ -611,11 +625,17 @@ class CompanyDocumentStorageTest extends TestCase
                 return $key !== 'missing.png';
             }
 
-            public function anonymouslyReadable($key)
+            public function anonymousObjectPrivacy($key)
             {
                 $this->anonymousChecks[] = $key;
+                if (strpos((string) $key, 'public-temp-') !== false) {
+                    return 'public';
+                }
+                if (strpos((string) $key, 'uncertain-') !== false) {
+                    return 'uncertain';
+                }
 
-                return strpos((string) $key, 'public-temp-') !== false;
+                return 'not-public';
             }
 
             public function objectExistsInBucket($bucket, $key)

@@ -24,6 +24,9 @@ use Aws\S3\S3Client;
  * A commercial-licence upload signs x-amz-acl=private and prefixes the key
  * with privatelicence-. A cached Staff client that still receives public-read
  * does not get that prefix, and Company will not promote that object.
+ * The signer needs s3:PutObject and s3:PutObjectAcl on the temporary bucket
+ * because the presign sets a canned ACL. A condition that allows only
+ * public-read denies the private licence upload.
  *
  * file_size is request validation / abuse reduction only. A normal presigned
  * PUT does not cryptographically enforce a content-length-range the way a
