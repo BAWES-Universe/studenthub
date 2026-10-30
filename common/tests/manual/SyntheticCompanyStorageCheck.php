@@ -20,38 +20,56 @@
  * storage principal, which is the railway-s3-access user. This script does
  * not grant DeleteObject to the signer.
  *
+ * A validated temporary key and its permanent target are registered before
+ * the PUT starts. A response that times out after S3 accepts the object is
+ * still deleted by the permanent principal.
+ *
+ * The disposable runner is Dockerfile.company-docs-s3-check. Its default
+ * command is this dry-run. It does not start the application.
+ *
  * Results are SDK and presigned-request checks. They are not a browser CORS
  * check, an image-decode check, or a Staff or Admin login check.
  */
 
-if (PHP_SAPI !== 'cli') {
-    fwrite(STDERR, "CLI only.\n");
-    exit(1);
+if (PHP_SAPI === 'cli' && isset($_SERVER['SCRIPT_FILENAME']) && realpath((string) $_SERVER['SCRIPT_FILENAME']) === realpath(__FILE__)) {
+    exit(syntheticCompanyStorageCheckMain(isset($argv) && is_array($argv) ? $argv : []));
 }
 
-$confirm = in_array('--confirm-buckets', $argv, true);
-if (!$confirm) {
-    fwrite(STDOUT, implode("\n", [
-        'Synthetic company storage check is prepared and was not run.',
-        'It does not open a database and does not update a company.',
-        'Pass --confirm-buckets only in a process that already has the signer and railway-s3-access variables.',
-        'It then uses TempUploadPresigner and Company::updateLicence / updateCompanyLogo:',
-        '1. Presign a private licence and PUT a 1x1 PNG. The key is privatelicence-synthetic-licence-check-{time}-{16 hex}.png.',
-        '2. Require anonymous HEAD and GET denial, then read the bytes with the permanent principal.',
-        '3. Promote that object to private/company-commercial-licences/ and repeat the denial and authenticated read.',
-        '4. Presign a public logo and PUT a 1x1 PNG. The key is synthetic-logo-check-{time}-{16 hex}.png.',
-        '5. Promote it to company-logos/ and require an anonymous HEAD and GET of those bytes.',
-        '6. Delete only those exact keys with the permanent principal.',
-        'No company row and no staging database is used.',
-        '',
-    ]));
-    exit(0);
-}
+/**
+ * @param array<int, string> $arguments
+ * @return int
+ */
+function syntheticCompanyStorageCheckMain(array $arguments)
+{
+    if (PHP_SAPI !== 'cli') {
+        fwrite(STDERR, "CLI only.\n");
+        return 1;
+    }
 
-if (defined('YII_ENV') && YII_ENV !== 'prod') {
-    fwrite(STDERR, "Refusing to run because YII_ENV is not prod, so promotion would use a different prefix.\n");
-    exit(2);
-}
+    $confirm = in_array('--confirm-buckets', $arguments, true);
+    if (!$confirm) {
+        fwrite(STDOUT, implode("\n", [
+            'Synthetic company storage check is prepared and was not run.',
+            'It does not open a database and does not update a company.',
+            'Pass --confirm-buckets only in a process that already has the signer and railway-s3-access variables.',
+            'Missing credentials stop the process before any upload.',
+            'It then uses TempUploadPresigner and Company::updateLicence / updateCompanyLogo:',
+            '1. Presign a private licence. After the key is validated, register that temporary key and its permanent target, then PUT a 1x1 PNG. The key is privatelicence-synthetic-licence-check-{time}-{16 hex}.png.',
+            '2. Require anonymous HEAD and GET denial, then read the bytes with the permanent principal.',
+            '3. Promote that object to private/company-commercial-licences/ and repeat the denial and authenticated read.',
+            '4. Presign a public logo. Register that temporary key and its permanent target before the PUT. The key is synthetic-logo-check-{time}-{16 hex}.png.',
+            '5. Promote it to company-logos/ and require an anonymous HEAD and GET of those bytes.',
+            '6. Delete only those exact keys with the permanent principal.',
+            'No company row and no staging database is used.',
+            '',
+        ]));
+        return 0;
+    }
+
+    if (defined('YII_ENV') && YII_ENV !== 'prod') {
+        fwrite(STDERR, "Refusing to run because YII_ENV is not prod, so promotion would use a different prefix.\n");
+        return 2;
+    }
 defined('YII_DEBUG') or define('YII_DEBUG', false);
 defined('YII_ENV') or define('YII_ENV', 'prod');
 
@@ -72,10 +90,10 @@ foreach ([
         $missing[] = $name;
     }
 }
-if ($missing) {
-    fwrite(STDERR, 'Missing environment: ' . implode(', ', $missing) . "\n");
-    exit(2);
-}
+    if ($missing) {
+        fwrite(STDERR, 'Missing environment: ' . implode(', ', $missing) . "\n");
+        return 2;
+    }
 
 new yii\console\Application([
     'id' => 'synthetic-company-storage',
@@ -102,20 +120,20 @@ if (Yii::$app->has('log', true)) {
     Yii::$app->log->targets = [];
 }
 
-if (common\models\Company::permanentDocumentPrefix('licence') !== 'private/company-commercial-licences/') {
-    fwrite(STDERR, "Refusing to run because the licence prefix is not the production prefix.\n");
-    exit(2);
-}
-if (common\models\Company::permanentDocumentPrefix('logo') !== 'company-logos/') {
-    fwrite(STDERR, "Refusing to run because the logo prefix is not the production prefix.\n");
-    exit(2);
-}
+    if (common\models\Company::permanentDocumentPrefix('licence') !== 'private/company-commercial-licences/') {
+        fwrite(STDERR, "Refusing to run because the licence prefix is not the production prefix.\n");
+        return 2;
+    }
+    if (common\models\Company::permanentDocumentPrefix('logo') !== 'company-logos/') {
+        fwrite(STDERR, "Refusing to run because the logo prefix is not the production prefix.\n");
+        return 2;
+    }
 
-$png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==');
-if (!is_string($png) || strlen($png) < 8 || substr($png, 0, 8) !== "\x89PNG\r\n\x1a\n") {
-    fwrite(STDERR, "synthetic check failed category=invalid-png\n");
-    exit(1);
-}
+    $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==');
+    if (!is_string($png) || strlen($png) < 8 || substr($png, 0, 8) !== "\x89PNG\r\n\x1a\n") {
+        fwrite(STDERR, "synthetic check failed category=invalid-png\n");
+        return 1;
+    }
 
 $http = new GuzzleHttp\Client([
     'http_errors' => false,
@@ -137,13 +155,10 @@ try {
         $png,
         'synthetic-licence-check.png',
         common\components\TempUploadPresigner::aclForPurpose('commercial-licence'),
-        '/^privatelicence-synthetic-licence-check-[0-9]+-[a-f0-9]{16}\.png$/'
+        '/^privatelicence-synthetic-licence-check-[0-9]+-[a-f0-9]{16}\.png$/',
+        $created,
+        common\models\Company::permanentDocumentPrefix('licence')
     );
-    $created[] = ['bucket' => common\components\TempUploadPresigner::BUCKET, 'key' => $licenceKey];
-    $created[] = [
-        'bucket' => 'studenthub-uploads',
-        'key' => common\models\Company::permanentDocumentPrefix('licence') . $licenceKey,
-    ];
 
     expectAnonymousDenial(Yii::$app->temporaryBucketResourceManager, $http, $licenceKey, 'temporary licence');
     expectPermanentBytes(common\components\TempUploadPresigner::BUCKET, $licenceKey, $png, 'temporary licence');
@@ -168,13 +183,10 @@ try {
         $png,
         'synthetic-logo-check.png',
         common\components\TempUploadPresigner::ACL,
-        '/^synthetic-logo-check-[0-9]+-[a-f0-9]{16}\.png$/'
+        '/^synthetic-logo-check-[0-9]+-[a-f0-9]{16}\.png$/',
+        $created,
+        common\models\Company::permanentDocumentPrefix('logo')
     );
-    $created[] = ['bucket' => common\components\TempUploadPresigner::BUCKET, 'key' => $logoKey];
-    $created[] = [
-        'bucket' => 'studenthub-uploads',
-        'key' => common\models\Company::permanentDocumentPrefix('logo') . $logoKey,
-    ];
 
     expectAnonymousBytes(Yii::$app->temporaryBucketResourceManager, $http, $logoKey, $png, 'temporary logo');
 
@@ -201,7 +213,8 @@ try {
     }
 }
 
-exit($failed ? 1 : 0);
+    return $failed ? 1 : 0;
+}
 
 /**
  * ActiveRecord attribute assignment normally loads the table schema.
@@ -225,15 +238,20 @@ function syntheticCompany()
 }
 
 /**
- * @param common\components\TempUploadPresigner $presigner
+ * The production path passes TempUploadPresigner. The parameter is untyped so
+ * a local fake can return a rejected key without signing a request.
+ *
+ * @param object $presigner
  * @param GuzzleHttp\Client $http
  * @param string $png
  * @param string $filename
  * @param string $acl
  * @param string $pattern
+ * @param array<int, array{bucket: string, key: string}> $created
+ * @param string $permanentPrefix
  * @return string
  */
-function presignAndPut(common\components\TempUploadPresigner $presigner, GuzzleHttp\Client $http, $png, $filename, $acl, $pattern)
+function presignAndPut($presigner, GuzzleHttp\Client $http, $png, $filename, $acl, $pattern, array &$created, $permanentPrefix)
 {
     $presign = $presigner->presign($filename, 'image/png', strlen($png), $acl);
     $key = isset($presign['key']) ? (string) $presign['key'] : '';
@@ -252,6 +270,8 @@ function presignAndPut(common\components\TempUploadPresigner $presigner, GuzzleH
         fail('presign upload url was empty');
     }
 
+    rememberSyntheticObjects($created, $key, $permanentPrefix);
+
     $response = $http->request('PUT', $uploadUrl, [
         'headers' => [
             'Content-Type' => isset($headers['Content-Type']) ? $headers['Content-Type'] : 'image/png',
@@ -268,6 +288,32 @@ function presignAndPut(common\components\TempUploadPresigner $presigner, GuzzleH
     }
 
     return $key;
+}
+
+/**
+ * Register the temporary object and its permanent target before the PUT.
+ * Both must already match the synthetic-key rules. A rejected key is not added.
+ *
+ * @param array<int, array{bucket: string, key: string}> $created
+ * @param string $temporaryKey
+ * @param string $permanentPrefix
+ * @return void
+ */
+function rememberSyntheticObjects(array &$created, $temporaryKey, $permanentPrefix)
+{
+    $permanentKey = $permanentPrefix . $temporaryKey;
+    if (!allowedSyntheticKey(common\components\TempUploadPresigner::BUCKET, $temporaryKey)
+        || !allowedSyntheticKey('studenthub-uploads', $permanentKey)) {
+        fail('presign key was not accepted');
+    }
+    $created[] = [
+        'bucket' => common\components\TempUploadPresigner::BUCKET,
+        'key' => $temporaryKey,
+    ];
+    $created[] = [
+        'bucket' => 'studenthub-uploads',
+        'key' => $permanentKey,
+    ];
 }
 
 /**
