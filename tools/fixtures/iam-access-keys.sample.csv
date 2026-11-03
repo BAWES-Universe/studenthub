@@ -1,0 +1,6 @@
+user,access_key_id,status,created_at,last_used_at,last_used_service,last_used_region,owner,service,environment,notes
+railway-s3-access,studenthub-temp-key-DOBNJ,active,2026-01-01,2026-04-17,s3,eu-west-2,platform,studenthub,production,synthetic exposed active key suffix
+mediaconverter,studenthub-media-key-OFLT,active,2026-02-01,2026-02-15,mediaconvert,eu-west-2,media,studenthub,production,synthetic stale media key suffix
+legacy-mailer,studenthub-old-key-XW5I,inactive,2025-12-01,2026-01-01,ses,eu-west-2,platform,studenthub,production,synthetic inactive exposed key suffix
+untagged-worker,studenthub-worker-key-9ABC,active,2026-04-01,2026-05-01,sqs,eu-west-2,,,production,synthetic untagged key
+textract-access,studenthub-textract-key-7DEF,inactive,2026-05-01,2026-05-05,textract,eu-west-2,document-processing,studenthub,production,synthetic recently inactive key
