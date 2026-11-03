@@ -1,0 +1,103 @@
+{
+  "incident": {
+    "title": "StudentHub S3/IAM remediation evidence",
+    "preparedBy": "Security team",
+    "preparedAt": "2026-05-15T10:30:00Z",
+    "privateEvidenceFolder": "private/aws-support-2026-05"
+  },
+  "deletedKeys": [
+    {
+      "suffix": "FZMN",
+      "iamUser": "textract-access",
+      "status": "deleted",
+      "deletedAt": "2026-05-15T09:00:00Z",
+      "evidence": "screenshots/fzmn-deleted.png"
+    },
+    {
+      "suffix": "4T67K",
+      "iamUser": "public-environment-s3-access",
+      "status": "deleted",
+      "deletedAt": "2026-05-15T09:05:00Z",
+      "evidence": "screenshots/4t67k-deleted.png"
+    }
+  ],
+  "rotatedKeys": [
+    {
+      "suffix": "ODY2X",
+      "iamUser": "public-environment-s3-access",
+      "replacement": "AWS_TEMP_BUCKET_KEY / AWS_TEMP_BUCKET_SECRET",
+      "status": "rotated and deactivated",
+      "evidence": "screenshots/ody2x-rotated.png"
+    },
+    {
+      "suffix": "WCUM",
+      "iamUser": "railway-s3-access",
+      "replacement": "AWS_PERMANENT_S3_ACCESS_KEY_ID / AWS_PERMANENT_S3_SECRET_ACCESS_KEY",
+      "status": "rotated and deactivated",
+      "evidence": "screenshots/wcum-rotated.png"
+    }
+  ],
+  "environmentVariables": [
+    {
+      "service": "Railway production",
+      "names": [
+        "AWS_TEMP_BUCKET_KEY",
+        "AWS_TEMP_BUCKET_SECRET",
+        "AWS_PERMANENT_S3_ACCESS_KEY_ID",
+        "AWS_PERMANENT_S3_SECRET_ACCESS_KEY"
+      ],
+      "evidence": "screenshots/railway-env-names-only.png"
+    }
+  ],
+  "bucketControls": [
+    {
+      "bucket": "studenthub-uploads",
+      "control": "lifecycle rule PressureDelete3Days disabled",
+      "status": "complete",
+      "evidence": "screenshots/studenthub-uploads-lifecycle-disabled.png"
+    },
+    {
+      "bucket": "studenthub-uploads",
+      "control": "versioning enabled",
+      "status": "complete",
+      "evidence": "screenshots/studenthub-uploads-versioning.png"
+    }
+  ],
+  "smokeTests": [
+    {
+      "name": "new candidate signup with Civil ID front/back",
+      "status": "passed",
+      "evidence": "smoke-tests/new-candidate-civil-id.md"
+    },
+    {
+      "name": "existing candidate Civil ID remove",
+      "status": "passed",
+      "evidence": "smoke-tests/remove-civil-id.md"
+    }
+  ],
+  "cloudTrail": [
+    {
+      "eventTime": "2026-04-18T11:22:33Z",
+      "eventName": "PutBucketLifecycleConfiguration",
+      "userName": "railway-s3-access",
+      "accessKeySuffix": "WCUM",
+      "sourceIPAddress": "203.0.113.10",
+      "userAgent": "aws-sdk-php/3.x",
+      "bucketName": "studenthub-uploads",
+      "result": "reviewed with expected automation owner"
+    }
+  ],
+  "iamReviews": [
+    {
+      "iamUser": "railway-s3-access",
+      "status": "restricted to object-level S3 actions",
+      "evidence": "screenshots/railway-s3-policy-after.png"
+    }
+  ],
+  "supportNotes": [
+    "Raw screenshots and exports remain in the private evidence folder.",
+    "Synthetic redaction probe: account 123456789012 must not render.",
+    "Synthetic redaction probe: token Abcdefghijklmnopqrstuvwxyz123456 must not render.",
+    "No full access keys or candidate Civil ID data are included in this public manifest."
+  ]
+}
