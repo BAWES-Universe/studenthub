@@ -505,8 +505,10 @@ class AccountController extends Controller
         } catch (\Throwable $e) {
             Yii::error([
                 'action'       => 'actionRemoveCivilPhotoBack',
+                'route'        => Candidate::currentRoute(),
                 'candidate_id' => $model->candidate_id,
                 'side'         => 'back',
+                'filename'     => $oldFileName,
                 'exception'    => get_class($e),
                 'message'      => $e->getMessage(),
             ], 'candidate.civil-id');
@@ -526,6 +528,7 @@ class AccountController extends Controller
                 } catch (\Throwable $e) {
                     Yii::warning([
                         'action'       => 'actionRemoveCivilPhotoBack',
+                        'route'        => Candidate::currentRoute(),
                         'candidate_id' => $model->candidate_id,
                         'side'         => 'back',
                         'filename'     => $oldFileName,
@@ -570,8 +573,10 @@ class AccountController extends Controller
         } catch (\Throwable $e) {
             Yii::error([
                 'action'       => 'actionRemoveCivilPhotoFront',
+                'route'        => Candidate::currentRoute(),
                 'candidate_id' => $model->candidate_id,
                 'side'         => 'front',
+                'filename'     => $oldFileName,
                 'exception'    => get_class($e),
                 'message'      => $e->getMessage(),
             ], 'candidate.civil-id');
@@ -591,6 +596,7 @@ class AccountController extends Controller
                 } catch (\Throwable $e) {
                     Yii::warning([
                         'action'       => 'actionRemoveCivilPhotoFront',
+                        'route'        => Candidate::currentRoute(),
                         'candidate_id' => $model->candidate_id,
                         'side'         => 'front',
                         'filename'     => $oldFileName,
@@ -1481,7 +1487,12 @@ class AccountController extends Controller
             ];
         }
         
-        $model->updateCivilId('back');
+        if (!$model->updateCivilId('back')) {
+            return [
+                'operation' => 'error',
+                'message' => $model->getErrors()
+            ];
+        }
 
         //reset to remove old id's data
         $model->candidate_civil_expiry_date = null;
@@ -1533,7 +1544,12 @@ class AccountController extends Controller
             ];
         }
         
-        $model->updateCivilId('front');
+        if (!$model->updateCivilId('front')) {
+            return [
+                'operation' => 'error',
+                'message' => $model->getErrors()
+            ];
+        }
 
         //reset to remove old id's data
         $model->candidate_civil_expiry_date = null;

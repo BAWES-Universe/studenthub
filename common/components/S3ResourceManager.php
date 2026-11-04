@@ -190,8 +190,10 @@ class S3ResourceManager extends Component
     }
 
     /**
-     * Checks whether a file exists or not. This method only works for public resources, private resources will throw
-     * a 403 error exception.
+     * Checks whether a file exists or not.
+     * Uses authenticated headObject wrapper for bucket keys when configured with
+     * credentials, and falls back to HTTP HEAD for public URLs or anonymous access.
+     *
      * @param string $filenameOrUrl the name or url of the file
      * @return boolean
      */
@@ -200,6 +202,13 @@ class S3ResourceManager extends Component
         $isUrl = false;
         if (strpos($filenameOrUrl, 'http') !== false) {
             $isUrl = true;
+        }
+
+        // For non-URL keys, attempt authenticated headObject check on this bucket
+        if (!$isUrl && $this->authMethod !== self::AUTH_VIA_ANONYMOUS) {
+            if ($this->storedObjectExists($filenameOrUrl)) {
+                return true;
+            }
         }
 
         $http = $this->httpClient($isUrl ? $filenameOrUrl : $this->getUrl($filenameOrUrl));
