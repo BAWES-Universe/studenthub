@@ -162,8 +162,8 @@ return [
         'resourceManager' => [
             'class' => 'common\components\S3ResourceManager',
             'authMethod' => \common\components\S3ResourceManager::AUTH_VIA_KEY_AND_SECRET,
-            'region' => 'eu-west-2', // Bucket based in London
-            'bucket' => 'studenthub-uploads',
+            'region' => getenv('AWS_PERMANENT_S3_REGION') ?: 'eu-west-2', // Bucket based in London
+            'bucket' => getenv('AWS_PERMANENT_S3_BUCKET') ?: 'studenthub-uploads',
             'key' => $railwayS3AccessKeyId !== '' ? $railwayS3AccessKeyId : null,
             'secret' => $railwayS3SecretAccessKey !== '' ? $railwayS3SecretAccessKey : null,
             /**
