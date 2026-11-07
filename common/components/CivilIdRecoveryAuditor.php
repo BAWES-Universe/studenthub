@@ -13,6 +13,7 @@ final class CivilIdRecoveryAuditor
     public const STATUS_RECOVERABLE_LEGACY = 'recoverable_from_legacy';
     public const STATUS_RECOVERABLE_TEMP = 'recoverable_from_temp';
     public const STATUS_MISSING_NEEDS_REUPLOAD = 'missing_needs_reupload';
+    public const STATUS_STORAGE_UNAVAILABLE = 'storage_error_or_unconfigured';
 
     public const PERMANENT_PREFIX = 'photos/';
     public const LEGACY_PREFIX = 'candidate-civil-id/';
@@ -61,6 +62,7 @@ final class CivilIdRecoveryAuditor
      *
      * Checks the canonical permanent prefix first, then the legacy permanent prefix,
      * and finally the 24-hour temporary upload bucket before flagging for re-upload.
+     * Distinguishes unconfigured managers or transient S3 errors from missing objects.
      *
      * @param mixed $storedValue
      * @param array{permanent?: object, temporary?: object} $managers
@@ -73,23 +75,20 @@ final class CivilIdRecoveryAuditor
         }
 
         $permanent = $managers['permanent'] ?? null;
-        if (self::objectExists($permanent, self::PERMANENT_PREFIX . $base)) {
-            return self::STATUS_PERMANENT_PRESENT;
-        }
-        if (self::objectExists($permanent, self::LEGACY_PREFIX . $base)) {
-            return self::STATUS_RECOVERABLE_LEGACY;
+        if (!is_object($permanent)) {
+            return self::STATUS_STORAGE_UNAVAILABLE;
         }
 
-        $temporary = $managers['temporary'] ?? null;
-        if (self::objectExists($temporary, $base)) {
-            return self::STATUS_RECOVERABLE_TEMP;
+        try {
+            return self::probeCandidateLocations($base, $managers);
+        } catch (\Throwable $e) {
+            return self::STATUS_STORAGE_UNAVAILABLE;
         }
-
-        return self::STATUS_MISSING_NEEDS_REUPLOAD;
     }
 
     /**
-     * Promote a recoverable Civil ID object from legacy or temp storage into photos/<filename>.
+     * Promote a recoverable Civil ID object from legacy or temp storage into photos/<filename>
+     * with an explicit private ACL.
      *
      * @param mixed $storedValue
      * @param array{permanent?: object, temporary?: object, tempBucket?: string} $context
@@ -98,7 +97,7 @@ final class CivilIdRecoveryAuditor
     {
         $status = self::classifyCandidatePhoto($storedValue, $context);
         $permanent = $context['permanent'] ?? null;
-        if ($permanent === null) {
+        if (!is_object($permanent)) {
             return false;
         }
 
@@ -112,10 +111,15 @@ final class CivilIdRecoveryAuditor
         }
 
         if ($status === self::STATUS_RECOVERABLE_TEMP) {
+            $tempBucket = trim((string) ($context['tempBucket'] ?? ''));
+            if ($tempBucket === '') {
+                return false;
+            }
+
             return self::copyAndVerify($permanent, [
                 'sourceKey' => self::extractBasename($storedValue),
                 'targetKey' => $targetKey,
-                'sourceBucket' => (string) ($context['tempBucket'] ?? ''),
+                'sourceBucket' => $tempBucket,
             ]);
         }
 
@@ -123,7 +127,27 @@ final class CivilIdRecoveryAuditor
     }
 
     /**
-     * Copy an object into the permanent bucket and confirm its destination presence.
+     * Check permanent, legacy, and temporary prefixes in priority order.
+     */
+    private static function probeCandidateLocations(string $base, array $managers): string
+    {
+        $permanent = $managers['permanent'];
+        $temporary = $managers['temporary'] ?? null;
+        if (self::objectExists($permanent, self::PERMANENT_PREFIX . $base)) {
+            return self::STATUS_PERMANENT_PRESENT;
+        }
+        if (self::objectExists($permanent, self::LEGACY_PREFIX . $base)) {
+            return self::STATUS_RECOVERABLE_LEGACY;
+        }
+        if (is_object($temporary) && self::objectExists($temporary, $base)) {
+            return self::STATUS_RECOVERABLE_TEMP;
+        }
+
+        return self::STATUS_MISSING_NEEDS_REUPLOAD;
+    }
+
+    /**
+     * Copy an object into the permanent bucket with private ACL and confirm destination presence.
      *
      * @param object $permanent
      * @param array{sourceKey: string, targetKey: string, sourceBucket: string} $transfer
@@ -138,17 +162,18 @@ final class CivilIdRecoveryAuditor
             $permanent->copy(
                 $transfer['sourceKey'],
                 $transfer['targetKey'],
-                $transfer['sourceBucket']
+                $transfer['sourceBucket'],
+                ['ACL' => 'private']
             );
+            return self::objectExists($permanent, $transfer['targetKey']);
         } catch (\Throwable $e) {
             return false;
         }
-
-        return self::objectExists($permanent, $transfer['targetKey']);
     }
 
     /**
      * Check object existence using authenticated headObject when supported by the manager.
+     * Rethrows transient S3/network exceptions so they are not misclassified as missing files.
      */
     private static function objectExists($manager, $key): bool
     {
@@ -164,9 +189,27 @@ final class CivilIdRecoveryAuditor
                 return (bool) $manager->fileExists($key);
             }
         } catch (\Throwable $e) {
-            return false;
+            if (self::isNotFoundException($e)) {
+                return false;
+            }
+            throw $e;
         }
 
         return false;
+    }
+
+    /**
+     * Determine whether an exception represents a confirmed S3 404/NoSuchKey absence.
+     */
+    private static function isNotFoundException(\Throwable $e): bool
+    {
+        if ((int) $e->getCode() === 404) {
+            return true;
+        }
+
+        $msg = strtolower($e->getMessage());
+        return strpos($msg, 'nosuchkey') !== false
+            || strpos($msg, 'notfound') !== false
+            || strpos($msg, '404') !== false;
     }
 }

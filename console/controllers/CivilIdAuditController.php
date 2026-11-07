@@ -75,6 +75,7 @@ final class CivilIdAuditController extends Controller
             CivilIdRecoveryAuditor::STATUS_RECOVERABLE_LEGACY => 0,
             CivilIdRecoveryAuditor::STATUS_RECOVERABLE_TEMP => 0,
             CivilIdRecoveryAuditor::STATUS_MISSING_NEEDS_REUPLOAD => 0,
+            CivilIdRecoveryAuditor::STATUS_STORAGE_UNAVAILABLE => 0,
         ];
     }
 

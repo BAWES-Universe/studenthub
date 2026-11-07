@@ -32,14 +32,19 @@ final class S3SecurityBoundaryPolicy
     ];
 
     private const CLOUDTRAIL_ALERT_EVENT_NAMES = [
+        'PutBucketLifecycle',
         'PutBucketLifecycleConfiguration',
         'DeleteBucketLifecycle',
         'PutBucketCors',
         'DeleteBucketCors',
         'PutBucketPolicy',
         'DeleteBucketPolicy',
+        'PutBucketReplication',
         'PutBucketReplicationConfiguration',
+        'DeleteBucketReplication',
         'PutBucketLogging',
+        'PutBucketPublicAccessBlock',
+        'DeleteBucketPublicAccessBlock',
         'PutPublicAccessBlock',
         'DeletePublicAccessBlock',
     ];

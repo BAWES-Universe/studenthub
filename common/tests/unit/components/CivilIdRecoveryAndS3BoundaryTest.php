@@ -7,22 +7,18 @@ use common\components\CivilIdRecoveryAuditor;
 use common\components\S3SecurityBoundaryPolicy;
 
 /**
- * Unit tests for non-destructive Civil ID S3 recovery auditing and IAM/EventBridge guardrails.
+ * Verifies Civil ID S3 object classification, non-destructive recovery promotion,
+ * least-privilege IAM permissions boundaries, and EventBridge alert patterns.
  */
 final class CivilIdRecoveryAndS3BoundaryTest extends Unit
 {
-    /**
-     * Build an in-memory mock storage manager backed by a key set and copy log.
-     *
-     * @param list<string> $initialKeys
-     */
-    private function createFakeStorageManager(array $initialKeys): object
+    private function createFakeStorageManager(array $existingKeys): object
     {
-        return new class($initialKeys) {
+        return new class($existingKeys) {
             /** @var array<string, bool> */
-            public array $keys = [];
+            private array $keys = [];
 
-            /** @var list<array{from: string, to: string, bucket: string}> */
+            /** @var list<array{from: string, to: string, bucket: string, options: array<string, mixed>}> */
             public array $copied = [];
 
             public function __construct(array $seed)
@@ -37,12 +33,13 @@ final class CivilIdRecoveryAndS3BoundaryTest extends Unit
                 return isset($this->keys[(string) $key]);
             }
 
-            public function copy($oldFile, $newFile, $sourceBucket = ''): bool
+            public function copy($oldFile, $newFile, $sourceBucket = '', array $options = []): bool
             {
                 $this->copied[] = [
                     'from' => (string) $oldFile,
                     'to' => (string) $newFile,
                     'bucket' => (string) $sourceBucket,
+                    'options' => $options,
                 ];
                 $this->keys[(string) $newFile] = true;
 
@@ -82,9 +79,13 @@ final class CivilIdRecoveryAndS3BoundaryTest extends Unit
             CivilIdRecoveryAuditor::STATUS_MISSING_NEEDS_REUPLOAD,
             CivilIdRecoveryAuditor::classifyCandidatePhoto('deleted-by-lifecycle.jpg', $managers)
         );
+        $this->assertSame(
+            CivilIdRecoveryAuditor::STATUS_STORAGE_UNAVAILABLE,
+            CivilIdRecoveryAuditor::classifyCandidatePhoto('deleted-by-lifecycle.jpg', [])
+        );
     }
 
-    public function testPromotesLegacyAndTemporaryFilesIntoPermanentPhotosPrefix(): void
+    public function testPromotesLegacyAndTemporaryFilesWithPrivateAcl(): void
     {
         $permanent = $this->createFakeStorageManager([
             'candidate-civil-id/recover-me.jpg',
@@ -100,10 +101,17 @@ final class CivilIdRecoveryAndS3BoundaryTest extends Unit
 
         $this->assertTrue(CivilIdRecoveryAuditor::promoteRecoverablePhoto('recover-me.jpg', $context));
         $this->assertTrue($permanent->storedObjectExists('photos/recover-me.jpg'));
+        $this->assertSame('private', $permanent->copied[0]['options']['ACL'] ?? null);
 
         $this->assertTrue(CivilIdRecoveryAuditor::promoteRecoverablePhoto('from-temp-window.png', $context));
         $this->assertTrue($permanent->storedObjectExists('photos/from-temp-window.png'));
-        $this->assertFalse(CivilIdRecoveryAuditor::promoteRecoverablePhoto('nowhere.jpg', $context));
+        $this->assertFalse(
+            CivilIdRecoveryAuditor::promoteRecoverablePhoto('from-temp-window.png', [
+                'permanent' => $this->createFakeStorageManager([]),
+                'temporary' => $temporary,
+                'tempBucket' => '',
+            ])
+        );
     }
 
     public function testPermissionsBoundaryDeniesAllBucketAdminControlPlaneActions(): void
@@ -126,7 +134,9 @@ final class CivilIdRecoveryAndS3BoundaryTest extends Unit
         $events = $pattern['detail']['eventName'];
         $buckets = $pattern['detail']['requestParameters']['bucketName'];
 
+        $this->assertContains('PutBucketLifecycle', $events);
         $this->assertContains('PutBucketLifecycleConfiguration', $events);
+        $this->assertContains('PutBucketPublicAccessBlock', $events);
         $this->assertContains('DeleteBucketCors', $events);
         $this->assertSame(
             [S3SecurityBoundaryPolicy::PERMANENT_BUCKET, S3SecurityBoundaryPolicy::TEMPORARY_BUCKET],
