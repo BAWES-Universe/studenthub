@@ -8,8 +8,8 @@ return [
         'temporaryBucketResourceManager' => [
             'class' => 'common\components\S3ResourceManager',
             'authMethod' => \common\components\S3ResourceManager::AUTH_VIA_ANONYMOUS,
-            'region' => 'eu-west-2', // Bucket based in London
-            'bucket' => 'studenthub-public-anyone-can-upload-24hr-expiry',
+            'region' => getenv('AWS_TEMP_BUCKET_REGION') ?: 'eu-west-2', // Bucket based in London
+            'bucket' => getenv('AWS_TEMP_BUCKET_NAME') ?: 'studenthub-public-anyone-can-upload-24hr-expiry',
             /**
              * Public reads pass credentials => false so the SDK does not
              * search the default credential chain. Logo and other public
