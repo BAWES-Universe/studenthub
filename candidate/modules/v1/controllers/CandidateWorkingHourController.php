@@ -82,7 +82,7 @@ class CandidateWorkingHourController extends Controller
         $end_date = Yii::$app->request->get('end_date');
 
         $query = CandidateWorkingHour::find();
-        $query->addSelect('sum(total_time) as total_time,date, store_id, candidate_id');
+        $query->addSelect('sum(total_time) as total_time, date, MAX(store_id) AS store_id, MAX(candidate_id) AS candidate_id');
         $query->groupBy('date');
         $query->andWhere(['candidate_id'=>Yii::$app->user->getId()]);
         $query->orderBy('date DESC');

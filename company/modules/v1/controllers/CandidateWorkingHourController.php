@@ -119,7 +119,7 @@ class CandidateWorkingHourController extends Controller
         }
 
         $query = CandidateWorkingHour::find();
-        $query->addSelect('sum(total_time) as total_time,date, store_id, candidate_id');
+        $query->addSelect('sum(total_time) as total_time, date, MAX(store_id) AS store_id, MAX(candidate_id) AS candidate_id');
         $query->groupBy('date');
         $query->orderBy('date DESC');
         $query->andWhere(['candidate_id' => $candidate_id]);
